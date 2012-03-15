@@ -1,0 +1,609 @@
+.TH PHPUSERLITE 7 2012-12-03 "Copyright Joey Sabey" "PHP Programmer's Manual"
+.SH NAME
+phpuserlite \- provides oo user functionality to php
+.SH CONTENTS
+This documentation is divided into a number of sections, each
+providing detailed information about an aspect of
+.IR phpuserlite .
+.br
+Sections in this manual are:
+.in +2n
+.B CLASSES
+.br
+.B CONFIGURATION
+.br
+.B STATIC METHODS
+.br
+.B INSTANCE METHODS
+.br
+.B NOTES
+.br
+.B BUGS
+.br
+.B EXAMPLE
+.br
+.B SEE ALSO
+.br
+.B COLOPHON
+.SH CLASSES
+.BR User " \- the core class of"
+.I phpuserlite
+.SS Exceptions
+.BR UserInvalidUsernameException " \- extends"
+.I InvalidArgumentException
+.br
+.BR UserInvalidPasswordException " \- extends"
+.I InvalidArgumentException
+.br
+.BR UserInvalidEmailException " \- extends"
+.I InvalidArgumentException
+.br
+.BR UserUnavailableUsernameException " \- extends"
+.I InvalidArgumentException
+.br
+.BR UserUnavailableEmailException " \- extends"
+.I InvalidArgumentException
+.SH CONFIGURATION
+.I phpuserlite
+can be configured by changing a number of class constants in the
+.B User
+class. These constants can be found at the top of the class
+declaration. For the most part these settings can be left as
+their default values and
+.I phpuserlite
+will work fine, with the exception of
+.IR DB_PATH ,
+.RI "the " "CONFIRM_*" " constants,"
+.RI "and the " "SET_EMAIL_CONFIRM_*" " constants."
+Following is a complete list of the configuration constants
+available to you
+.SS DB_PATH
+You should set this constant to the fully qualified path to the
+.I SQLite
+database file you want
+.I phpuserlite
+to use. The default value is the path to the database used to
+develop and test
+.I phpuserlite
+.SS SALT_LENGTH
+This is the number of bytes of random data used to salt data
+that is hashed by
+.IR phpuserlite .
+The default value is
+.IR 16 ,
+which should be sufficient, so you
+probably do not need to alter this
+.SS SESSION_KEY_LENGTH
+This is the number of bytes of random data that is used to
+generate the session keys used in login cookies. The default
+value is
+.IR 32 ,
+which should be sufficient, so you probably do not need to
+alter this
+.SS CONFIRM_CODE_LENGTH
+This is the number of bytes of random data that is used to
+generate the confirmation codes sent to users to confirm
+registration and change of email. The default value is
+.IR 16 ,
+which should be sufficient, so you probably do not need to
+alter this
+.SS HASH_ALGORITHM
+This is the hashing algorithm that
+.I phpuserlite
+uses throughout, with the exception of
+.BR generateConfirmCode (),
+which uses
+.I sha1
+for brevity. The default value is
+.IR sha512 ,
+but if you wish to use another hashing algorithm, you may
+set this to any algorithm available to the php
+.IR hash ()
+function
+.SS HASH_ITERATIONS
+This is the number of times a password is passed through 
+.B HASH_ALGORITHM
+before being stored in, or checked against, the database.
+The default value is
+.IR 256 ,
+which should be sufficient, so you probably do not need to
+alter this
+.SS USERNAME_REGEX
+This defines the prototype that all usernames of users managed
+by
+.I phpuserlite
+must conform to.
+.I phpuserlite
+will refuse to register users who wish to register with
+usernames that do not conform to this regex, and will ask
+them to enter another username. The default value is
+.I /^\\\w{4,32}$/
+.SS PASSWORD_REGEX
+This defines the prototype that all passwords of users managed
+by
+.I phpuserlite
+must conform to.
+.I phpuserlite
+will refuse to register users who wish to register with
+passwords that do not conform to this regex, and will ask
+them to enter another password. The default value is
+.IR /^.{6,128}$/ .
+It is recommended that you only modify the minimum and maximum
+characters, and then that you only increase them
+.SS EMAIL_REGEX
+This is the regex used to attempt to assure that all users are
+registered with a valid email address. The default value is
+.IR /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i ,
+which you should only change if are sure it will continue to
+work, or if you wish to be more strict on who can register
+.SS COOKIE_SESSION_LENGTH
+This is the time in seconds before a login session cookie will
+expire, thus the amount of time a user will stay logged in
+unless they logout manually. The default value is
+.IR 604800 ,
+which equates to 7 weeks
+.\" User::COOKIE_PATH
+.SS COOKIE_PATH
+This is the value that will be used for the path attribure of
+all cookies issued by
+.IR phpuserlite .
+The default value is an empty string
+.SS COOKIE_DOMAIN
+This is the value that will be used for the domain attribute of
+all cookies issued by
+.IR phpuserlite .
+The default value is an empty string
+.SS LOGIN_FORM_TEMPLATE
+This is the template used by
+.I phpuserlite
+to generate login forms. When modifying this template, pay
+attention to the
+.IR [form_action] ", " [error] " & " [username]
+placeholders, they are used to inject information into the
+template
+.SS LOGIN_SUCCESS_TEMPLATE
+This is the template used by
+.I phpuserlite
+to report a successful login. When modifying this template
+pay attention to the
+.I [username]
+placeholder, it is used to inject the username of the user
+that has logged in
+.SS REGISTER_FORM_TEMPLATE
+This is the template used by
+.I phpuserlite
+to generate registration forms. When modifying this template,
+pay attention to the
+.IR [form_action] ", " [error] ", " [username] " & " [email]
+placeholders, they are used to inject information into the
+template
+.SS REGISTER_SUCCESS_TEMPLATE
+This is the template used by
+.I phpuserlite
+to report a successful registration
+.SS LOGIN_NO_USERNAME_ERROR
+This is injected into the place of the
+.I [error]
+placeholder in
+.B LOGIN_FORM_TEMPLATE
+when a login attempt is made without a username
+.SS LOGIN_NO_PASSWORD_ERROR
+This is injected into the place of the
+.I [error]
+placeholder in
+.B LOGIN_FORM_TEMPLATE
+when a login attempt is made without a password
+.SS LOGIN_NO_INPUT_ERROR
+This is injected into the place of the
+.I [error]
+placeholder in
+.B LOGIN_FORM_TEMPLATE
+when a login attempt is made without either a username or
+password
+.SS LOGIN_INVALID_USERNAME_ERROR
+This is injected into the place of the
+.I [error]
+placeholder in
+.B LOGIN_FORM_TEMPLATE
+when a login attempt is made with a username that does not
+match against
+.B USERNAME_REGEX
+.SS LOGIN_INVALID_PASSWORD_ERROR
+This is injected into the place of the
+.I [error]
+placeholder in
+.B LOGIN_FORM_TEMPLATE
+when a login attempt is made with a password that does not
+match against
+.B PASSWORD_REGEX
+.SS LOGIN_NO_SUCH_USERNAME_ERROR
+This is injected into the place of the
+.I [error]
+placeholder in
+.B LOGIN_FORM_TEMPLATE
+when a login attempt is made and the username entered was
+not found in the database
+.SS LOGIN_INCORRECT_PASSWORD_ERROR
+This is injected into the place of the
+.I [error]
+placeholder in
+.B LOGIN_FORM_TEMPLATE
+when a login attempt is made and the password entered does
+not match the password stored in the database for the
+username entered
+.SS REGISTER_NO_USERNAME_ERROR
+This is injected into the place of the
+.I [error]
+placeholder in
+.B REGISTER_FORM_TEMPLATE
+when a registration attempt is made without a username
+.SS REGISTER_NO_PASSWORD_ERROR
+This is injected into the place of the
+.I [error]
+placeholder in
+.B REGISTER_FORM_TEMPLATE
+when a registration attempt is made without a password
+.SS REGISTER_NO_CONFIRM_PASSWORD_ERROR
+This is injected into the place of the
+.I [error]
+placeholder in
+.B REGISTER_FORM_TEMPLATE
+when a registration attempt is made without the password
+being confirmed
+.SS REGISTER_NO_EMAIL_ERROR
+This is injected into the place of the
+.I [error]
+placeholder in
+.B REGISTER_FORM_TEMPLATE
+when a registration attempt is made without an email
+.SS REGISTER_INVALID_USERNAME_ERROR
+This is injected into the place of the
+.I [error]
+placeholder in
+.B REGISTER_FORM_TEMPLATE
+when a registration attempt is made with a username that does
+not match against
+.B USERNAME_REGEX
+.SS REGISTER_INVALID_PASSWORD_ERROR
+This is injected into the place of the
+.I [error]
+placeholder in
+.B REGISTER_FORM_TEMPLATE
+when a registration attempt is made with a username that does
+not match against
+.B PASSWORD_REGEX
+.SS REGISTER_INVALID_EMAIL_ERROR
+This is injected into the place of the
+.I [error]
+placeholder in
+.B REGISTER_FORM_TEMPLATE
+when a registration attempt is made with an email that does
+not match against
+.B EMAIL_REGEX
+.SS REGISTER_PASSWORD_MISMATCH_ERROR
+This is injected into the place of the
+.I [error]
+placeholder in
+.B REGISTER_FORM_TEMPLATE
+when a registration attempt is made and the password does not
+match the confirmation password
+.SS REGISTER_UNAVAILABLE_USERNAME_ERROR
+This is injected into the place of the
+.I [error]
+placeholder in
+.B REGISTER_FORM_TEMPLATE
+when a registration attempt is made and the username entered
+is already registered in the database
+.SS REGISTER_UNAVAILABLE_EMAIL_ERROR
+This is injected into the place of the
+.I [error]
+placeholder in
+.B REGISTER_FORM_TEMPLATE
+when a registration attempt is made and the email entered is
+already registered in the database
+.SS CONFIRM_SUBJECT
+This is the subject used in emails sent out to new users to
+confirm their email address
+.SS CONFIRM_BODY_TEMPLATE
+This is the template used by
+.I phpuserlite
+to generate the body of emails sent out to new users to confirm
+their email address. When modifying this template, pay attention
+to the
+.IR [id] " & " [code]
+placeholders, and note that the entire string
+.I ?id=[id]&code=[code]
+must remain intact at the end of the confirmation page file name
+.SS CONFIRM_FROM
+This is the email address that emails sent out to new users to
+confirm their email address will be spoofed by 
+.I phpuserlite
+to look like they're from
+.SS SET_EMAIL_CONFIRM_SUBJECT
+This is the subject used in emails sent out to users to confirm
+a change of email address
+.SS SET_EMAIL_CONFIRM_BODY_TEMPLATE
+This is the template used by
+.I phpuserlite
+to generate the body of emails sent out to users to confirm a
+change of email address. When modifying this template, pay
+attention to the
+.IR [id] " & " [code]
+placeholders, and note that the entire string
+.I ?id=[id]&code=[code]
+must remain intact at the end of the confirmation page file name
+.SS SET_EMAIL_CONFIRM_FROM
+This is the email address that emails sent out to users to
+confirm a change of email address will be spoofed by
+.I phpuserlite
+to look like they're from
+.SS Flags
+After these configurable constants, there are a number of other
+constants labelled as
+.IR flags ;
+.BR GET_BY_ID ,
+.BR GET_BY_USERNAME ,
+.BR SET_EMAIL_CONFIRM " &"
+.BR SET_EMAIL_DIRECT .
+These constants are NOT for configuraton, they are for passing
+to methods as flags to alter the methods behaviour, and as such
+they should NOT be modified
+.\" +------------------------+
+.\" | STATIC METHODS SECTION |
+.\" +------------------------+
+.SH STATIC METHODS
+The static methods in
+.I phpuserlite
+are used to add users to the database, display & process forms,
+and perform initial setup
+.SS getCurrent\fR()
+This method attempts to identify the current logged in user by
+login cookies, returning a
+.B User
+object on success, otherwise
+.I NULL
+.SS add\fR(\fIusername\fR, \fIpassword\fR, \fIemail\fR)
+This method adds a new user into the
+.I users
+table of the database, provided that;
+.I username
+matches against
+.BR USERNAME_REGEX ,
+.I password
+matches against
+.BR PASSWORD_REGEX ,
+.I email
+matches against
+.BR EMAIL_REGEX ,
+and
+.IR username " & " email
+are not already in the database. This method has no return value
+through might throw one of
+.BR UserInvalidUsernameException ,
+.BR UserInvalidPasswordException ,
+.BR UserInvalidEmailException ,
+.BR UserUnavailableUsernameException ,
+.BR UserUnavailableEmailException
+if there is an error. Note that this method does not pass through
+email verification, so should be used sparingly
+.SS addPending\fR(\fIusername\fR, \fIpassword\fR, \fIemail\fR)
+This method adds a new user into the
+.I usersPending
+table of the database and sends out a confirmation email to
+.I email
+generated from the
+.BR CONFIRM_SUBJECT ", " CONFIRM_BODY_TEMPLATE " & " CONFIRM_FROM
+constants, provided that;
+.I username
+matches against
+.BR USERNAME_REGEX ,
+.I password
+matches against
+.BR PASSWORD_REGEX ,
+.I email
+matches against
+.BR EMAIL_REGEX ,
+and
+.IR username " & " email
+are not already in the database. This method has no return value
+though might throw one of
+.BR UserInvalidUsernameException ,
+.BR UserInvalidPasswordException ,
+.BR UserInvalidEmailException ,
+.BR UserUnavailableUsernameException ,
+.BR UserUnavailableEmailException
+if there is an error. Note that there must be a page set up with
+the
+.BR confirm ()
+method to verify that
+.I email
+exists and is owned by the user for the data to be tranfered to
+the
+.I users
+table in the database, activating the user and allowing them to
+log in
+.SS confirm\fR()
+This method processes a confirmation code, as emailed out to new
+users by
+.BR addPending (),
+transfering the relevant user from the
+.I usersPending
+to the
+.I users
+table in the database. The return value is always a string
+containing a message of success or failure to be displayed to the
+user
+.\" static function User::confirmSetEmail()
+.SS confirmSetEmail\fR()
+This method processes a change of email confirmation code, as
+emailed out to users by
+.BR setEmail ()
+when called with the
+.B SET_EMAIL_CONFIRM
+flag, transfering the relevant email address from the
+.I usersChangeEmail
+table to the corresponding user entry in the
+.I users
+table in the database. The return value is always a string
+containing a message of success or failure to be displayed to
+the user
+.\" static function User::login()
+.SS login\fR()
+This method is used to generate & process login forms, and will
+behave differently if called in different contexts, but the
+return value is always a
+.IR string .
+If it is called without a login attempt in
+.IR $_POST []
+it will generate and return a login form from
+.BR LOGIN_FORM_TEMPLATE ,
+injecting only into the
+.I [form_action]
+placeholder. If it is called with a login attempt in
+.IR $_POST []
+and the login is unsuccessful it will generate a login form from
+.BR LOGIN_FORM_TEMPLATE ,
+injecting into the
+.IR [form_action ", " [error] " & possibly " [username]
+placeholders. If it is called with a login attempt in
+.IR $_POST []
+and the login is successful it will generate and return a success
+message from
+.BR LOGIN_SUCCESS_TEMPLATE .
+Note that this method must be called before any output as it
+needs to set cookies
+.\" static function User::register()
+.SS register\fR()
+This method is used to generate & process registration forms,
+and will behave differently if called in different contexts, but
+the return value is always a
+.IR string .
+If it is called without a registration attempt in
+.IR $_POST []
+it will generate and return a registration form from
+.BR REGISTER_FORM_TEMPLATE ,
+injecting only into the
+.I [form_action]
+placeholder. If it is called with a registration attempt in
+.IR $_POST []
+and the registration is unsuccessful it will generate and return
+a registration form from
+.BR REGISTER_FORM_TEMPLATE ,
+injecting to the
+.IR [form_action] ", " [error]
+& possibly
+.IR [username] " and/or " [email]
+placeholders. If it is called with a registration attempt in
+.IR $_POST []
+and the registration is successful it will add a new user to the
+.I usersPending
+table in the database, send out a confirmation email and
+generate and return a success message from
+.B REGISTER_SUCCESS_TEMPLATE
+.\" static function User::setupDB()
+.SS setupDB\fR()
+This method must be called after you set
+.B DB_PATH ,
+but before you attempt to call any methods or create any
+.B User
+objects. You only need to call this once, unless you delete or
+move the database, or alter
+.BR DB_PATH ,
+and wish to recreate the database from scratch
+.\" +--------------------------+
+.\" | INSTANCE METHODS SECTION |
+.\" +--------------------------+
+.SH INSTANCE METHODS
+.\" User class constructor
+.SS Constructor\fR(\fIuid\fR, \fIgetType\fR)
+The class constructor for
+.B User
+treats
+.I uid
+differently depending on the value of
+.IR getType ,
+which can be one of the flags
+.BR GET_BY_ID " or " GET_BY_USERNAME .
+If
+.I getType
+is set to
+.B GET_BY_ID
+then the constructor looks for a user in the
+.I users
+table in the database where
+.I id
+matches
+.I uid
+and creates a
+.B User
+object if it finds one, otherwise it throws an
+.IR OutOfBoundsException .
+If
+.I getType
+is set to
+.B GET_BY_USERNAME
+then the constructor looks for a user in the
+.I users
+table in the database where
+.I username
+matches
+.I uid
+and creates a
+.B User
+object if it finds one, otherwise it throws an
+.IR OutOfBoundsException .
+The constructor may also throw one of
+.I InvalidArgumentException
+or
+.B UserInvalidUsernameException
+if
+.I uid
+is invalid
+.\" public function [user-object]->getType()
+.SS getID\fR()
+.SS getUsername\fR()
+.SS getPassword\fR()
+.SS getSalt\fR()
+.SS getEmail\fR()
+.SS getDate\fR()
+.SS getSessionKey\fR()
+.SS getSessionIP\fR()
+.SS setUsername\fR(\fIusername\fR)
+.SS setPassword\fR(\fIpassword\fR)
+.SS setEmail\fR(\fIemail\fR, \fImode\fR)
+.SS checkPassword\fR(\fIpassword\fR)
+.SS startSession\fR()
+.SS checkSession\fR(\fIsessionKey\fR)
+.\" public function [user-object]->endSession()
+.SS endSession\fR()
+This method clears all of the cookies issued by
+.I phpuserlite
+and clears the
+.IR sessionKey " & " sessionIP
+data from the
+.B User
+object and corresponding data in the
+.I users
+table of the database. This is probably the best and easiest way
+to implement a logout page. Note that this method must be called
+before any output as it needs to set cookies
+.\" +---------------+
+.\" | NOTES SECTION |
+.\" +---------------+
+.SH NOTES
+.\" +--------------+
+.\" | BUGS SECTION |
+.\" +--------------+
+.SH BUGS
+There are no known bugs with
+.IR phpuserlite ,
+though this is, of course, not the same thing as there being no
+bugs. Please direct all bug reports to the bug tracker at
+http://code.google.com/p/phpuserlite/
+.\" +--------------------+
+.\" | EXAMPLE(S) SECTION |
+.\" +--------------------+
+.SH EXAMPLE
+.SH SEE ALSO
+.SH COLOPHON..?
+
