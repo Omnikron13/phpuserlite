@@ -20,23 +20,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-/**
-* Something should probably go here...
-* @package User System
-* @author Joey Sabey <GameFreak7744@gmail.com>
-* @copyright Copyright 2011, Joey Sabey
-* @version alpha
-* @license http://opensource.org/licenses/MIT MIT License
-*/
-/**
-* This is the User class... Duh.
-*/
 class User
 {
 	//Configuration parameters
-	/** Full path to the SQLite database file that User data is stored in
-	*/
-	const DB_PATH = '/f5/gamefreakslab/public/projects/UserClass/User_example.db';
 	const SALT_LENGTH = 16;
 	const SESSION_KEY_LENGTH = 32;
 	const CONFIRM_CODE_LENGTH = 16;
