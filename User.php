@@ -23,6 +23,7 @@ THE SOFTWARE.
 class User
 {
 	//Configuration parameters
+	const DB_PATH = '/f5/gamefreakslab/public/projects/UserClass/User_example.db';
 	const SALT_LENGTH = 16;
 	const SESSION_KEY_LENGTH = 32;
 	const CONFIRM_CODE_LENGTH = 16;
@@ -65,9 +66,14 @@ class User
 	const REGISTER_UNAVAILABLE_EMAIL_ERROR = 'The email address you have entered is already in use at this site, you may have already registered an account';
 	
 	//Confirm templates
+	//Email:
 	const CONFIRM_SUBJECT = 'Confirm your account at XYZ';
 	const CONFIRM_BODY_TEMPLATE = 'http://lab.s4t4n.net/projects/UserClass/demo/confirm.php?id=[id]&code=[code]';
 	const CONFIRM_FROM = 'accounts@lab.s4t4n.net';
+	//General:
+	const CONFIRM_SUCCESS_TEMPLATE = 'Email confirmed; you may now log in.';
+	const CONFIRM_INCORRECT_CODE_TEMPLATE = 'Confirmation code incorrect, carefully recopy the link into your browser and try again.';
+	const CONFIRM_NO_SUCH_ID_TEMPLATE = 'Could not find that account to confirm; it may already have been confirmed.';
 	
 	//Set email confirm templates
 	const SET_EMAIL_CONFIRM_SUBJECT = 'Confirm your new email address at XYZ';
@@ -355,7 +361,7 @@ class User
 		$query->bindColumn('confirmCode', $confirmCode, PDO::PARAM_STR);
 		$query->fetch(PDO::FETCH_BOUND);
 		if($username == NULL)
-			return 'Could not find that account to confirm; it may already have been confirmed.'; //replace with template
+			return User::CONFIRM_NO_SUCH_ID_TEMPLATE;
 		if(hash(User::HASH_ALGORITHM, $_GET['code']) == $confirmCode)
 		{
 			//Copy over data to users table...
@@ -371,9 +377,9 @@ class User
 			$query = $db->prepare('DELETE FROM usersPending WHERE id = :id');
 			$query->bindParam(':id', $_GET['id'], PDO::PARAM_INT);
 			$query->execute();
-			return 'Email confirmed; you may now log in.';
+			return User::CONFIRM_SUCCESS_TEMPLATE;
 		}
-		return 'Confirmation code incorrect, carefully recopy the link into your browser and try again.';
+		return User::CONFIRM_INCORRECT_CODE_TEMPLATE;
 	}
 	
 	//This method should be called on a page setup to confirm email changes; returns success or error message
