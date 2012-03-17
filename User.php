@@ -76,9 +76,14 @@ class User
 	const CONFIRM_NO_SUCH_ID_TEMPLATE = 'Could not find that account to confirm; it may already have been confirmed.';
 	
 	//Set email confirm templates
+	//Email:
 	const SET_EMAIL_CONFIRM_SUBJECT = 'Confirm your new email address at XYZ';
 	const SET_EMAIL_CONFIRM_BODY_TEMPLATE = 'http://lab.s4t4n.net/projects/UserClass/demo/confirm_email.php?id=[id]&code=[code]';
 	const SET_EMAIL_CONFIRM_FROM = 'accounts@lab.s4t4n.net';
+	//General:
+	const SET_EMAIL_CONFIRM_SUCCESS_TEMPLATE = 'Email change confirmed.';
+	const SET_EMAIL_CONFIRM_INCORRECT_CODE_TEMPLATE = 'Confirmation code incorrect, carefully recopy the link into your browser and try again';
+	const SET_EMAIL_CONFIRM_NO_SUCH_ID_TEMPLATE = 'Could not find that email change request to confirm; it may already have been confirmed';
 	
 	//Flags
 	const GET_BY_ID = 0;
@@ -395,7 +400,7 @@ class User
 		$query->bindColumn('confirmCode', $confirmCode, PDO::PARAM_STR);
 		$query->fetch(PDO::FETCH_BOUND);
 		if($email == NULL)
-			return 'Could not find that email change request to confirm; it may already have been confirmed.'; //TEMPLATE!
+			return User::SET_EMAIL_CONFIRM_NO_SUCH_ID_TEMPLATE;
 		if(hash(User::HASH_ALGORITHM, $_GET['code']) == $confirmCode)
 		{
 			//Update users email in database...
@@ -407,9 +412,9 @@ class User
 			$query = $db->prepare('DELETE FROM usersChangeEmail WHERE id = :id');
 			$query->bindParam(':id', $_GET['id'], PDO::PARAM_INT);
 			$query->execute();
-			return 'Email change confirmed.';//TEMPLATE
+			return User::SET_EMAIL_CONFIRM_SUCCESS_TEMPLATE;
 		}
-		return 'Confirmation code incorrect, carefully recopy the link into your browser and try again.';//TEMPLATE
+		return User::SET_EMAIL_CONFIRM_INCORRECT_CODE_TEMPLATE;
 	}
 	
 	//This function should be called at the -top- of a login page, before any output; it returns
