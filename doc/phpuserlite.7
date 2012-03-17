@@ -641,19 +641,122 @@ if
 is invalid
 .\" public function [user-object]->getID()
 .SS getID\fR()
+This method returns the
+.I id
+of the user
+.\" public function [user-object]->getUsername()
 .SS getUsername\fR()
+This method returns the
+.I username
+of the user
+.\" public function [user-object]->getPassword()
 .SS getPassword\fR()
+This method returns the
+.I password
+of the user, as stored in the
+.I users
+table in the database; salted and hashed by
+.BR HASH_ALGORITHM ", " HASH_ITERATIONS
+times
+.\" public function [user-object]->getSalt()
 .SS getSalt\fR()
+This method returns the
+.I salt
+data used to salt the users password
+.\" public function [user-object]->getEmail()
 .SS getEmail\fR()
+This method returns the
+.I email
+of the user
+.\" public function [user-object]->getDate()
 .SS getDate\fR()
+This method returns the date that the user was registered in the
+database
+.\" public function [user-object]->getSessionKey()
 .SS getSessionKey\fR()
+This method returns the
+.I sessionKey
+of the user if they are currently logged in, otherwise it will
+return
+.I NULL
+.\" public function [user-object]->getSessionIP()
 .SS getSessionIP\fR()
+This method returns the
+.I sessionIP
+of the user if they are currently logged in, otherwise it will
+return
+.I NULL
+.\" public function [user-object]->setUsername()
 .SS setUsername\fR(\fIusername\fR)
+This method sets the username of the user to
+.IR username ,
+provided it matches against
+.BR USERNAME_REGEX ,
+and does not clash with any username already in the database. If
+.I username
+does not match against
+.B USERNAME_REGEX
+it will throw a
+.BR UserInvalidUsernameException .
+If
+.I username
+clashes with a username already in the database it will throw a
+.B UserUnavailableUsernameException
+.\" public function [user-object]->setPassword()
 .SS setPassword\fR(\fIpassword\fR)
+This method sets the username of the user to
+.IR password ,
+provided it matches against
+.BR PASSWORD_REGEX .
+If
+.I password
+does not match against
+.B PASSWORD_REGEX
+it will throw a
+.B UserInvalidPasswordException
+.\" public function [user-object]->setEmail()
 .SS setEmail\fR(\fIemail\fR, \fImode\fR)
+This method sets the email of the user to
+.IR email ,
+provided it matches against
+.BR EMAIL_REGEX ,
+and does not clash with any email already in the database. If
+.I email
+does not match against
+.B EMAIL_REGEX
+it will throw a
+.BR UserInvalidEmailException .
+If
+.I email
+clashes with an email already in the database it will throw a
+.B UserUnavailableEmailException
+.\" public function [user-object]->checkPassword()
 .SS checkPassword\fR(\fIpassword\fR)
+This method checks to see if
+.I password
+matches the password of the user, returning
+.I true
+if they match or
+.I false
+if they do not match
+.\" public function [user-object]->startSession()
 .SS startSession\fR()
+This method logs a user in, generating a new
+.IR sessionKey " & " sessionIP ,
+saving them in the database and sending out session cookies.
+Note that this method must be called before any output as it
+needs to set cookies
+.\" public function [user-object]->checkSession()
 .SS checkSession\fR(\fIsessionKey\fR)
+This method checks to see if the user is logged in by checking
+.I sessionKey
+against the session key in the database, along with checking
+.IR $_SERVER [' REMOTE_ADDR ']
+against the session IP stored in the database. It returns
+.I true
+if they match, or
+.I false
+if they do not match
 .\" public function [user-object]->endSession()
 .SS endSession\fR()
 This method clears all of the cookies issued by
