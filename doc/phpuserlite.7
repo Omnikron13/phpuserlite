@@ -57,6 +57,7 @@ will work fine, with the exception of
 .RI "and the " "SET_EMAIL_CONFIRM_*" " constants."
 Following is a complete list of the configuration constants
 available to you
+.\" const User::DB_PATH
 .SS DB_PATH
 You should set this constant to the fully qualified path to the
 .I SQLite
@@ -65,6 +66,7 @@ database file you want
 to use. The default value is the path to the database used to
 develop and test
 .I phpuserlite
+.\" const User::SALT_LENGTH
 .SS SALT_LENGTH
 This is the number of bytes of random data used to salt data
 that is hashed by
@@ -73,6 +75,7 @@ The default value is
 .IR 16 ,
 which should be sufficient, so you
 probably do not need to alter this
+.\" const User::SESSION_KEY_LENGTH
 .SS SESSION_KEY_LENGTH
 This is the number of bytes of random data that is used to
 generate the session keys used in login cookies. The default
@@ -301,9 +304,11 @@ placeholder in
 .B REGISTER_FORM_TEMPLATE
 when a registration attempt is made and the email entered is
 already registered in the database
+.\" const User::CONFIRM_SUBJECT
 .SS CONFIRM_SUBJECT
 This is the subject used in emails sent out to new users to
 confirm their email address
+.\" const User::CONFIRM_BODY_TEMPLATE
 .SS CONFIRM_BODY_TEMPLATE
 This is the template used by
 .I phpuserlite
@@ -314,11 +319,38 @@ to the
 placeholders, and note that the entire string
 .I ?id=[id]&code=[code]
 must remain intact at the end of the confirmation page file name
+.\" const User::CONFIRM_FROM
 .SS CONFIRM_FROM
 This is the email address that emails sent out to new users to
 confirm their email address will be spoofed by 
 .I phpuserlite
 to look like they're from
+.\" const User::CONFIRM_SUCCESS_TEMPLATE
+.SS CONFIRM_SUCCESS_TEMPLATE
+This is the template returned by
+.BR confirm ()
+when it successfully confirms a new user
+.\" const User::CONFIRM_INCORRECT_CODE_TEMPLATE
+.SS CONFIRM_INCORRECT_CODE_TEMPLATE
+This is the template returned by
+.BR confirm ()
+when the confirmation code in
+.IR $_POST []
+doesn't match the one stored in the
+.I usersPending
+table in the database
+.\" const User::CONFIRM_NO_SUCH_ID_TEMPLATE
+.SS CONFIRM_NO_SUCH_ID_TEMPLATE
+This is the template returned by
+.BR confirm ()
+when the
+.I id
+in
+.IR $_POST []
+does not match any stored in the
+.I usersPending
+table in the database
+.\" const User::SET_EMAIL_CONFIRM_SUBJECT
 .SS SET_EMAIL_CONFIRM_SUBJECT
 This is the subject used in emails sent out to users to confirm
 a change of email address
@@ -422,6 +454,7 @@ the
 .I users
 table in the database, activating the user and allowing them to
 log in
+.\" static function User::confirm()
 .SS confirm\fR()
 This method processes a confirmation code, as emailed out to new
 users by
@@ -431,8 +464,11 @@ transfering the relevant user from the
 to the
 .I users
 table in the database. The return value is always a string
-containing a message of success or failure to be displayed to the
-user
+containing 
+.B CONFIRM_SUCCESS_TEMPLATE
+on success or one of
+.BR CONFIRM_INCORRECT_CODE_TEMPLATE ", " CONFIRM_NO_SUCH_ID_TEMPLATE
+on failure, to be displayed to the user
 .\" static function User::confirmSetEmail()
 .SS confirmSetEmail\fR()
 This method processes a change of email confirmation code, as
