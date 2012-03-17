@@ -373,7 +373,7 @@ when it successfully confirms a new user
 This is the template returned by
 .BR confirm ()
 when the confirmation code in
-.IR $_POST []
+.IR $_GET []
 doesn't match the one stored in the
 .I usersPending
 table in the database
@@ -384,7 +384,7 @@ This is the template returned by
 when the
 .I id
 in
-.IR $_POST []
+.IR $_GET []
 does not match any stored in the
 .I usersPending
 table in the database
@@ -403,12 +403,37 @@ attention to the
 placeholders, and note that the entire string
 .I ?id=[id]&code=[code]
 must remain intact at the end of the confirmation page file name
-.\" const User::SET_EMAIL_CONFIRM_ERROR
+.\" const User::SET_EMAIL_CONFIRM_FROM
 .SS SET_EMAIL_CONFIRM_FROM
 This is the email address that emails sent out to users to
 confirm a change of email address will be spoofed by
 .I phpuserlite
 to look like they're from
+.\" const User::SET_EMAIL_CONFIRM_SUCCESS_TEMPLATE
+.SS SET_EMAIL_CONFIRM_SUCCESS_TEMPLATE
+This is the template returned by
+.BR confirmSetEmail ()
+when it successfully changes a users email
+.\" const User::SET_EMAIL_CONFIRM_INCORRECT_CODE_TEMPLATE
+.SS SET_EMAIL_CONFIRM_INCORRECT_CODE_TEMPLATE
+This is the template returned by
+.BR confirmSetEmail ()
+when the confirmation code in
+.IR $_GET []
+doesn't match the one stored in the
+.I usersChangeEmail
+table in the database
+.\" const User::SET_EMAIL_CONFIRM_NO_SUCH_ID_TEMPLATE
+.SS SET_EMAIL_CONFIRM_NO_SUCH_ID_TEMPLATE
+This is the template returned by
+.BR confirmSetEmail ()
+when the
+.I id
+in
+.IR $_GET []
+does not match any stored in the
+.I usersChangeEmail
+table in the database
 .\" A note on flags
 .SS Flags
 After these configurable constants, there are a number of other
