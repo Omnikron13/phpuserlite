@@ -1,6 +1,9 @@
 .TH PHPUSERLITE 7 2012-12-03 "Copyright Joey Sabey" "PHP Programmer's Manual"
 .SH NAME
 phpuserlite \- provides oo user functionality to php
+.\" +------------------+
+.\" | CONTENTS SECTION |
+.\" +------------------+
 .SH CONTENTS
 This documentation is divided into a number of sections, each
 providing detailed information about an aspect of
@@ -25,6 +28,9 @@ Sections in this manual are:
 .B SEE ALSO
 .br
 .B COLOPHON
+.\" +-----------------+
+.\" | CLASSES SECTION |
+.\" +-----------------+
 .SH CLASSES
 .BR User " \- the core class of"
 .I phpuserlite
@@ -43,6 +49,9 @@ Sections in this manual are:
 .br
 .BR UserUnavailableEmailException " \- extends"
 .I InvalidArgumentException
+.\" +-----------------------+
+.\" | CONFIGURATION SECTION |
+.\" +-----------------------+
 .SH CONFIGURATION
 .I phpuserlite
 can be configured by changing a number of class constants in the
@@ -83,6 +92,7 @@ value is
 .IR 32 ,
 which should be sufficient, so you probably do not need to
 alter this
+.\" const User::CONFIRM_CODE_LENGTH
 .SS CONFIRM_CODE_LENGTH
 This is the number of bytes of random data that is used to
 generate the confirmation codes sent to users to confirm
@@ -90,6 +100,7 @@ registration and change of email. The default value is
 .IR 16 ,
 which should be sufficient, so you probably do not need to
 alter this
+.\" const User::HASH_ALGORITHM
 .SS HASH_ALGORITHM
 This is the hashing algorithm that
 .I phpuserlite
@@ -103,6 +114,7 @@ but if you wish to use another hashing algorithm, you may
 set this to any algorithm available to the php
 .IR hash ()
 function
+.\" const User::HASH_ITERATIONS
 .SS HASH_ITERATIONS
 This is the number of times a password is passed through 
 .B HASH_ALGORITHM
@@ -111,6 +123,7 @@ The default value is
 .IR 256 ,
 which should be sufficient, so you probably do not need to
 alter this
+.\" const User::USERNAME_REGEX
 .SS USERNAME_REGEX
 This defines the prototype that all usernames of users managed
 by
@@ -121,6 +134,7 @@ will refuse to register users who wish to register with
 usernames that do not conform to this regex, and will ask
 them to enter another username. The default value is
 .I /^\[rs]w{4,32}$/
+.\" const User::PASSWORD_REGEX
 .SS PASSWORD_REGEX
 This defines the prototype that all passwords of users managed
 by
@@ -133,29 +147,33 @@ them to enter another password. The default value is
 .IR /^.{6,128}$/ .
 It is recommended that you only modify the minimum and maximum
 characters, and then that you only increase them
+.\" const User::EMAIL_REGEX
 .SS EMAIL_REGEX
 This is the regex used to attempt to assure that all users are
 registered with a valid email address. The default value is
 .IR /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i ,
 which you should only change if are sure it will continue to
 work, or if you wish to be more strict on who can register
+.\" const User::COOKIE_SESSION_LENGTH
 .SS COOKIE_SESSION_LENGTH
 This is the time in seconds before a login session cookie will
 expire, thus the amount of time a user will stay logged in
 unless they logout manually. The default value is
 .IR 604800 ,
 which equates to 7 weeks
-.\" User::COOKIE_PATH
+.\" const User::COOKIE_PATH
 .SS COOKIE_PATH
 This is the value that will be used for the path attribure of
 all cookies issued by
 .IR phpuserlite .
 The default value is an empty string
+.\" const User::COOKIE_DOMAIN
 .SS COOKIE_DOMAIN
 This is the value that will be used for the domain attribute of
 all cookies issued by
 .IR phpuserlite .
 The default value is an empty string
+.\" const User::LOGIN_FORM_TEMPLATE
 .SS LOGIN_FORM_TEMPLATE
 This is the template used by
 .I phpuserlite
@@ -164,6 +182,7 @@ attention to the
 .IR [form_action] ", " [error] " & " [username]
 placeholders, they are used to inject information into the
 template
+.\" const User::LOGIN_SUCCESS_TEMPLATE
 .SS LOGIN_SUCCESS_TEMPLATE
 This is the template used by
 .I phpuserlite
@@ -172,6 +191,7 @@ pay attention to the
 .I [username]
 placeholder, it is used to inject the username of the user
 that has logged in
+.\" const User::REGISTER_FORM_TEMPLATE
 .SS REGISTER_FORM_TEMPLATE
 This is the template used by
 .I phpuserlite
@@ -180,22 +200,26 @@ pay attention to the
 .IR [form_action] ", " [error] ", " [username] " & " [email]
 placeholders, they are used to inject information into the
 template
+.\" const User::REGISTER_SUCCESS_TEMPLATE
 .SS REGISTER_SUCCESS_TEMPLATE
 This is the template used by
 .I phpuserlite
 to report a successful registration
+.\" const User::LOGIN_NO_USERNAME_ERROR
 .SS LOGIN_NO_USERNAME_ERROR
 This is injected into the place of the
 .I [error]
 placeholder in
 .B LOGIN_FORM_TEMPLATE
 when a login attempt is made without a username
+.\" const User::LOGIN_NO_PASSWORD_ERROR
 .SS LOGIN_NO_PASSWORD_ERROR
 This is injected into the place of the
 .I [error]
 placeholder in
 .B LOGIN_FORM_TEMPLATE
 when a login attempt is made without a password
+.\" const User::LOGIN_NO_INPUT_ERROR
 .SS LOGIN_NO_INPUT_ERROR
 This is injected into the place of the
 .I [error]
@@ -203,6 +227,7 @@ placeholder in
 .B LOGIN_FORM_TEMPLATE
 when a login attempt is made without either a username or
 password
+.\" const User::LOGIN_INVALID_USERNAME_ERROR
 .SS LOGIN_INVALID_USERNAME_ERROR
 This is injected into the place of the
 .I [error]
@@ -211,6 +236,7 @@ placeholder in
 when a login attempt is made with a username that does not
 match against
 .B USERNAME_REGEX
+.\" const User::LOGIN_INVALID_PASSWORD_ERROR
 .SS LOGIN_INVALID_PASSWORD_ERROR
 This is injected into the place of the
 .I [error]
@@ -219,6 +245,7 @@ placeholder in
 when a login attempt is made with a password that does not
 match against
 .B PASSWORD_REGEX
+.\" const User::LOGIN_NO_SUCH_USERNAME_ERROR
 .SS LOGIN_NO_SUCH_USERNAME_ERROR
 This is injected into the place of the
 .I [error]
@@ -226,6 +253,7 @@ placeholder in
 .B LOGIN_FORM_TEMPLATE
 when a login attempt is made and the username entered was
 not found in the database
+.\" const User::LOGIN_INCORRECT_PASSWORD_ERROR
 .SS LOGIN_INCORRECT_PASSWORD_ERROR
 This is injected into the place of the
 .I [error]
@@ -234,18 +262,21 @@ placeholder in
 when a login attempt is made and the password entered does
 not match the password stored in the database for the
 username entered
+.\" const User::REGISTER_NO_USERNAME_ERROR
 .SS REGISTER_NO_USERNAME_ERROR
 This is injected into the place of the
 .I [error]
 placeholder in
 .B REGISTER_FORM_TEMPLATE
 when a registration attempt is made without a username
+.\" const User::REGISTER_NO_PASSWORD_ERROR
 .SS REGISTER_NO_PASSWORD_ERROR
 This is injected into the place of the
 .I [error]
 placeholder in
 .B REGISTER_FORM_TEMPLATE
 when a registration attempt is made without a password
+.\" const User::REGISTER_NO_CONFIRM_PASSWORD_ERROR
 .SS REGISTER_NO_CONFIRM_PASSWORD_ERROR
 This is injected into the place of the
 .I [error]
@@ -253,12 +284,14 @@ placeholder in
 .B REGISTER_FORM_TEMPLATE
 when a registration attempt is made without the password
 being confirmed
+.\" const User::REGISTER_NO_EMAIL_ERROR
 .SS REGISTER_NO_EMAIL_ERROR
 This is injected into the place of the
 .I [error]
 placeholder in
 .B REGISTER_FORM_TEMPLATE
 when a registration attempt is made without an email
+.\" const User::REGISTER_INVALID_USERNAME_ERROR
 .SS REGISTER_INVALID_USERNAME_ERROR
 This is injected into the place of the
 .I [error]
@@ -267,6 +300,7 @@ placeholder in
 when a registration attempt is made with a username that does
 not match against
 .B USERNAME_REGEX
+.\" const User::REGISTER_INVALID_PASSWORD_ERROR
 .SS REGISTER_INVALID_PASSWORD_ERROR
 This is injected into the place of the
 .I [error]
@@ -275,6 +309,7 @@ placeholder in
 when a registration attempt is made with a username that does
 not match against
 .B PASSWORD_REGEX
+.\" const User::REGISTER_INVALID_EMAIL_ERROR
 .SS REGISTER_INVALID_EMAIL_ERROR
 This is injected into the place of the
 .I [error]
@@ -283,6 +318,7 @@ placeholder in
 when a registration attempt is made with an email that does
 not match against
 .B EMAIL_REGEX
+.\" const User::REGISTER_PASSWORD_MISMATCH_ERROR
 .SS REGISTER_PASSWORD_MISMATCH_ERROR
 This is injected into the place of the
 .I [error]
@@ -290,6 +326,7 @@ placeholder in
 .B REGISTER_FORM_TEMPLATE
 when a registration attempt is made and the password does not
 match the confirmation password
+.\" const User::REGISTER_UNAVAILABLE_USERNAME_ERROR
 .SS REGISTER_UNAVAILABLE_USERNAME_ERROR
 This is injected into the place of the
 .I [error]
@@ -297,6 +334,7 @@ placeholder in
 .B REGISTER_FORM_TEMPLATE
 when a registration attempt is made and the username entered
 is already registered in the database
+.\" const User::REGISTER_UNAVAILABLE_EMAIL_ERROR
 .SS REGISTER_UNAVAILABLE_EMAIL_ERROR
 This is injected into the place of the
 .I [error]
@@ -354,6 +392,7 @@ table in the database
 .SS SET_EMAIL_CONFIRM_SUBJECT
 This is the subject used in emails sent out to users to confirm
 a change of email address
+.\" const User::SET_EMAIL_CONFIRM_BODY_TEMPLATE
 .SS SET_EMAIL_CONFIRM_BODY_TEMPLATE
 This is the template used by
 .I phpuserlite
@@ -364,11 +403,13 @@ attention to the
 placeholders, and note that the entire string
 .I ?id=[id]&code=[code]
 must remain intact at the end of the confirmation page file name
+.\" const User::SET_EMAIL_CONFIRM_ERROR
 .SS SET_EMAIL_CONFIRM_FROM
 This is the email address that emails sent out to users to
 confirm a change of email address will be spoofed by
 .I phpuserlite
 to look like they're from
+.\" A note on flags
 .SS Flags
 After these configurable constants, there are a number of other
 constants labelled as
@@ -388,12 +429,14 @@ The static methods in
 .I phpuserlite
 are used to add users to the database, display & process forms,
 and perform initial setup
+.\" static function User::getCurrent()
 .SS getCurrent\fR()
 This method attempts to identify the current logged in user by
 login cookies, returning a
 .B User
 object on success, otherwise
 .I NULL
+.\" static function User::add()
 .SS add\fR(\fIusername\fR, \fIpassword\fR, \fIemail\fR)
 This method adds a new user into the
 .I users
@@ -418,6 +461,7 @@ through might throw one of
 .BR UserUnavailableEmailException
 if there is an error. Note that this method does not pass through
 email verification, so should be used sparingly
+.\" static function User::addPending()
 .SS addPending\fR(\fIusername\fR, \fIpassword\fR, \fIemail\fR)
 This method adds a new user into the
 .I usersPending
@@ -595,7 +639,7 @@ or
 if
 .I uid
 is invalid
-.\" public function [user-object]->getType()
+.\" public function [user-object]->getID()
 .SS getID\fR()
 .SS getUsername\fR()
 .SS getPassword\fR()
