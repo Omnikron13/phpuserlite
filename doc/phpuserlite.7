@@ -19,36 +19,23 @@ Sections in this manual are:
 .br
 .B INSTANCE METHODS
 .br
-.B NOTES
+.B EXCEPTIONS
 .br
+.\".B NOTES
+.\".br
 .B BUGS
 .br
-.B EXAMPLE
-.br
-.B SEE ALSO
-.br
-.B COLOPHON
+.\".B EXAMPLE
+.\".br
+.\".B SEE ALSO
+.\".br
+.\".B COLOPHON
 .\" +-----------------+
 .\" | CLASSES SECTION |
 .\" +-----------------+
 .SH CLASSES
 .BR User " \- the core class of"
 .I phpuserlite
-.SS Exceptions
-.BR UserInvalidUsernameException " \- extends"
-.I InvalidArgumentException
-.br
-.BR UserInvalidPasswordException " \- extends"
-.I InvalidArgumentException
-.br
-.BR UserInvalidEmailException " \- extends"
-.I InvalidArgumentException
-.br
-.BR UserUnavailableUsernameException " \- extends"
-.I InvalidArgumentException
-.br
-.BR UserUnavailableEmailException " \- extends"
-.I InvalidArgumentException
 .\" +-----------------------+
 .\" | CONFIGURATION SECTION |
 .\" +-----------------------+
@@ -795,10 +782,49 @@ object and corresponding data in the
 table of the database. This is probably the best and easiest way
 to implement a logout page. Note that this method must be called
 before any output as it needs to set cookies
+.\" +--------------------+
+.\" | EXCEPTIONS SECTION |
+.\" +--------------------+
+.SH EXCEPTIONS
+.\" class UserInvalidUsernameException extends InvalidArgumentException
+.SS UserInvalidUsernameException
+This exception extends
+.IR InvalidArgumentException ,
+and is thrown by methods that are passed a username that does
+not match against
+.B USERNAME_REGEX
+.\" class UserInvalidPasswordException extends InvalidArgumentException
+.SS UserInvalidPasswordException
+This exception extends
+.IR InvalidArgumentException ,
+and is thrown by methods that are passed a password that does
+not match against
+.B PASSWORD_REGEX
+.\" class UserInvalidEmailException extends InvalidArgumentException
+.SS UserInvalidEmailException
+This exception extends
+.IR InvalidArgumentException ,
+and is thrown by methods that are passed an email that does not
+match against
+.B EMAIL_REGEX
+.\" class UserUnavailableUsernameException extends InvalidArgumentException
+.SS UserUnavailableUsernameException
+This exception extends
+.IR InvalidArgumentException ,
+and is thrown by methods that either add users to the database,
+or change the username of those already in the database, if they
+are passed a username already in the database
+.\" class UserUnavailableEmailException extends InvalidArgumentException
+.SS UserUnavailableEmailException
+This exception extends
+.IR InvalidArgumentException ,
+and is thrown by methods that either add users to the database,
+or change the email of those already in the database, if they are
+passed an email already in the database
 .\" +---------------+
 .\" | NOTES SECTION |
 .\" +---------------+
-.SH NOTES
+.\".SH NOTES
 .\" +--------------+
 .\" | BUGS SECTION |
 .\" +--------------+
@@ -811,7 +837,13 @@ http://code.google.com/p/phpuserlite/
 .\" +--------------------+
 .\" | EXAMPLE(S) SECTION |
 .\" +--------------------+
-.SH EXAMPLE
-.SH SEE ALSO
-.SH COLOPHON..?
+.\".SH EXAMPLE
+.\" +------------------+
+.\" | SEE ALSO SECTION |
+.\" +------------------+
+.\".SH SEE ALSO
+.\" +------------------+
+.\" | COLOPHON SECTION |
+.\" +------------------+
+.\".SH COLOPHON..?
 
