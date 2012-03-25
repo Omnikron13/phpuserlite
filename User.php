@@ -280,6 +280,14 @@ class User
 		$this->sessionKey = NULL;
 		$this->sessionIP = NULL;
 	}
+
+	public function remove()
+	{
+		$db = new PDO('sqlite:'.User::DB_PATH);
+		$query = $db->prepare('DELETE FROM users WHERE id=:id');
+		$query->bindParam(':id', $this->id, PDO::PARAM_INT);
+		$query->execute();
+	}
 	
 	//Returns a new User object representing the user currently logged in, determined by cookies
 	public static function getCurrent()
