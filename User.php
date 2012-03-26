@@ -292,7 +292,8 @@ class User
 	//Returns a new User object representing the user currently logged in, determined by cookies
 	public static function getCurrent()
 	{
-		//Error checking here; check cookies are even set; throw exceptions?
+		if(!array_key_exists('username', $_COOKIE))
+			return NULL;
 		$current = new User($_COOKIE['username'], User::GET_BY_USERNAME);
 		if($current->checkSession($_COOKIE['sessionKey']))
 			return $current;
