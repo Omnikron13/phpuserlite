@@ -283,8 +283,14 @@ class User
 
 	public function remove()
 	{
+		//Prep database...
 		$db = new PDO('sqlite:'.User::DB_PATH);
+		//Remove the record in the users table...
 		$query = $db->prepare('DELETE FROM users WHERE id=:id');
+		$query->bindParam(':id', $this->id, PDO::PARAM_INT);
+		$query->execute();
+		//Remove any record in the usersChangeEmail table... 
+		$query = $db->prepare('DELETE FROM usersChangeEmail WHERE userID=:id');
 		$query->bindParam(':id', $this->id, PDO::PARAM_INT);
 		$query->execute();
 	}
