@@ -656,31 +656,31 @@ class User
 		//Create 'users' table...
 		$query = $db->prepare(
 		'CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY,
-										  username TEXT NOT NULL UNIQUE COLLATE NOCASE,
-										  password TEXT NOT NULL,
-										  salt BLOB NOT NULL,
-										  email TEXT NOT NULL UNIQUE COLLATE NOCASE,
-										  date INTEGER NOT NULL,
-										  sessionKey TEXT,
-										  sessionIP TEXT)');
+						  username TEXT NOT NULL UNIQUE COLLATE NOCASE,
+						  password TEXT NOT NULL,
+						  salt BLOB NOT NULL,
+						  email TEXT NOT NULL UNIQUE COLLATE NOCASE,
+						  date INTEGER NOT NULL,
+						  sessionKey TEXT,
+						  sessionIP TEXT)');
 		$query->execute();
 		//Create 'usersPending' table...
 		$query = $db->prepare(
 		'CREATE TABLE IF NOT EXISTS usersPending(id INTEGER PRIMARY KEY,
-									username TEXT NOT NULL UNIQUE COLLATE NOCASE,
-									password TEXT NOT NULL,
-									salt BLOB NOT NULL,
-									email TEXT NOT NULL UNIQUE COLLATE NOCASE,
-									date INTEGER NOT NULL,
-									confirmCode TEXT NOT NULL)');
+							 username TEXT NOT NULL UNIQUE COLLATE NOCASE,
+							 password TEXT NOT NULL,
+							 salt BLOB NOT NULL,
+							 email TEXT NOT NULL UNIQUE COLLATE NOCASE,
+							 date INTEGER NOT NULL,
+							 confirmCode TEXT NOT NULL)');
 		$query->execute();
 		//Create 'usersChangeEmail' table...
 		$query = $db->prepare(
 		'CREATE TABLE IF NOT EXISTS usersChangeEmail(id INTEGER PRIMARY KEY,
-													 userID INTEGER UNIQUE NOT NULL,
-													 email TEXT NOT NULL UNIQUE COLLATE NOCASE,
-													 confirmCode TEXT NOT NULL)');
-													 //FOREIGN KEY UNITQUE NOT NULL (userID) REFERENCES users(id), //Requires sqlite version ~3.6? 3.3.7 available...
+							     userID INTEGER UNIQUE NOT NULL,
+							     email TEXT NOT NULL UNIQUE COLLATE NOCASE,
+							     confirmCode TEXT NOT NULL)');
+		//FOREIGN KEY UNITQUE NOT NULL (userID) REFERENCES users(id), //Requires sqlite version ~3.6? 3.3.7 available...
 		$query->execute();
 	}
 }
