@@ -623,19 +623,19 @@ class User
 		else
 			$expire = time() + User::COOKIE_SESSION_LENGTH;
 		setcookie('username',
-				  $username,
-				  $expire,
-				  User::COOKIE_PATH,
-				  User::COOKIE_DOMAIN,
-				  false,
-				  true);
+			  $username,
+			  $expire,
+			  User::COOKIE_PATH,
+			  User::COOKIE_DOMAIN,
+			  false,
+			  true);
 		setcookie('sessionKey',
-				  $sessionKey,
-				  $expire,
-				  User::COOKIE_PATH,
-				  User::COOKIE_DOMAIN,
-				  false,
-				  true);
+			  $sessionKey,
+			  $expire,
+			  User::COOKIE_PATH,
+			  User::COOKIE_DOMAIN,
+			  false,
+			  true);
 		$_COOKIE['username'] = $username;
 		$_COOKIE['sessionKey'] = $sessionKey;
 	}
