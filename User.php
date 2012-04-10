@@ -23,7 +23,7 @@ THE SOFTWARE.
 class User
 {
 	//Version string...
-	const VERSION = 'trunk';
+	const VERSION = '1.0.0';
 	
 	//Configuration parameters
 	const DB_PATH = '/f5/gamefreakslab/public/projects/UserClass/User_example.db';
