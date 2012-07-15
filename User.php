@@ -291,7 +291,10 @@ class User
 		if($this->failureTime == 0)
 			return true;
 		if(gettimeofday(true) - $this->failureTime < User::LOGIN_FREQUENCY_LIMIT)
+		{
+			$this->loginFailure();
 			return false;
+		}
 		return true;
 	}
 	
@@ -301,6 +304,16 @@ class User
 		if(User::processPassword($password, $this->salt) == $this->password)
 			return true;
 		return false;
+	}
+	
+	//Logs a failed login attempt, setting failureCount & failureTime appropriately
+	public function loginFailure()
+	{
+		if(gettimeofday(true) - $this->failureTime > User::LOGIN_FAILURE_PERIOD)
+			$this->setFailureCount(1);
+		else
+			$this->setFailureCount($this->failureCount + 1);
+		$this->setFailureTime();
 	}
 	
 	//Generates a new session key; sends out login cookies; updates the database & members
