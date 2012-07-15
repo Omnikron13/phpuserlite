@@ -38,6 +38,10 @@ class User
 	const COOKIE_SESSION_LENGTH = 604800; //In seconds = 7 days
 	const COOKIE_PATH = '';		//Passed to the setcookie() path parameter
 	const COOKIE_DOMAIN = '';	//Passed to the setcookie() domain parameter
+	const LOGIN_FREQUENCY_LIMIT = 1.0;
+	const LOGIN_FAILURE_LIMIT = 5;
+	const LOGIN_FAILURE_PERIOD = 300; //In seconds = 5 minutes
+	COnst LOGIN_FAILURE_COOLDOWN = 300; //In seconds = 5 minutes 
 	
 	//Login templates
 	const LOGIN_FORM_TEMPLATE	= '<form id="login_form" action="[form_action]" method="POST" accept-charset="UTF-8" name="login_form">[error]<fieldset id="login_form_group"><legend id="form_legend">User login form</legend><label id="username_label" for="username_field">Username:<input id="username_field" type="text" name="username" value="[username]" /></label><label id="password_label" for="password_field">Password:<input id="password_field" type="password" name="password" /></label><label id="login_button_label" for="login_button"><input id="login_button" type="submit" value="Login" /></label></fieldset></form>';
