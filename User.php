@@ -142,6 +142,8 @@ class User
 		$query->bindColumn('date', $this->date, PDO::PARAM_INT);
 		$query->bindColumn('sessionKey', $this->sessionKey, PDO::PARAM_STR);
 		$query->bindColumn('sessionIP', $this->sessionIP, PDO::PARAM_STR);
+		$query->bindColumn('failureCount', $this->failureCount, PDO::PARAM_INT);
+		$query->bindColumn('failureTime', $this->failureTime, PDO::PARAM_STR);
 		$query->fetch(PDO::FETCH_BOUND);
 		//May need to revise type of exception thrown here...
 		if($this->id == NULL)
