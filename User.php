@@ -272,6 +272,18 @@ class User
 		$this->failureTime = $time;
 	}
 	
+	//Checks if the last login was a permittable number of seconds ago to allow a login attempt, returns true if so
+	public function checkLoginFrequency()
+	{
+		if(is_null($this->failureTime))
+			return true;
+		if($this->failureTime == 0)
+			return true;
+		if(gettimeofday(true) - $this->failureTime < User::LOGIN_FREQUENCY_LIMIT)
+			return false;
+		return true;
+	}
+	
 	//Checks $password against the stored password; returns true if it matches, false otherwise
 	public function checkPassword($password)
 	{
