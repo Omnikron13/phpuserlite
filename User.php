@@ -665,7 +665,9 @@ class User
 						  email TEXT NOT NULL UNIQUE COLLATE NOCASE,
 						  date INTEGER NOT NULL,
 						  sessionKey TEXT,
-						  sessionIP TEXT)');
+						  sessionIP TEXT,
+                                                  failureCount INTEGER,
+                                                  failureTime REAL)');
 		$query->execute();
 		//Create 'usersPending' table...
 		$query = $db->prepare(
