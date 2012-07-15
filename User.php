@@ -103,6 +103,8 @@ class User
 	protected $date = NULL;
 	protected $sessionKey = NULL;
 	protected $sessionIP = NULL;
+	protected $failureCount = NULL;
+	protected $failureTime = NULL;
 	
 	//Class constructor; loads User data from the database by id or username
 	//Maybe make consturctor private/protected, limiting construction to get()?
