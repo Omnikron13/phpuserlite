@@ -272,6 +272,17 @@ class User
 		$this->failureTime = $time;
 	}
 	
+	//Checks if the user is currently in a cooldown due to a potential brute force attack, resets failureCount if
+	//if it -was- in cooldown, but the cooldown has expired
+	public function loginLimitExceeded()
+	{
+		if($this->failureCount >= User::LOGIN_FAILURE_LIMIT)
+			if(gettimeofday(true) - $this->failureTime < User::LOGIN_FAILURE_COOLDOWN)
+				return true; //Also reset last attempt?
+		$this->setFailureCount(0);
+		return false;
+	}
+	
 	//Checks if the last login was a permittable number of seconds ago to allow a login attempt, returns true if so
 	public function checkLoginFrequency()
 	{
