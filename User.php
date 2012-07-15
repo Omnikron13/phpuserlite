@@ -59,6 +59,8 @@ class User
 	const LOGIN_INVALID_PASSWORD_ERROR = 'The password entered was not a valid password';
 	const LOGIN_NO_SUCH_USERNAME_ERROR = 'The username entered does not exist';
 	const LOGIN_INCORRECT_PASSWORD_ERROR = 'Incorrect password entered';
+	const LOGIN_COOLDOWN_ERROR = 'Too many login attempts in the last few minutes, which could mean your account is under attack; login is temporarily disabled, please try again in 5-10 minutes.';
+	const LOGIN_FREQUENCY_ERROR = 'Multiple login attempts detected in the last few moments, login cancelled because your account could be under attack, please try again.';
 	
 	//Register errors
 	const REGISTER_NO_USERNAME_ERROR = 'You must choose a username to register';
@@ -259,11 +261,19 @@ class User
 	}
 	
 	//Updates the last failure time to current time in the db and object
-	public function setFailureTime() //($time)
+	public function setFailureTime($time = -1)
 	{
-//		if(!is_numeric($time))
-//			throw new InvalidArgumentException('setFailureTime() expected a number, value given was: '.$time);
-		$time = gettimeofday(true);
+		if($time == -1)
+			$time = gettimeofday(true);
+		else
+		{
+			if(!is_numeric($time))
+				throw new InvalidArgumentException('setFailureTime() expected a number, value given was: '.$time);
+			if($time < 0)
+				throw new InvalidArgumentException('setFailureTime() expected a positive value, value given was: '.$time);
+			if($time > gettimeofday(true))
+				throw new RangeException('setFailureTime() can only be called with timestamps up to the current time, or -1 for the current time');
+		}
 		$db = new PDO('sqlite:'.User::DB_PATH);
 		$query = $db->prepare('UPDATE users SET failureTime=:time WHERE id=:id');
 		$query->bindValue(':time', strval($time));
@@ -538,11 +548,22 @@ class User
 			$user = new User($_POST['username'], User::GET_BY_USERNAME);
 			if($user == NULL)
 				return User::processLoginForm(User::LOGIN_NO_SUCH_USER_ERROR);
+			//Check if user is in cooldown
+			if($user->loginLimitExceeded())
+				return User::processLoginForm(User::LOGIN_COOLDOWN_ERROR, $_POST['username']);
+			//Check for unnaturally frequent login attempts
+			if(!$user->checkLoginFrequency())
+				return User::processLoginForm(User::LOGIN_FREQUENCY_ERROR, $_POST['username']);
 			//Check if the passwords match...
 			if(!$user->checkPassword($_POST['password']))
+			{
+				$user->loginFailure();
 				return User::processLoginForm(User::LOGIN_INCORRECT_PASSWORD_ERROR, $_POST['username']);
+			}
 			//Success...
 			$user->startSession();
+			$user->setFailureCount(0);
+			$user->setFailureTime(0);
 			return str_replace('[username]', $user->getUsername(), User::LOGIN_SUCCESS_TEMPLATE);
 		}
 		return User::processLoginForm();
