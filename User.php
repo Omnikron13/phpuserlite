@@ -545,9 +545,12 @@ class User
 			if(!User::validatePassword($_POST['password']))
 				return User::processLoginForm(User::LOGIN_INVALID_PASSWORD_ERROR, $_POST['username']);
 			//Try finding in the user...
-			$user = new User($_POST['username'], User::GET_BY_USERNAME);
-			if($user == NULL)
+			try
+				$user = new User($_POST['username'], User::GET_BY_USERNAME);
+			catch(OutOfBoundsException $e)
 				return User::processLoginForm(User::LOGIN_NO_SUCH_USER_ERROR);
+//			if($user == NULL)
+//				return User::processLoginForm(User::LOGIN_NO_SUCH_USER_ERROR);
 			//Check if user is in cooldown
 			if($user->loginLimitExceeded())
 				return User::processLoginForm(User::LOGIN_COOLDOWN_ERROR, $_POST['username']);
