@@ -170,6 +170,12 @@ class User
 	public function getSessionIP(){
 		return $this->sessionIP;
 	}
+	public function getFailureCount(){
+		return $this->failureCount;
+	}
+	public function getFailureTime(){
+		return $this->failureTime;
+	}
 	
 	//Validates $username, then updates the database & member
 	public function setUsername($username)
@@ -235,6 +241,35 @@ class User
 		}
 		else
 			throw new InvalidArgumentException('Invalid mode for setEmail method, mode is either SET_EMAIL_CONFIRM or SET_EMAIL_DIRECT');
+	}
+	
+	//Checks $count is a positive integer, then updates the database & member
+	public function setFailureCount($count)
+	{
+		if(!is_int($count))
+			throw new InvalidArgumentException('setFailureCount() expected integer, value given was: '.$count);
+		if($count < 0)
+			throw new InvalidArgumentException('setFailureCount() expected a positive integer, or 0, value given was: '.$count);
+		$db = new PDO('sqlite:'.User::DB_PATH);
+		$query = $db->prepare('UPDATE users SET failureCount=:count WHERE id=:id');
+		$query->bindParam(':count', $count, PDO::PARAM_INT);
+		$query->bindParam(':id', $this->id, PDO::PARAM_INT);
+		$query->execute();
+		$this->failureCount = $count;
+	}
+	
+	//Updates the last failure time to current time in the db and object
+	public function setFailureTime() //($time)
+	{
+//		if(!is_numeric($time))
+//			throw new InvalidArgumentException('setFailureTime() expected a number, value given was: '.$time);
+		$time = gettimeofday(true);
+		$db = new PDO('sqlite:'.User::DB_PATH);
+		$query = $db->prepare('UPDATE users SET failureTime=:time WHERE id=:id');
+		$query->bindValue(':time', strval($time));
+		$query->bindParam(':id', $this->id, PDO::PARAM_INT);
+		$query->execute();
+		$this->failureTime = $time;
 	}
 	
 	//Checks $password against the stored password; returns true if it matches, false otherwise
