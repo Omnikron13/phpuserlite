@@ -289,9 +289,12 @@ class User
 	public function loginLimitExceeded()
 	{
 		if($this->failureCount >= User::LOGIN_FAILURE_LIMIT)
+		{
 			if(gettimeofday(true) - $this->failureTime < User::LOGIN_FAILURE_COOLDOWN)
 				return true; //Also reset last attempt?
-		$this->setFailureCount(0);
+			else
+				$this->setFailureCount(0);
+		}
 		return false;
 	}
 	
