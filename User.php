@@ -556,8 +556,6 @@ class User
 			catch(OutOfBoundsException $e){
 				return User::processLoginForm(User::LOGIN_NO_SUCH_USER_ERROR);
 			}
-//			if($user == NULL)
-//				return User::processLoginForm(User::LOGIN_NO_SUCH_USER_ERROR);
 			//Check if user is in cooldown
 			if($user->loginLimitExceeded())
 				return User::processLoginForm(User::LOGIN_COOLDOWN_ERROR, $_POST['username']);
