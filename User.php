@@ -332,14 +332,14 @@ class User
 	}
 	
 	//Generates a new session key; sends out login cookies; updates the database & members
-	public function startSession()
+	public function startSession($cookieDuration)
 	{
 		//Ready session data...
 		$sessionKey = User::generateSessionKey();
 		$hashedKey = hash(User::HASH_ALGORITHM, $sessionKey);
 		$sessionIP = $_SERVER['REMOTE_ADDR'];
 		//Send session cookies...
-		User::sendCookies($this->username, $sessionKey);
+		User::sendCookies($this->username, $sessionKey, $cookieDuration);
 		//Update database...
 		$db = new PDO('sqlite:'.User::DB_PATH);
 		$query = $db->prepare('UPDATE users SET sessionKey=:sessionKey, sessionIP=:sessionIP WHERE id=:id');
@@ -571,7 +571,10 @@ class User
 				return User::processLoginForm(User::LOGIN_INCORRECT_PASSWORD_ERROR, $_POST['username']);
 			}
 			//Success...
-			$user->startSession();
+			if(array_key_exists('cookie_duration', $_POST) && ctype_digit($_POST['cookie_duration']))
+				$user->startSession($_POST['cookie_duration']);
+			else
+				$user->startSession(User::COOKIE_SESSION_LENGTH);
 			$user->setFailureCount(0);
 			$user->setFailureTime(0);
 			return str_replace('[username]', $user->getUsername(), User::LOGIN_SUCCESS_TEMPLATE);
@@ -725,22 +728,20 @@ class User
 	}
 	
 	//Sends out login cookies, with a few pre-defined parameters
-	protected static function sendCookies($username, $sessionKey)
+	protected static function sendCookies($username, $sessionKey, $duration)
 	{
-		if(User::COOKIE_SESSION_LENGTH == 0)
-			$expire = 0;
-		else
-			$expire = time() + User::COOKIE_SESSION_LENGTH;
+		if($duration > 0)
+			$duration += time();
 		setcookie('username',
 			  $username,
-			  $expire,
+			  $duration,
 			  User::COOKIE_PATH,
 			  User::COOKIE_DOMAIN,
 			  false,
 			  true);
 		setcookie('sessionKey',
 			  $sessionKey,
-			  $expire,
+			  $duration,
 			  User::COOKIE_PATH,
 			  User::COOKIE_DOMAIN,
 			  false,
