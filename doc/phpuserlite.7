@@ -178,7 +178,7 @@ This is the template used by
 .I phpuserlite
 to generate login forms. When modifying this template, pay
 attention to the
-.IR [form_action] ", " [error] " & " [username]
+.IR [error] " & " [username]
 placeholders, they are used to inject information into the
 template
 .\" const User::LOGIN_SUCCESS_TEMPLATE
@@ -196,7 +196,7 @@ This is the template used by
 .I phpuserlite
 to generate registration forms. When modifying this template,
 pay attention to the
-.IR [form_action] ", " [error] ", " [username] " & " [email]
+.IR [error] ", " [username] " & " [email]
 placeholders, they are used to inject information into the
 template
 .\" const User::REGISTER_SUCCESS_TEMPLATE
@@ -560,15 +560,13 @@ return value is always a
 If it is called without a login attempt in
 .IR $_POST []
 it will generate and return a login form from
-.BR LOGIN_FORM_TEMPLATE ,
-injecting only into the
-.I [form_action]
-placeholder. If it is called with a login attempt in
+.BR LOGIN_FORM_TEMPLATE .
+If it is called with a login attempt in
 .IR $_POST []
 and the login is unsuccessful it will generate a login form from
 .BR LOGIN_FORM_TEMPLATE ,
 injecting into the
-.IR [form_action ", " [error] " & possibly " [username]
+.IR [error] " and possibly " [username]
 placeholders. If it is called with a login attempt in
 .IR $_POST []
 and the login is successful it will generate and return a success
@@ -585,17 +583,15 @@ the return value is always a
 If it is called without a registration attempt in
 .IR $_POST []
 it will generate and return a registration form from
-.BR REGISTER_FORM_TEMPLATE ,
-injecting only into the
-.I [form_action]
-placeholder. If it is called with a registration attempt in
+.BR REGISTER_FORM_TEMPLATE .
+If it is called with a registration attempt in
 .IR $_POST []
 and the registration is unsuccessful it will generate and return
 a registration form from
 .BR REGISTER_FORM_TEMPLATE ,
-injecting to the
-.IR [form_action] ", " [error]
-& possibly
+injecting into the
+.IR [error]
+and, if relevant, the
 .IR [username] " and/or " [email]
 placeholders. If it is called with a registration attempt in
 .IR $_POST []
