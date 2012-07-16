@@ -23,7 +23,7 @@ THE SOFTWARE.
 class User
 {
 	//Version string...
-	const VERSION = '1.1.0';
+	const VERSION = '1.1.1';
 	
 	//Configuration parameters
 	const DB_PATH = '/f5/gamefreakslab/public/projects/UserClass/User_example.db';
@@ -458,9 +458,12 @@ class User
 			if(!User::validatePassword($_POST['password']))
 				return User::processLoginForm(User::LOGIN_INVALID_PASSWORD_ERROR, $_POST['username']);
 			//Try finding in the user...
-			$user = new User($_POST['username'], User::GET_BY_USERNAME);
-			if($user == NULL)
+			try{
+				$user = new User($_POST['username'], User::GET_BY_USERNAME);
+			}
+			catch(OutOfBoundsException $e){
 				return User::processLoginForm(User::LOGIN_NO_SUCH_USER_ERROR);
+			}
 			//Check if the passwords match...
 			if(!$user->checkPassword($_POST['password']))
 				return User::processLoginForm(User::LOGIN_INCORRECT_PASSWORD_ERROR, $_POST['username']);
