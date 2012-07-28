@@ -422,6 +422,10 @@ class User
 
 	public function remove()
 	{
+		foreach(User::$events['onRemove'] as $callback)
+		{
+			call_user_func($callback, $this);
+		}
 		//Prep database...
 		$db = new PDO('sqlite:'.User::config('db_path'));
 		//Remove the record in the users table...
@@ -799,6 +803,18 @@ class User
 		setcookie('sessionKey', NULL, -1);
 		$_COOKIE['username'] = NULL;
 		$_COOKIE['sessionKey'] = NULL;
+	}
+	
+	protected static $events = array(
+		'onSetup'	=>	array(),
+		'onRemove'	=>	array()
+		);
+	
+	public static function addEventHandler($event, $callback)
+	{
+		if(!array_key_exists(User::$events, $event))
+			return; //replace with exception
+		User::$events[$event][] = $callback;
 	}
 	
 	//This variable is to ensure configuration is loaded, and is only loaded once
