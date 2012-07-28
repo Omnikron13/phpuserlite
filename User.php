@@ -138,18 +138,6 @@ class User
 									     confirmCode TEXT NOT NULL,
 									     FOREIGN KEY (userID) REFERENCES users(id))');
 	
-	//Register errors
-	const REGISTER_NO_USERNAME_ERROR = 'You must choose a username to register';
-	const REGISTER_NO_PASSWORD_ERROR = 'You must choose a password to register';
-	const REGISTER_NO_CONFIRM_PASSWORD_ERROR = 'You must confirm your password to register';
-	const REGISTER_NO_EMAIL_ERROR = 'You must enter your email address to register';
-	const REGISTER_INVALID_USERNAME_ERROR = 'The username you have chosen is not valid';
-	const REGISTER_INVALID_PASSWORD_ERROR = 'The password you have chosen is not valid';
-	const REGISTER_INVALID_EMAIL_ERROR = 'You must enter a valid email address to register';
-	const REGISTER_PASSWORD_MISMATCH_ERROR = 'The passwords you entered do not match';
-	const REGISTER_UNAVAILABLE_USERNAME_ERROR = 'The username you have chosen is already registered';
-	const REGISTER_UNAVAILABLE_EMAIL_ERROR = 'The email address you have entered is already in use at this site, you may have already registered an account';
-	
 	//Confirm templates
 	//Email:
 	const CONFIRM_SUBJECT = 'Confirm your account at XYZ';
@@ -675,28 +663,28 @@ class User
 			return User::processRegisterForm();
 		//Check if form was filled out completely...
 		if($_POST['username'] == '')
-			return User::processRegisterForm(User::REGISTER_NO_USERNAME_ERROR, NULL, $_POST['email']);
+			return User::processRegisterForm(User::config('register_no_username_error'), NULL, $_POST['email']);
 		if($_POST['email'] == '')
-			return User::processRegisterForm(User::REGISTER_NO_EMAIL_ERROR, $_POST['username']);
+			return User::processRegisterForm(User::config('register_no_email_error'), $_POST['username']);
 		if($_POST['password'] == '')
-			return User::processRegisterForm(User::REGISTER_NO_PASSWORD_ERROR, $_POST['username'], $_POST['email']);
+			return User::processRegisterForm(User::config('register_no_password_error'), $_POST['username'], $_POST['email']);
 		if($_POST['passwordConfirm'] == '')
-			return User::processRegisterForm(User::REGISTER_NO_CONFIRM_PASSWORD_ERROR, $_POST['username'], $_POST['email']);
+			return User::processRegisterForm(User::config('register_no_confirm_password_error'), $_POST['username'], $_POST['email']);
 		//Check if entered details are valid...
 		if(!User::validateUsername($_POST['username']))
-			return User::processRegisterForm(User::REGISTER_INVALID_USERNAME_ERROR, NULL, $_POST['email']);
+			return User::processRegisterForm(User::config('register_invalid_username_error'), NULL, $_POST['email']);
 		if(!User::validateEmail($_POST['email']))
-			return User::processRegisterForm(User::REGISTER_INVALID_EMAIL_ERROR, $_POST['username']);
+			return User::processRegisterForm(User::config('register_invalid_email_error'), $_POST['username']);
 		if(!User::validatePassword($_POST['password']))
-			return User::processRegisterForm(User::REGISTER_INVALID_PASSWORD_ERROR, $_POST['username'], $_POST['email']);
+			return User::processRegisterForm(User::config('register_invalid_password_error'), $_POST['username'], $_POST['email']);
 		//Check if username & email are available...
 		if(!User::availableUsername($_POST['username']))
-			return User::processRegisterForm(User::REGISTER_UNAVAILABLE_USERNAME_ERROR, NULL, $_POST['email']);
+			return User::processRegisterForm(User::config('register_unavailable_username_error'), NULL, $_POST['email']);
 		if(!User::availableEmail($_POST['email']))
-			return User::processRegisterForm(User::REGISTER_UNAVAILABLE_EMAIL_ERROR, $_POST['username']);
+			return User::processRegisterForm(User::config('register_unavailable_email_error'), $_POST['username']);
 		//Ensure passwords match...
 		if($_POST['password'] != $_POST['passwordConfirm'])
-			return User::processRegisterForm(User::REGISTER_PASSWORD_MISMATCH_ERROR, $_POST['username'], $_POST['email']);
+			return User::processRegisterForm(User::config('register_password_mismatch_error'), $_POST['username'], $_POST['email']);
 		//Add user to the usersPending table..
 		User::addPending($_POST['username'], $_POST['password'], $_POST['email']);
 		return User::config('register_success_template');
