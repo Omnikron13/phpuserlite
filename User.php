@@ -794,12 +794,15 @@ class User
 		//If no attempt has been made to load the config, attempt to load it, and patch it over $configData
 		if(!User::$configLoaded)
 		{
-			$raw = file('./phpuserlite.cfg');
-			foreach($raw as $line)
+			if(is_file('./phpuserlite.cfg') && is_readable('./phpuserlite.cfg'))
 			{
-				$line = explode('=', $line, 2);
-				if(array_key_exists($line[0], User::$configData))
-					User::$configData[$line[0]] = $line[1];
+				$raw = file('./phpuserlite.cfg');
+				foreach($raw as $line)
+				{
+					$line = explode('=', $line, 2);
+					if(array_key_exists($line[0], User::$configData))
+						User::$configData[$line[0]] = $line[1];
+				}
 			}
 			User::$configLoaded = true;
 		}
