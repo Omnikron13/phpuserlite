@@ -138,23 +138,6 @@ class User
 									     confirmCode TEXT NOT NULL,
 									     FOREIGN KEY (userID) REFERENCES users(id))');
 	
-	//Configuration parameters
-	const SALT_LENGTH = 16;
-	const SESSION_KEY_LENGTH = 32;
-	const CONFIRM_CODE_LENGTH = 16;
-	const HASH_ALGORITHM = 'sha512';
-	const HASH_ITERATIONS = 256;
-	const USERNAME_REGEX = '/^\w{4,32}$/';
-	const PASSWORD_REGEX = '/^.{6,128}$/';
-	const EMAIL_REGEX = '/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i';
-	const COOKIE_SESSION_LENGTH = 604800; //In seconds = 7 days
-	const COOKIE_PATH = '';		//Passed to the setcookie() path parameter
-	const COOKIE_DOMAIN = '';	//Passed to the setcookie() domain parameter
-	const LOGIN_FREQUENCY_LIMIT = 1.0;
-	const LOGIN_FAILURE_LIMIT = 5;
-	const LOGIN_FAILURE_PERIOD = 300; //In seconds = 5 minutes
-	COnst LOGIN_FAILURE_COOLDOWN = 300; //In seconds = 5 minutes 
-	
 	//Login templates
 	const LOGIN_FORM_TEMPLATE	= '<form id="login_form" action="" method="POST" accept-charset="UTF-8" name="login_form">[error]<fieldset id="login_form_group"><legend id="form_legend">User login form</legend><label id="username_label" for="username_field">Username:<input id="username_field" type="text" name="username" value="[username]" /></label><label id="password_label" for="password_field">Password:<input id="password_field" type="password" name="password" /></label><label id="login_button_label" for="login_button"><input id="login_button" type="submit" value="Login" /></label></fieldset></form>';
 	const LOGIN_SUCCESS_TEMPLATE = '<p>Successfully logged in as [username]!</p>';
@@ -339,7 +322,7 @@ class User
 			$query = $db->prepare('INSERT INTO usersChangeEmail(userID, email, confirmCode) VALUES(:userID, :email, :confirmCode)');
 			$query->bindParam(':userID', $this->id, PDO::PARAM_INT);
 			$query->bindParam(':email', $email, PDO::PARAM_STR);
-			$query->bindParam(':confirmCode', hash(User::HASH_ALGORITHM, $confirmCode), PDO::PARAM_STR);
+			$query->bindParam(':confirmCode', hash(User::config('hash_algorithm'), $confirmCode), PDO::PARAM_STR);
 			$query->execute();
 			//SEND EMAIL HERE!
 			$body = User::SET_EMAIL_CONFIRM_BODY_TEMPLATE;
@@ -400,9 +383,9 @@ class User
 	//if it -was- in cooldown, but the cooldown has expired
 	public function loginLimitExceeded()
 	{
-		if($this->failureCount >= User::LOGIN_FAILURE_LIMIT)
+		if($this->failureCount >= User::config('login_failure_limit'))
 		{
-			if(gettimeofday(true) - $this->failureTime < User::LOGIN_FAILURE_COOLDOWN)
+			if(gettimeofday(true) - $this->failureTime < User::config('login_failure_cooldown'))
 				return true; //Also reset last attempt?
 			else
 				$this->setFailureCount(0);
@@ -417,7 +400,7 @@ class User
 			return true;
 		if($this->failureTime == 0)
 			return true;
-		if(gettimeofday(true) - $this->failureTime < User::LOGIN_FREQUENCY_LIMIT)
+		if(gettimeofday(true) - $this->failureTime < User::config('login_frequency_limit'))
 		{
 			$this->loginFailure();
 			return false;
@@ -436,7 +419,7 @@ class User
 	//Logs a failed login attempt, setting failureCount & failureTime appropriately
 	public function loginFailure()
 	{
-		if(gettimeofday(true) - $this->failureTime > User::LOGIN_FAILURE_PERIOD)
+		if(gettimeofday(true) - $this->failureTime > User::config('login_failure_period'))
 			$this->setFailureCount(1);
 		else
 			$this->setFailureCount($this->failureCount + 1);
@@ -448,7 +431,7 @@ class User
 	{
 		//Ready session data...
 		$sessionKey = User::generateSessionKey();
-		$hashedKey = hash(User::HASH_ALGORITHM, $sessionKey);
+		$hashedKey = hash(User::config('hash_algorithm'), $sessionKey);
 		$sessionIP = $_SERVER['REMOTE_ADDR'];
 		//Send session cookies...
 		User::sendCookies($this->username, $sessionKey, $cookieDuration);
@@ -469,7 +452,7 @@ class User
 	{
 		if($_SERVER['REMOTE_ADDR'] != $this->sessionIP)
 			return false;
-		if(hash(User::HASH_ALGORITHM, $sessionKey) != $this->sessionKey)
+		if(hash(User::config('hash_algorithm'), $sessionKey) != $this->sessionKey)
 			return false;
 		return true;
 	}
@@ -563,7 +546,7 @@ class User
 		$query->bindParam(':salt', $salt, PDO::PARAM_LOB); //is LOB right..?
 		$query->bindParam(':email', $email, PDO::PARAM_STR);
 		$query->bindParam(':date', time(), PDO::PARAM_STR);
-		$query->bindParam(':confirmCode', hash(User::HASH_ALGORITHM, $confirmCode), PDO::PARAM_STR);
+		$query->bindParam(':confirmCode', hash(User::config('hash_algorithm'), $confirmCode), PDO::PARAM_STR);
 		$query->execute();
 		//Send confirm email...
 		$body = User::CONFIRM_BODY_TEMPLATE;
@@ -589,7 +572,7 @@ class User
 		$query->fetch(PDO::FETCH_BOUND);
 		if($username == NULL)
 			return User::CONFIRM_NO_SUCH_ID_TEMPLATE;
-		if(hash(User::HASH_ALGORITHM, $_GET['code']) == $confirmCode)
+		if(hash(User::config('hash_algorithm'), $_GET['code']) == $confirmCode)
 		{
 			//Copy over data to users table...
 			$db = new PDO('sqlite:'.User::config('db_path'));
@@ -623,7 +606,7 @@ class User
 		$query->fetch(PDO::FETCH_BOUND);
 		if($email == NULL)
 			return User::SET_EMAIL_CONFIRM_NO_SUCH_ID_TEMPLATE;
-		if(hash(User::HASH_ALGORITHM, $_GET['code']) == $confirmCode)
+		if(hash(User::config('hash_algorithm'), $_GET['code']) == $confirmCode)
 		{
 			//Update users email in database...
 			$query = $db->prepare('UPDATE users SET email=:email WHERE id=:id');
@@ -684,7 +667,7 @@ class User
 			if(array_key_exists('cookie_duration', $_POST) && ctype_digit($_POST['cookie_duration']))
 				$user->startSession($_POST['cookie_duration']);
 			else
-				$user->startSession(User::COOKIE_SESSION_LENGTH);
+				$user->startSession(User::config('cookie_session_length'));
 			$user->setFailureCount(0);
 			$user->setFailureTime(0);
 			return str_replace('[username]', $user->getUsername(), User::LOGIN_SUCCESS_TEMPLATE);
@@ -751,7 +734,7 @@ class User
 	//Checks that $username follows the pre-defined conventions
 	protected static function validateUsername($username)
 	{
-		if(preg_match(User::USERNAME_REGEX, $username))
+		if(preg_match(User::config('username_regex'), $username))
 			return true;
 		return false;
 	}
@@ -759,7 +742,7 @@ class User
 	//Checkt that $password follws the pre-defined conventions
 	protected static function validatePassword($password)
 	{
-		if(preg_match(User::PASSWORD_REGEX, $password))
+		if(preg_match(User::config('password_regex'), $password))
 			return true;
 		return false;
 	}
@@ -767,7 +750,7 @@ class User
 	//Ensures $emails at least -looks- like a real email address
 	protected static function validateEmail($email)
 	{
-		if(preg_match(User::EMAIL_REGEX, $email))
+		if(preg_match(User::config('email_regex'), $email))
 			return true;
 		return false;
 	}
@@ -812,28 +795,28 @@ class User
 	protected static function processPassword($password, $salt)
 	{
 		$salted = $password.$salt;
-		for($x = 0; $x < User::HASH_ITERATIONS; $x++)
-			$salted = hash(User::HASH_ALGORITHM, $salted);
+		for($x = 0; $x < User::config('hash_iterations'); $x++)
+			$salted = hash(User::config('hash_algorithm'), $salted);
 		return $salted;
 	}
 	
 	//Generates a random salt with a pre-determined length
 	protected static function generateSalt()
 	{
-		return mcrypt_create_iv(User::SALT_LENGTH, MCRYPT_DEV_URANDOM);
+		return mcrypt_create_iv(User::config('salt_length'), MCRYPT_DEV_URANDOM);
 	}
 	
 	//Generates a random session key with a pre-determined length
 	protected static function generateSessionKey()
 	{
-		$key = mcrypt_create_iv(User::SESSION_KEY_LENGTH, MCRYPT_DEV_URANDOM);
-		return hash(User::HASH_ALGORITHM, $key);
+		$key = mcrypt_create_iv(User::config('session_key_length'), MCRYPT_DEV_URANDOM);
+		return hash(User::config('hash_algorithm'), $key);
 	}
 	
 	//Generates a random confirmation code with a pre-determined length; result is hashed for email/url
 	protected static function generateConfirmCode()
 	{
-		$code = mcrypt_create_iv(User::CONFIRM_CODE_LENGTH, MCRYPT_DEV_URANDOM);
+		$code = mcrypt_create_iv(User::config('confirm_code_length'), MCRYPT_DEV_URANDOM);
 		return sha1($code);
 	}
 	
@@ -845,15 +828,15 @@ class User
 		setcookie('username',
 			  $username,
 			  $duration,
-			  User::COOKIE_PATH,
-			  User::COOKIE_DOMAIN,
+			  User::config('cookie_path'),
+			  User::config('cookie_domain'),
 			  false,
 			  true);
 		setcookie('sessionKey',
 			  $sessionKey,
 			  $duration,
-			  User::COOKIE_PATH,
-			  User::COOKIE_DOMAIN,
+			  User::config('cookie_path'),
+			  User::config('cookie_domain'),
 			  false,
 			  true);
 		$_COOKIE['username'] = $username;
