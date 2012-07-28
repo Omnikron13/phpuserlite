@@ -800,6 +800,8 @@ class User
 				foreach($raw as $line)
 				{
 					$line = explode('=', $line, 2);
+					$line[0] = trim($line[0]);
+					$line[1] = trim($line[1]);
 					if(array_key_exists($line[0], User::$configData))
 						User::$configData[$line[0]] = $line[1];
 				}
