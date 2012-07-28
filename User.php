@@ -44,6 +44,73 @@ class User
 		'login_failure_period'	=>	300,
 		'login_failure_cooldown'=>	300,
 		
+		//Login templates
+		'login_form_template'
+			=>	'<form id="login_form" action="" method="POST" accept-charset="UTF-8" name="login_form">[error]<fieldset id="login_form_group"><legend id="form_legend">User login form</legend><label id="username_label" for="username_field">Username:<input id="username_field" type="text" name="username" value="[username]" /></label><label id="password_label" for="password_field">Password:<input id="password_field" type="password" name="password" /></label><label id="login_button_label" for="login_button"><input id="login_button" type="submit" value="Login" /></label></fieldset></form>',
+		'login_success_template'
+			=>	'<p>Successfully logged in as [username]!</p>',
+		
+		//Register templates
+		'register_form_template'
+			=>	'<form id="register_form" action="" method="POST" accept-charset="UTF-8" name="register_form">[error]<fieldset id="register_form_group"><legend id="form_legend">User registration form</legend><label id="username_label" for="username_field">Username:<input id="username_field" type="text" name="username" value="[username]" /></label><label id="email_label" for="email_field">Email:<input id="email_field" type="email" name="email" value="[email]" /></label><label id="password_label" for="password_field">Password:<input id="password_field" type="password" name="password" /></label><label id="confirm_password_label" for="confirm_password_field">Confirm password:<input id="confirm_password_field" type="password" name="passwordConfirm" /></label><label id="register_button_label" for="register_button"><input id="register_button" type="submit" value="Register" /></label></fieldset></form>',
+		'register_success_template'
+			=>	'<p>Your account has been successfully registered, and an email has been sent to you containing a link to confirm your email address and activate your account.</p>',
+		
+		//Login error
+		'login_no_username_error'	=>	'You must enter your username to log in',
+		'login_no_password_error'	=>	'You must enter your password to log in',
+		'login_no_input_error'		=>	'You must enter your username and password to log in',
+		'login_invalid_username_error'	=>	'The username entered was not a valid username',
+		'login_invalid_password_error'	=>	'The password entered was not a valid password',
+		'login_no_such_username_error'	=>	'The username entered does not exist',
+		'login_incorrect_password_error'=>	'Incorrect password entered',
+		'login_cooldown_error'		=>	'Too many login attempts in the last few minutes, which could mean your account is under attack; login is temporarily disabled, please try again in 5-10 minutes.',
+		'login_frequency_error'		=>	'Multiple login attempts detected in the last few moments, login cancelled because your account could be under attack, please try again.',
+		
+		//Register errors
+		'register_no_username_error'		=>	'You must choose a username to register',
+		'register_no_password_error'		=>	'You must choose a password to register',
+		'register_no_confirm_password_error'	=>	'You must confirm your password to register',
+		'register_no_email_error'		=>	'You must enter your email address to register',
+		'register_invalid_username_error'	=>	'The username you have chosen is not valid',
+		'register_invalid_password_error'	=>	'The password you have chosen is not valid',
+		'register_invalid_email_error'		=>	'You must enter a valid email address to register',
+		'register_password_mismatch_error'	=>	'The passwords you entered do not match',
+		'register_unavailable_username_error'	=>	'The username you have chosen is already registered',
+		'register_unavailable_email_error'	=>	'The email address you have entered is already in use at this site, you may have already registered an account',
+		
+		//Confirm templates
+		//Email:
+		'confirm_subject'
+			=>	'Confirm your account at XYZ',
+		'confirm_body_template'
+			=>	'http://lab.s4t4n.net/projects/UserClass/demo/confirm.php?id=[id]&code=[code]',
+		'confirm_from'
+			=>	'accounts@lab.s4t4n.net',
+		//General:
+		'confirm_success_template'
+			=>	'Email confirmed; you may now log in.',
+		'confirm_incorrect_code_template'
+			=>	'Confirmation code incorrect, carefully recopy the link into your browser and try again.',
+		'confirm_no_such_id_template'
+			=>	'Could not find that account to confirm; it may already have been confirmed.',
+		
+		//Set email confirm templates
+		//Email:
+		'set_email_confirm_subject'
+			=>	'Confirm your new email address at XYZ',
+		'set_email_confirm_body_template'
+			=>	'http://lab.s4t4n.net/projects/UserClass/demo/confirm_email.php?id=[id]&code=[code]',
+		'set_email_confirm_from'
+			=>	'accounts@lab.s4t4n.net',
+		//General:
+		'set_email_confirm_success_template'
+			=>	'Email change confirmed.',
+		'set_email_confirm_incorrect_code_template'
+			=>	'Confirmation code incorrect, carefully recopy the link into your browser and try again',
+		'set_email_confirm_no_such_id_template'
+			=>	'Could not find that email change request to confirm; it may already have been confirmed',
+		
 		//Database schemas
 		'db_users_table_schema'
 			=>	'CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY,
