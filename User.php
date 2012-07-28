@@ -138,17 +138,6 @@ class User
 									     confirmCode TEXT NOT NULL,
 									     FOREIGN KEY (userID) REFERENCES users(id))');
 	
-	//Login errors
-	const LOGIN_NO_USERNAME_ERROR = 'You must enter your username to log in';
-	const LOGIN_NO_PASSWORD_ERROR = 'You must enter your password to log in';
-	const LOGIN_NO_INPUT_ERROR = 'You must enter your username and password to log in';
-	const LOGIN_INVALID_USERNAME_ERROR = 'The username entered was not a valid username';
-	const LOGIN_INVALID_PASSWORD_ERROR = 'The password entered was not a valid password';
-	const LOGIN_NO_SUCH_USERNAME_ERROR = 'The username entered does not exist';
-	const LOGIN_INCORRECT_PASSWORD_ERROR = 'Incorrect password entered';
-	const LOGIN_COOLDOWN_ERROR = 'Too many login attempts in the last few minutes, which could mean your account is under attack; login is temporarily disabled, please try again in 5-10 minutes.';
-	const LOGIN_FREQUENCY_ERROR = 'Multiple login attempts detected in the last few moments, login cancelled because your account could be under attack, please try again.';
-	
 	//Register errors
 	const REGISTER_NO_USERNAME_ERROR = 'You must choose a username to register';
 	const REGISTER_NO_PASSWORD_ERROR = 'You must choose a password to register';
@@ -626,34 +615,34 @@ class User
 		{
 			//Check if form was filled out completely...
 			if($_POST['username'] == '' && $_POST['password'] == '')
-				return User::processLoginForm(User::LOGIN_NO_INPUT_ERROR);
+				return User::processLoginForm(User::config('login_no_input_error'));
 			if($_POST['username'] == '')
-				return User::processLoginForm(User::LOGIN_NO_USERNAME_ERROR);
+				return User::processLoginForm(User::config('login_no_username_error'));
 			if($_POST['password'] == '')
-				return User::processLoginForm(User::LOGIN_NO_PASSWORD_ERROR, $_POST['username']);
+				return User::processLoginForm(User::config('login_no_password_error'), $_POST['username']);
 			//Check if entered details are valid...
 			if(!User::validateUsername($_POST['username']))
-				return User::processLoginForm(User::LOGIN_INVALID_USERNAME_ERROR);
+				return User::processLoginForm(User::config('login_invalid_username_error'));
 			if(!User::validatePassword($_POST['password']))
-				return User::processLoginForm(User::LOGIN_INVALID_PASSWORD_ERROR, $_POST['username']);
+				return User::processLoginForm(User::config('login_invalid_password_error'), $_POST['username']);
 			//Try finding in the user...
 			try{
 				$user = new User($_POST['username'], User::GET_BY_USERNAME);
 			}
 			catch(OutOfBoundsException $e){
-				return User::processLoginForm(User::LOGIN_NO_SUCH_USER_ERROR);
+				return User::processLoginForm(User::config('login_no_such_username_error'));
 			}
 			//Check if user is in cooldown
 			if($user->loginLimitExceeded())
-				return User::processLoginForm(User::LOGIN_COOLDOWN_ERROR, $_POST['username']);
+				return User::processLoginForm(User::config('login_cooldown_error'), $_POST['username']);
 			//Check for unnaturally frequent login attempts
 			if(!$user->checkLoginFrequency())
-				return User::processLoginForm(User::LOGIN_FREQUENCY_ERROR, $_POST['username']);
+				return User::processLoginForm(User::config('login_frequency_error'), $_POST['username']);
 			//Check if the passwords match...
 			if(!$user->checkPassword($_POST['password']))
 			{
 				$user->loginFailure();
-				return User::processLoginForm(User::LOGIN_INCORRECT_PASSWORD_ERROR, $_POST['username']);
+				return User::processLoginForm(User::config('login_incorrect_password_error'), $_POST['username']);
 			}
 			//Success...
 			if(array_key_exists('cookie_duration', $_POST) && ctype_digit($_POST['cookie_duration']))
