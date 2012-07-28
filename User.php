@@ -757,6 +757,32 @@ class User
 		$_COOKIE['sessionKey'] = NULL;
 	}
 	
+	//This variable is to ensure configuration is loaded, and is only loaded once
+	protected static $configLoaded = false;
+	
+	//This will probably move to the top of file, where it will replace the config constants
+	protected static $configData = array();	
+	
+	//Method for accessing configuration info
+	public static function config($key)
+	{
+		//If no attempt has been made to load the config, attempt to load it, and patch it over $configData
+		if(!User::$configLoaded)
+		{
+			$raw = file('./phpuserlite.cfg');
+			foreach($raw as $line)
+			{
+				$line = explode('=', $line, 2);
+				if(array_key_exists($line[0], User::$configData))
+					User::$configData[$line[0]] = $line[1];
+			}
+			User::$configLoaded = true;
+		}
+		if(array_key_exists($key, User::$configData))
+			return User::$configData[$key];
+		//else exception...
+	}
+	
 	//This method must be called to setup the database before any other code is called
 	public static function setupDB()
 	{
