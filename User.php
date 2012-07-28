@@ -761,7 +761,31 @@ class User
 	protected static $configLoaded = false;
 	
 	//This will probably move to the top of file, where it will replace the config constants
-	protected static $configData = array();	
+	protected static $configData = array(
+		'db_users_table_schema'
+			=>	'CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY,
+								  username TEXT NOT NULL UNIQUE COLLATE NOCASE,
+								  password TEXT NOT NULL,
+								  salt BLOB NOT NULL,
+								  email TEXT NOT NULL UNIQUE COLLATE NOCASE,
+								  date INTEGER NOT NULL,
+								  sessionKey TEXT,
+								  sessionIP TEXT,
+								  failureCount INTEGER,
+								  failureTime REAL)',
+		'db_userspending_table_schema'
+			=>	'CREATE TABLE IF NOT EXISTS usersPending(id INTEGER PRIMARY KEY,
+									 username TEXT NOT NULL UNIQUE COLLATE NOCASE,
+									 password TEXT NOT NULL,
+									 salt BLOB NOT NULL,
+									 email TEXT NOT NULL UNIQUE COLLATE NOCASE,
+									 date INTEGER NOT NULL,
+									 confirmCode TEXT NOT NULL)',
+		'db_userschangeemail_table_schema'
+			=>	'CREATE TABLE IF NOT EXISTS usersChangeEmail(id INTEGER PRIMARY KEY,
+									     userID INTEGER UNIQUE NOT NULL,
+									     email TEXT NOT NULL UNIQUE COLLATE NOCASE,
+									     confirmCode TEXT NOT NULL)');
 	
 	//Method for accessing configuration info
 	public static function config($key)
