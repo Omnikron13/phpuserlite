@@ -138,26 +138,6 @@ class User
 									     confirmCode TEXT NOT NULL,
 									     FOREIGN KEY (userID) REFERENCES users(id))');
 	
-	//Confirm templates
-	//Email:
-	const CONFIRM_SUBJECT = 'Confirm your account at XYZ';
-	const CONFIRM_BODY_TEMPLATE = 'http://lab.s4t4n.net/projects/UserClass/demo/confirm.php?id=[id]&code=[code]';
-	const CONFIRM_FROM = 'accounts@lab.s4t4n.net';
-	//General:
-	const CONFIRM_SUCCESS_TEMPLATE = 'Email confirmed; you may now log in.';
-	const CONFIRM_INCORRECT_CODE_TEMPLATE = 'Confirmation code incorrect, carefully recopy the link into your browser and try again.';
-	const CONFIRM_NO_SUCH_ID_TEMPLATE = 'Could not find that account to confirm; it may already have been confirmed.';
-	
-	//Set email confirm templates
-	//Email:
-	const SET_EMAIL_CONFIRM_SUBJECT = 'Confirm your new email address at XYZ';
-	const SET_EMAIL_CONFIRM_BODY_TEMPLATE = 'http://lab.s4t4n.net/projects/UserClass/demo/confirm_email.php?id=[id]&code=[code]';
-	const SET_EMAIL_CONFIRM_FROM = 'accounts@lab.s4t4n.net';
-	//General:
-	const SET_EMAIL_CONFIRM_SUCCESS_TEMPLATE = 'Email change confirmed.';
-	const SET_EMAIL_CONFIRM_INCORRECT_CODE_TEMPLATE = 'Confirmation code incorrect, carefully recopy the link into your browser and try again';
-	const SET_EMAIL_CONFIRM_NO_SUCH_ID_TEMPLATE = 'Could not find that email change request to confirm; it may already have been confirmed';
-	
 	//Flags
 	const GET_BY_ID = 0;
 	const GET_BY_USERNAME = 1;
@@ -294,10 +274,10 @@ class User
 			$query->bindParam(':confirmCode', hash(User::config('hash_algorithm'), $confirmCode), PDO::PARAM_STR);
 			$query->execute();
 			//SEND EMAIL HERE!
-			$body = User::SET_EMAIL_CONFIRM_BODY_TEMPLATE;
+			$body = User::config('set_email_confirm_body_template');
 			$body = str_replace('[id]', $db->lastInsertId(), $body);
 			$body = str_replace('[code]', $confirmCode, $body);
-			mail($email, User::SET_EMAIL_CONFIRM_SUBJECT, $body, 'From: '.User::SET_EMAIL_CONFIRM_FROM);
+			mail($email, User::config('set_email_confirm_subject'), $body, 'From: '.User::config('set_email_confirm_from'));
 		}
 		else if($mode == User::SET_EMAIL_DIRECT)
 		{
@@ -518,10 +498,10 @@ class User
 		$query->bindParam(':confirmCode', hash(User::config('hash_algorithm'), $confirmCode), PDO::PARAM_STR);
 		$query->execute();
 		//Send confirm email...
-		$body = User::CONFIRM_BODY_TEMPLATE;
+		$body = User::config('confirm_body_template');
 		$body = str_replace('[id]', $db->lastInsertId(), $body);
 		$body = str_replace('[code]', $confirmCode, $body);
-		mail($email, User::CONFIRM_SUBJECT, $body, 'From: '.User::CONFIRM_FROM);
+		mail($email, User::config('confirm_subject'), $body, 'From: '.User::config('confirm_from'));
 	}
 	
 	//Should this be a single success+act-or-error method similar to login()?
@@ -540,7 +520,7 @@ class User
 		$query->bindColumn('confirmCode', $confirmCode, PDO::PARAM_STR);
 		$query->fetch(PDO::FETCH_BOUND);
 		if($username == NULL)
-			return User::CONFIRM_NO_SUCH_ID_TEMPLATE;
+			return User::config('confirm_no_such_id_template');
 		if(hash(User::config('hash_algorithm'), $_GET['code']) == $confirmCode)
 		{
 			//Copy over data to users table...
@@ -556,9 +536,9 @@ class User
 			$query = $db->prepare('DELETE FROM usersPending WHERE id = :id');
 			$query->bindParam(':id', $_GET['id'], PDO::PARAM_INT);
 			$query->execute();
-			return User::CONFIRM_SUCCESS_TEMPLATE;
+			return User::config('confirm_success_template');
 		}
-		return User::CONFIRM_INCORRECT_CODE_TEMPLATE;
+		return User::config('confirm_incorrect_code_template');
 	}
 	
 	//This method should be called on a page setup to confirm email changes; returns success or error message
@@ -574,7 +554,7 @@ class User
 		$query->bindColumn('confirmCode', $confirmCode, PDO::PARAM_STR);
 		$query->fetch(PDO::FETCH_BOUND);
 		if($email == NULL)
-			return User::SET_EMAIL_CONFIRM_NO_SUCH_ID_TEMPLATE;
+			return User::config('set_email_confirm_no_such_id_template');
 		if(hash(User::config('hash_algorithm'), $_GET['code']) == $confirmCode)
 		{
 			//Update users email in database...
@@ -586,9 +566,9 @@ class User
 			$query = $db->prepare('DELETE FROM usersChangeEmail WHERE id = :id');
 			$query->bindParam(':id', $_GET['id'], PDO::PARAM_INT);
 			$query->execute();
-			return User::SET_EMAIL_CONFIRM_SUCCESS_TEMPLATE;
+			return User::config('set_email_confirm_success_template');
 		}
-		return User::SET_EMAIL_CONFIRM_INCORRECT_CODE_TEMPLATE;
+		return User::config('set_email_confirm_incorrect_code_template');
 	}
 	
 	//This function should be called at the -top- of a login page, before any output; it returns
