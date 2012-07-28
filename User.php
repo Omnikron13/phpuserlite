@@ -138,14 +138,6 @@ class User
 									     confirmCode TEXT NOT NULL,
 									     FOREIGN KEY (userID) REFERENCES users(id))');
 	
-	//Login templates
-	const LOGIN_FORM_TEMPLATE	= '<form id="login_form" action="" method="POST" accept-charset="UTF-8" name="login_form">[error]<fieldset id="login_form_group"><legend id="form_legend">User login form</legend><label id="username_label" for="username_field">Username:<input id="username_field" type="text" name="username" value="[username]" /></label><label id="password_label" for="password_field">Password:<input id="password_field" type="password" name="password" /></label><label id="login_button_label" for="login_button"><input id="login_button" type="submit" value="Login" /></label></fieldset></form>';
-	const LOGIN_SUCCESS_TEMPLATE = '<p>Successfully logged in as [username]!</p>';
-	
-	//Register templates
-	const REGISTER_FORM_TEMPLATE	= '<form id="register_form" action="" method="POST" accept-charset="UTF-8" name="register_form">[error]<fieldset id="register_form_group"><legend id="form_legend">User registration form</legend><label id="username_label" for="username_field">Username:<input id="username_field" type="text" name="username" value="[username]" /></label><label id="email_label" for="email_field">Email:<input id="email_field" type="email" name="email" value="[email]" /></label><label id="password_label" for="password_field">Password:<input id="password_field" type="password" name="password" /></label><label id="confirm_password_label" for="confirm_password_field">Confirm password:<input id="confirm_password_field" type="password" name="passwordConfirm" /></label><label id="register_button_label" for="register_button"><input id="register_button" type="submit" value="Register" /></label></fieldset></form>';
-	const REGISTER_SUCCESS_TEMPLATE = '<p>Your account has been successfully registered, and an email has been sent to you containing a link to confirm your email address and activate your account.</p>';
-	
 	//Login errors
 	const LOGIN_NO_USERNAME_ERROR = 'You must enter your username to log in';
 	const LOGIN_NO_PASSWORD_ERROR = 'You must enter your password to log in';
@@ -670,7 +662,7 @@ class User
 				$user->startSession(User::config('cookie_session_length'));
 			$user->setFailureCount(0);
 			$user->setFailureTime(0);
-			return str_replace('[username]', $user->getUsername(), User::LOGIN_SUCCESS_TEMPLATE);
+			return str_replace('[username]', $user->getUsername(), User::config('login_success_template'));
 		}
 		return User::processLoginForm();
 	}
@@ -678,7 +670,7 @@ class User
 	//This function inserts the dynamic elements into the login form template
 	protected static function processLoginForm($error = '', $username = '')
 	{
-		$form = User::LOGIN_FORM_TEMPLATE;
+		$form = User::config('login_form_template');
 		$form = str_replace('[error]', $error, $form);
 		$form = str_replace('[username]', $username, $form);
 		return $form;
@@ -718,13 +710,13 @@ class User
 			return User::processRegisterForm(User::REGISTER_PASSWORD_MISMATCH_ERROR, $_POST['username'], $_POST['email']);
 		//Add user to the usersPending table..
 		User::addPending($_POST['username'], $_POST['password'], $_POST['email']);
-		return User::REGISTER_SUCCESS_TEMPLATE;
+		return User::config('register_success_template');
 	}
 	
 	//This function inserts the dynamic elements into the register form template
 	protected static function processRegisterForm($error = '', $username = '', $email = '')
 	{
-		$form = User::REGISTER_FORM_TEMPLATE;
+		$form = User::config('register_form_template');
 		$form = str_replace('[error]', $error, $form);
 		$form = str_replace('[username]', $username, $form);
 		$form = str_replace('[email]', $email, $form);
