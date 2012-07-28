@@ -28,6 +28,21 @@ class User
 	protected static $configData = array(
 		//Configuration parametres
 		'db_path'		=>	'./phpuserlite.db',
+		'salt_length'		=>	16,
+		'session_key_length'	=>	32,
+		'confirm_code_length'	=>	16,
+		'hash_algorithm'	=>	'sha512',
+		'hash_iterations'	=>	256,
+		'username_regex'	=>	'/^\w{4,32}$/',
+		'password_regex'	=>	'/^.{6,128}$/',
+		'email_regex'		=>	'/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i',
+		'cookie_session_length'	=>	604800,
+		'cookie_path'		=>	'',
+		'cookie_domain'		=>	'',
+		'login_frequency_limit'	=>	1.0,
+		'login_failure_limit'	=>	5,
+		'login_failure_period'	=>	300,
+		'login_failure_cooldown'=>	300,
 		
 		//Database schemas
 		'db_users_table_schema'
