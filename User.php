@@ -24,6 +24,7 @@ class User
 {
 	//Version string...
 	const VERSION = 'trunk';
+	const DEFAULT_CONFIG_FILE = 'phpuserlite.cfg';
 	
 	protected static $configData = array(
 		//Configuration parametres
@@ -810,7 +811,7 @@ class User
 		//If no attempt has been made to load the config, attempt to load it, and patch it over $configData
 		if(User::$configLoaded)
 			return;
-		$file = __DIR__.'/phpuserlite.cfg';
+		$file = __DIR__.'/'.User::DEFAULT_CONFIG_FILE;
 		if(is_file($file) && is_readable($file))
 		{
 			$raw = file($file);
