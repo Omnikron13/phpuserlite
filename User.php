@@ -473,7 +473,7 @@ class User
 		$query->bindParam(':date', time(), PDO::PARAM_STR);
 		$query->execute();
 		//Call any registered onAdd callbacks, passing a new user object representing the added user
-		User::processEventHandlers('onAdd', new User($db->lastInsertId()));
+		User::processEventHandlers('onAdd', new User(intval($db->lastInsertId())));
 	}
 	
 	//Adds a new user to the usersPending database; sends an email out for confirmation
@@ -542,7 +542,7 @@ class User
 			$query->bindParam(':id', $_GET['id'], PDO::PARAM_INT);
 			$query->execute();
 			//Call any registered onAdd callbacks, passing a new user object representing the added user
-			User::processEventHandlers('onAdd', new User($db->lastInsertId()));
+			User::processEventHandlers('onAdd', new User(intval($db->lastInsertId())));
 			return User::config('confirm_success_template');
 		}
 		return User::config('confirm_incorrect_code_template');
