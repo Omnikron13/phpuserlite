@@ -804,27 +804,32 @@ class User
 	//This variable is to ensure configuration is loaded, and is only loaded once
 	protected static $configLoaded = false;
 	
+	//This function loads config from a file, if applicable, and sets $configLoaded to true
+	public static function loadConfig()
+	{
+		//If no attempt has been made to load the config, attempt to load it, and patch it over $configData
+		if(User::$configLoaded)
+			return;
+		$file = __DIR__.'/phpuserlite.cfg';
+		if(is_file($file) && is_readable($file))
+		{
+			$raw = file($file);
+			foreach($raw as $line)
+			{
+				$line = explode('=', $line, 2);
+				$line[0] = trim($line[0]);
+				$line[1] = trim($line[1]);
+				if(array_key_exists($line[0], User::$configData))
+					User::$configData[$line[0]] = $line[1];
+			}
+		}
+		User::$configLoaded = true;
+	}
+	
 	//Method for accessing configuration info
 	public static function config($key)
 	{
-		//If no attempt has been made to load the config, attempt to load it, and patch it over $configData
-		if(!User::$configLoaded)
-		{
-			$file = __DIR__.'/phpuserlite.cfg';
-			if(is_file($file) && is_readable($file))
-			{
-				$raw = file($file);
-				foreach($raw as $line)
-				{
-					$line = explode('=', $line, 2);
-					$line[0] = trim($line[0]);
-					$line[1] = trim($line[1]);
-					if(array_key_exists($line[0], User::$configData))
-						User::$configData[$line[0]] = $line[1];
-				}
-			}
-			User::$configLoaded = true;
-		}
+		User::loadConfig();
 		if(array_key_exists($key, User::$configData))
 			return User::$configData[$key];
 		//else exception...
