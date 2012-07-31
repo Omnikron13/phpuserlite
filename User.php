@@ -374,6 +374,9 @@ class User
 		else
 			$this->setFailureCount($this->failureCount + 1);
 		$this->setFailureTime();
+		//Check if user has just been forced into brute force lockdown, if so trigger onLockdown callbacks
+		if($this->failureCount == User::config('login_failure_limit'))
+			User::processEventHandlers('onLockdown', $this);
 	}
 	
 	//Generates a new session key; sends out login cookies; updates the database & members
@@ -812,6 +815,7 @@ class User
 		'preSetup'	=>	array(),
 		'postSetup'	=>	array(),
 		'onAdd'		=>	array(),
+		'onLockdown'	=>	array(),
 		'onRemove'	=>	array()
 		);
 	
