@@ -814,9 +814,20 @@ class User
 	
 	public static function addEventHandler($event, $callback)
 	{
-		if(!array_key_exists(User::$events, $event))
+		print_r(User::$events);
+		if(!array_key_exists($event, User::$events))
 			return; //replace with exception
 		User::$events[$event][] = $callback;
+	}
+	
+	protected static function processEventHandlers()
+	{
+		$args = func_get_args();
+		$event = array_shift($args);
+		foreach(User::$events[$event] as $callback)
+		{
+			call_user_func_array($callback, $args);
+		}
 	}
 	
 	//This variable is to ensure configuration is loaded, and is only loaded once
@@ -863,10 +874,7 @@ class User
 	{
 		$db = new PDO('sqlite:'.User::config('db_path'));
 		//Call any registered preSetup callbacks, passing them the open db connection
-		foreach(User::$events['preSetup'] as $callback)
-		{
-			call_user_func($callback, $db);
-		}
+		User::processEventHandlers('preSetup', $db);
 		//Create 'users' table...
 		$query = $db->prepare(User::config('db_users_table_schema'));
 		$query->execute();
@@ -877,10 +885,7 @@ class User
 		$query = $db->prepare(User::config('db_userschangeemail_table_schema'));
 		$query->execute();
 		//Call any registered postSetup callbacks, passing them the open db connection
-		foreach(User::$events['postSetup'] as $callback)
-		{
-			call_user_func($callback, $db);
-		}
+		User::processEventHandlers('postSetup', $db);
 	}
 }
 
