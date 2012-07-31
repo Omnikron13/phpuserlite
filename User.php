@@ -806,12 +806,13 @@ class User
 	protected static $configLoaded = false;
 	
 	//This function loads config from a file, if applicable, and sets $configLoaded to true
-	public static function loadConfig()
+	public static function loadConfig($file = NULL)
 	{
 		//If no attempt has been made to load the config, attempt to load it, and patch it over $configData
 		if(User::$configLoaded)
 			return;
-		$file = __DIR__.'/'.User::DEFAULT_CONFIG_FILE;
+		if($file === NULL)
+			$file = __DIR__.'/'.User::DEFAULT_CONFIG_FILE;
 		if(is_file($file) && is_readable($file))
 		{
 			$raw = file($file);
