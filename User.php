@@ -809,6 +809,7 @@ class User
 	protected static $events = array(
 		'preSetup'	=>	array(),
 		'postSetup'	=>	array(),
+		'onAdd'		=>	array(),
 		'onRemove'	=>	array()
 		);
 	
