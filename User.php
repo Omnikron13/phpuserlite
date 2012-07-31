@@ -24,6 +24,7 @@ class User
 {
 	//Version string...
 	const VERSION = 'trunk';
+	const DEFAULT_CONFIG_FILE = 'phpuserlite.cfg';
 	
 	protected static $configData = array(
 		//Configuration parametres
@@ -820,26 +821,37 @@ class User
 	//This variable is to ensure configuration is loaded, and is only loaded once
 	protected static $configLoaded = false;
 	
+	//This function loads config from a file, if applicable, and sets $configLoaded to true
+	public static function loadConfig($file = NULL)
+	{
+		//If no attempt has been made to load the config, attempt to load it, and patch it over $configData
+		if(User::$configLoaded)
+			return;
+		if($file === NULL)
+			$file = __DIR__.'/'.User::DEFAULT_CONFIG_FILE;
+		if(is_file($file) && is_readable($file))
+		{
+			$raw = file($file);
+			foreach($raw as $line)
+			{
+				$line = explode('=', $line, 2);
+				$line[0] = trim($line[0]);
+				$line[1] = trim($line[1]);
+				if(array_key_exists($line[0], User::$configData))
+					User::$configData[$line[0]] = $line[1];
+			}
+		}
+		//Convert relative db_path values to absolute, taking '.' to be the parent directory of User.php
+		if(strncmp(User::$configData['db_path'], '/', 1) != 0 &&
+		   substr_compare(User::$configData['db_path'], ':', 1, 1) != 0)
+			User::$configData['db_path'] = __DIR__.'/'.User::$configData['db_path'];
+		User::$configLoaded = true;
+	}
+	
 	//Method for accessing configuration info
 	public static function config($key)
 	{
-		//If no attempt has been made to load the config, attempt to load it, and patch it over $configData
-		if(!User::$configLoaded)
-		{
-			if(is_file('./phpuserlite.cfg') && is_readable('./phpuserlite.cfg'))
-			{
-				$raw = file('./phpuserlite.cfg');
-				foreach($raw as $line)
-				{
-					$line = explode('=', $line, 2);
-					$line[0] = trim($line[0]);
-					$line[1] = trim($line[1]);
-					if(array_key_exists($line[0], User::$configData))
-						User::$configData[$line[0]] = $line[1];
-				}
-			}
-			User::$configLoaded = true;
-		}
+		User::loadConfig();
 		if(array_key_exists($key, User::$configData))
 			return User::$configData[$key];
 		//else exception...
