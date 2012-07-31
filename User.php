@@ -423,10 +423,8 @@ class User
 
 	public function remove()
 	{
-		foreach(User::$events['onRemove'] as $callback)
-		{
-			call_user_func($callback, $this);
-		}
+		//Call any registered onRemove callbacks, passing the user object
+		User::processEventHandlers('onRemove', $this);
 		//Prep database...
 		$db = new PDO('sqlite:'.User::config('db_path'));
 		//Remove the record in the users table...
