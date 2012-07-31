@@ -474,6 +474,8 @@ class User
 		$query->bindParam(':email', $email, PDO::PARAM_STR);
 		$query->bindParam(':date', time(), PDO::PARAM_STR);
 		$query->execute();	
+		//Call any registered onAdd callbacks
+		User::processEventHandlers('onAdd');
 	}
 	
 	//Adds a new user to the usersPending database; sends an email out for confirmation
@@ -487,7 +489,7 @@ class User
 		if(!User::validateEmail($email))
 			throw new UserInvalidEmailException($email);
 		if(!User::availableUsername($username))
-			throw new UserUnavailableUsernameException($username);                                                     
+			throw new UserUnavailableUsernameException($username); 
 		if(!User::availableEmail($email))
 			throw new UserUnavailableEmailException($email);   
 		//Main code follows...
@@ -541,6 +543,8 @@ class User
 			$query = $db->prepare('DELETE FROM usersPending WHERE id = :id');
 			$query->bindParam(':id', $_GET['id'], PDO::PARAM_INT);
 			$query->execute();
+			//Call any registered onAdd callbacks
+			User::processEventHandlers('onAdd');
 			return User::config('confirm_success_template');
 		}
 		return User::config('confirm_incorrect_code_template');
