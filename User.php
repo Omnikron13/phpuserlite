@@ -825,6 +825,9 @@ class User
 					User::$configData[$line[0]] = $line[1];
 			}
 		}
+		//Convert relative db_path values to absolute, taking '.' to be the parent directory of User.php
+		if(strncmp(User::$configData['db_path'], '.', 1) == 0)
+			User::$configData['db_path'] = substr_replace(User::$configData['db_path'], __DIR__, 0, 1);
 		User::$configLoaded = true;
 	}
 	
