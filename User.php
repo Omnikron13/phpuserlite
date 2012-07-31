@@ -807,7 +807,8 @@ class User
 	}
 	
 	protected static $events = array(
-		'onSetup'	=>	array(),
+		'preSetup'	=>	array(),
+		'postSetup'	=>	array(),
 		'onRemove'	=>	array()
 		);
 	
@@ -861,6 +862,11 @@ class User
 	public static function setupDB()
 	{
 		$db = new PDO('sqlite:'.User::config('db_path'));
+		//Call any registered preSetup callbacks, passing them the open db connection
+		foreach(User::$events['preSetup'] as $callback)
+		{
+			call_user_func($callback, $db);
+		}
 		//Create 'users' table...
 		$query = $db->prepare(User::config('db_users_table_schema'));
 		$query->execute();
@@ -870,6 +876,11 @@ class User
 		//Create 'usersChangeEmail' table...
 		$query = $db->prepare(User::config('db_userschangeemail_table_schema'));
 		$query->execute();
+		//Call any registered postSetup callbacks, passing them the open db connection
+		foreach(User::$events['postSetup'] as $callback)
+		{
+			call_user_func($callback, $db);
+		}
 	}
 }
 
