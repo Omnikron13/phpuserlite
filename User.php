@@ -817,7 +817,6 @@ class User
 	
 	public static function addEventHandler($event, $callback)
 	{
-		print_r(User::$events);
 		if(!array_key_exists($event, User::$events))
 			return; //replace with exception
 		User::$events[$event][] = $callback;
