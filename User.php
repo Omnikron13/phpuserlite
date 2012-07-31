@@ -471,9 +471,9 @@ class User
 		$query->bindParam(':salt', $salt, PDO::PARAM_LOB); //is LOB right..?
 		$query->bindParam(':email', $email, PDO::PARAM_STR);
 		$query->bindParam(':date', time(), PDO::PARAM_STR);
-		$query->execute();	
-		//Call any registered onAdd callbacks
-		User::processEventHandlers('onAdd');
+		$query->execute();
+		//Call any registered onAdd callbacks, passing a new user object representing the added user
+		User::processEventHandlers('onAdd', new User($db->lastInsertId()));
 	}
 	
 	//Adds a new user to the usersPending database; sends an email out for confirmation
@@ -541,8 +541,8 @@ class User
 			$query = $db->prepare('DELETE FROM usersPending WHERE id = :id');
 			$query->bindParam(':id', $_GET['id'], PDO::PARAM_INT);
 			$query->execute();
-			//Call any registered onAdd callbacks
-			User::processEventHandlers('onAdd');
+			//Call any registered onAdd callbacks, passing a new user object representing the added user
+			User::processEventHandlers('onAdd', new User($db->lastInsertId()));
 			return User::config('confirm_success_template');
 		}
 		return User::config('confirm_incorrect_code_template');
