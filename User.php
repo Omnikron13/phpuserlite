@@ -810,9 +810,10 @@ class User
 		//If no attempt has been made to load the config, attempt to load it, and patch it over $configData
 		if(!User::$configLoaded)
 		{
-			if(is_file('./phpuserlite.cfg') && is_readable('./phpuserlite.cfg'))
+			$file = __DIR__.'/phpuserlite.cfg';
+			if(is_file($file) && is_readable($file))
 			{
-				$raw = file('./phpuserlite.cfg');
+				$raw = file($file);
 				foreach($raw as $line)
 				{
 					$line = explode('=', $line, 2);
