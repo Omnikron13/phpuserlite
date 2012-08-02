@@ -247,7 +247,7 @@ class User
 		if(!User::validatePassword($password))
 			throw new UserInvalidPasswordException($password);
 		$salt = User::generateSalt();
-		$password = processPassword($password, $salt);
+		$password = User::processPassword($password, $salt);
 		$db = new PDO('sqlite:'.User::config('db_path'));
 		$query = $db->prepare('UPDATE users SET password=:password, salt=:salt WHERE id=:id');
 		$query->bindParam(':password', $password, PDO::PARAM_STR);
