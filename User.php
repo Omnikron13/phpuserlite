@@ -879,12 +879,12 @@ class UserInvalidEmailException extends InvalidArgumentException{
 		parent::__construct('Invalid email: '.$value);
 	}
 }
-class UserUnavailableUsernameException extends InvalidArgumentException{
+class UserUnavailableUsernameException extends RuntimeException{
 	public function __construct($value){
 		parent::__construct('Username \''.$value.'\' already exists in database.');
 	}
 }
-class UserUnavailableEmailException extends InvalidArgumentException{
+class UserUnavailableEmailException extends RuntimeException{
 	public function __construct($value){
 		parent::__construct('Email \''.$value.'\' already exists in database.');
 	}
