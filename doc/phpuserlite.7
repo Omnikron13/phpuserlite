@@ -143,7 +143,7 @@ characters, and then that you only increase them
 .SS email_regex
 This is the regex used to attempt to assure that all users are
 registered with a valid email address. The default value is
-.IR /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i ,
+.IR /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\e.[A-Z]{2,4}$/i ,
 which you should only change if are sure it will continue to
 work, or if you wish to be more strict on who can register
 .\" const User::cookie_session_length
