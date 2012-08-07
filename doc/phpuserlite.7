@@ -52,7 +52,7 @@ declaration. For the most part these settings can be left as
 their default values and
 .I phpuserlite
 will work fine, with the exception of
-.BR DB_PATH ,
+.BR db_path ,
 the
 .BI CONFIRM_ *
 constants, and the
@@ -65,8 +65,8 @@ This is not actually for configuration, it is just here to track
 the version of
 .I phpuserlite
 you have. This constant should NOT be modified
-.\" const User::DB_PATH
-.SS DB_PATH
+.\" const User::db_path
+.SS db_path
 You should set this constant to the fully qualified path to the
 .I SQLite
 database file you want
@@ -74,8 +74,8 @@ database file you want
 to use. The default value is the path to the database used to
 develop and test
 .I phpuserlite
-.\" const User::SALT_LENGTH
-.SS SALT_LENGTH
+.\" const User::salt_length
+.SS salt_length
 This is the number of bytes of random data used to salt data
 that is hashed by
 .IR phpuserlite .
@@ -83,24 +83,24 @@ The default value is
 .IR 16 ,
 which should be sufficient, so you probably do not need to alter
 this
-.\" const User::SESSION_KEY_LENGTH
-.SS SESSION_KEY_LENGTH
+.\" const User::session_key_length
+.SS session_key_length
 This is the number of bytes of random data that is used to
 generate the session keys used in login cookies. The default
 value is
 .IR 32 ,
 which should be sufficient, so you probably do not need to
 alter this
-.\" const User::CONFIRM_CODE_LENGTH
-.SS CONFIRM_CODE_LENGTH
+.\" const User::confirm_code_length
+.SS confirm_code_length
 This is the number of bytes of random data that is used to
 generate the confirmation codes sent to users to confirm
 registration and change of email. The default value is
 .IR 16 ,
 which should be sufficient, so you probably do not need to
 alter this
-.\" const User::HASH_ALGORITHM
-.SS HASH_ALGORITHM
+.\" const User::hash_algorithm
+.SS hash_algorithm
 This is the hashing algorithm that
 .I phpuserlite
 uses throughout, with the exception of
@@ -113,17 +113,17 @@ but if you wish to use another hashing algorithm, you may
 set this to any algorithm available to the php
 .IR hash ()
 function
-.\" const User::HASH_ITERATIONS
-.SS HASH_ITERATIONS
+.\" const User::hash_iterations
+.SS hash_iterations
 This is the number of times a password is passed through 
-.B HASH_ALGORITHM
+.B hash_algorithm
 before being stored in, or checked against, the database.
 The default value is
 .IR 256 ,
 which should be sufficient, so you probably do not need to
 alter this
-.\" const User::USERNAME_REGEX
-.SS USERNAME_REGEX
+.\" const User::username_regex
+.SS username_regex
 This defines the prototype that all usernames of users managed
 by
 .I phpuserlite
@@ -133,8 +133,8 @@ will refuse to register users who wish to register with
 usernames that do not conform to this regex, and will ask
 them to enter another username. The default value is
 .I /^\[rs]w{4,32}$/
-.\" const User::PASSWORD_REGEX
-.SS PASSWORD_REGEX
+.\" const User::password_regex
+.SS password_regex
 This defines the prototype that all passwords of users managed
 by
 .I phpuserlite
@@ -146,34 +146,34 @@ them to enter another password. The default value is
 .IR /^.{6,128}$/ .
 It is recommended that you only modify the minimum and maximum
 characters, and then that you only increase them
-.\" const User::EMAIL_REGEX
-.SS EMAIL_REGEX
+.\" const User::email_regex
+.SS email_regex
 This is the regex used to attempt to assure that all users are
 registered with a valid email address. The default value is
 .IR /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i ,
 which you should only change if are sure it will continue to
 work, or if you wish to be more strict on who can register
-.\" const User::COOKIE_SESSION_LENGTH
-.SS COOKIE_SESSION_LENGTH
+.\" const User::cookie_session_length
+.SS cookie_session_length
 This is the time in seconds before a login session cookie will
 expire, thus the amount of time a user will stay logged in
 unless they logout manually. The default value is
 .IR 604800 ,
 which equates to 7 days
-.\" const User::COOKIE_PATH
-.SS COOKIE_PATH
+.\" const User::cookie_path
+.SS cookie_path
 This is the value that will be used for the path attribure of
 all cookies issued by
 .IR phpuserlite .
 The default value is an empty string
-.\" const User::COOKIE_DOMAIN
-.SS COOKIE_DOMAIN
+.\" const User::cookie_domain
+.SS cookie_domain
 This is the value that will be used for the domain attribute of
 all cookies issued by
 .IR phpuserlite .
 The default value is an empty string
-.\" const User::LOGIN_FORM_TEMPLATE
-.SS LOGIN_FORM_TEMPLATE
+.\" const User::login_form_template
+.SS login_form_template
 This is the template used by
 .I phpuserlite
 to generate login forms. When modifying this template, pay
@@ -181,8 +181,8 @@ attention to the
 .IR [error] " & " [username]
 placeholders, they are used to inject information into the
 template
-.\" const User::LOGIN_SUCCESS_TEMPLATE
-.SS LOGIN_SUCCESS_TEMPLATE
+.\" const User::login_success_template
+.SS login_success_template
 This is the template used by
 .I phpuserlite
 to report a successful login. When modifying this template
@@ -190,8 +190,8 @@ pay attention to the
 .I [username]
 placeholder, it is used to inject the username of the user
 that has logged in
-.\" const User::REGISTER_FORM_TEMPLATE
-.SS REGISTER_FORM_TEMPLATE
+.\" const User::register_form_template
+.SS register_form_template
 This is the template used by
 .I phpuserlite
 to generate registration forms. When modifying this template,
@@ -199,154 +199,154 @@ pay attention to the
 .IR [error] ", " [username] " & " [email]
 placeholders, they are used to inject information into the
 template
-.\" const User::REGISTER_SUCCESS_TEMPLATE
-.SS REGISTER_SUCCESS_TEMPLATE
+.\" const User::register_success_template
+.SS register_success_template
 This is the template used by
 .I phpuserlite
 to report a successful registration
-.\" const User::LOGIN_NO_USERNAME_ERROR
-.SS LOGIN_NO_USERNAME_ERROR
+.\" const User::login_no_username_error
+.SS login_no_username_error
 This is injected into the place of the
 .I [error]
 placeholder in
-.B LOGIN_FORM_TEMPLATE
+.B login_form_template
 when a login attempt is made without a username
-.\" const User::LOGIN_NO_PASSWORD_ERROR
-.SS LOGIN_NO_PASSWORD_ERROR
+.\" const User::login_no_password_error
+.SS login_no_password_error
 This is injected into the place of the
 .I [error]
 placeholder in
-.B LOGIN_FORM_TEMPLATE
+.B login_form_template
 when a login attempt is made without a password
-.\" const User::LOGIN_NO_INPUT_ERROR
-.SS LOGIN_NO_INPUT_ERROR
+.\" const User::login_no_input_error
+.SS login_no_input_error
 This is injected into the place of the
 .I [error]
 placeholder in
-.B LOGIN_FORM_TEMPLATE
+.B login_form_template
 when a login attempt is made without either a username or
 password
-.\" const User::LOGIN_INVALID_USERNAME_ERROR
-.SS LOGIN_INVALID_USERNAME_ERROR
+.\" const User::login_invalid_username_error
+.SS login_invalid_username_error
 This is injected into the place of the
 .I [error]
 placeholder in
-.B LOGIN_FORM_TEMPLATE
+.B login_form_template
 when a login attempt is made with a username that does not
 match against
-.B USERNAME_REGEX
-.\" const User::LOGIN_INVALID_PASSWORD_ERROR
-.SS LOGIN_INVALID_PASSWORD_ERROR
+.B username_regex
+.\" const User::login_invalid_password_error
+.SS login_invalid_password_error
 This is injected into the place of the
 .I [error]
 placeholder in
-.B LOGIN_FORM_TEMPLATE
+.B login_form_template
 when a login attempt is made with a password that does not
 match against
-.B PASSWORD_REGEX
-.\" const User::LOGIN_NO_SUCH_USERNAME_ERROR
-.SS LOGIN_NO_SUCH_USERNAME_ERROR
+.B password_regex
+.\" const User::login_no_such_username_error
+.SS login_no_such_username_error
 This is injected into the place of the
 .I [error]
 placeholder in
-.B LOGIN_FORM_TEMPLATE
+.B login_form_template
 when a login attempt is made and the username entered was
 not found in the database
-.\" const User::LOGIN_INCORRECT_PASSWORD_ERROR
-.SS LOGIN_INCORRECT_PASSWORD_ERROR
+.\" const User::login_incorrect_password_error
+.SS login_incorrect_password_error
 This is injected into the place of the
 .I [error]
 placeholder in
-.B LOGIN_FORM_TEMPLATE
+.B login_form_template
 when a login attempt is made and the password entered does
 not match the password stored in the database for the
 username entered
-.\" const User::REGISTER_NO_USERNAME_ERROR
-.SS REGISTER_NO_USERNAME_ERROR
+.\" const User::register_no_username_error
+.SS register_no_username_error
 This is injected into the place of the
 .I [error]
 placeholder in
-.B REGISTER_FORM_TEMPLATE
+.B register_form_template
 when a registration attempt is made without a username
-.\" const User::REGISTER_NO_PASSWORD_ERROR
-.SS REGISTER_NO_PASSWORD_ERROR
+.\" const User::register_no_password_error
+.SS register_no_password_error
 This is injected into the place of the
 .I [error]
 placeholder in
-.B REGISTER_FORM_TEMPLATE
+.B register_form_template
 when a registration attempt is made without a password
-.\" const User::REGISTER_NO_CONFIRM_PASSWORD_ERROR
-.SS REGISTER_NO_CONFIRM_PASSWORD_ERROR
+.\" const User::register_no_confirm_password_error
+.SS register_no_confirm_password_error
 This is injected into the place of the
 .I [error]
 placeholder in
-.B REGISTER_FORM_TEMPLATE
+.B register_form_template
 when a registration attempt is made without the password
 being confirmed
-.\" const User::REGISTER_NO_EMAIL_ERROR
-.SS REGISTER_NO_EMAIL_ERROR
+.\" const User::register_no_email_error
+.SS register_no_email_error
 This is injected into the place of the
 .I [error]
 placeholder in
-.B REGISTER_FORM_TEMPLATE
+.B register_form_template
 when a registration attempt is made without an email
-.\" const User::REGISTER_INVALID_USERNAME_ERROR
-.SS REGISTER_INVALID_USERNAME_ERROR
+.\" const User::register_invalid_username_error
+.SS register_invalid_username_error
 This is injected into the place of the
 .I [error]
 placeholder in
-.B REGISTER_FORM_TEMPLATE
+.B register_form_template
 when a registration attempt is made with a username that does
 not match against
-.B USERNAME_REGEX
-.\" const User::REGISTER_INVALID_PASSWORD_ERROR
-.SS REGISTER_INVALID_PASSWORD_ERROR
+.B username_regex
+.\" const User::register_invalid_password_error
+.SS register_invalid_password_error
 This is injected into the place of the
 .I [error]
 placeholder in
-.B REGISTER_FORM_TEMPLATE
+.B register_form_template
 when a registration attempt is made with a username that does
 not match against
-.B PASSWORD_REGEX
-.\" const User::REGISTER_INVALID_EMAIL_ERROR
-.SS REGISTER_INVALID_EMAIL_ERROR
+.B password_regex
+.\" const User::register_invalid_email_error
+.SS register_invalid_email_error
 This is injected into the place of the
 .I [error]
 placeholder in
-.B REGISTER_FORM_TEMPLATE
+.B register_form_template
 when a registration attempt is made with an email that does
 not match against
-.B EMAIL_REGEX
-.\" const User::REGISTER_PASSWORD_MISMATCH_ERROR
-.SS REGISTER_PASSWORD_MISMATCH_ERROR
+.B email_regex
+.\" const User::register_password_mismatch_error
+.SS register_password_mismatch_error
 This is injected into the place of the
 .I [error]
 placeholder in
-.B REGISTER_FORM_TEMPLATE
+.B register_form_template
 when a registration attempt is made and the password does not
 match the confirmation password
-.\" const User::REGISTER_UNAVAILABLE_USERNAME_ERROR
-.SS REGISTER_UNAVAILABLE_USERNAME_ERROR
+.\" const User::register_unavailable_username_error
+.SS register_unavailable_username_error
 This is injected into the place of the
 .I [error]
 placeholder in
-.B REGISTER_FORM_TEMPLATE
+.B register_form_template
 when a registration attempt is made and the username entered
 is already registered in the database
-.\" const User::REGISTER_UNAVAILABLE_EMAIL_ERROR
-.SS REGISTER_UNAVAILABLE_EMAIL_ERROR
+.\" const User::register_unavailable_email_error
+.SS register_unavailable_email_error
 This is injected into the place of the
 .I [error]
 placeholder in
-.B REGISTER_FORM_TEMPLATE
+.B register_form_template
 when a registration attempt is made and the email entered is
 already registered in the database
-.\" const User::CONFIRM_SUBJECT
-.SS CONFIRM_SUBJECT
+.\" const User::confirm_subject
+.SS confirm_subject
 This is the subject used in emails sent out to new users to
 confirm their email address
-.\" const User::CONFIRM_BODY_TEMPLATE
-.SS CONFIRM_BODY_TEMPLATE
+.\" const User::confirm_body_template
+.SS confirm_body_template
 This is the template used by
 .I phpuserlite
 to generate the body of emails sent out to new users to confirm
@@ -356,19 +356,19 @@ to the
 placeholders, and note that the entire string
 .I ?id=[id]&code=[code]
 must remain intact at the end of the confirmation page file name
-.\" const User::CONFIRM_FROM
-.SS CONFIRM_FROM
+.\" const User::confirm_form
+.SS confirm_form
 This is the email address that emails sent out to new users to
 confirm their email address will be spoofed by 
 .I phpuserlite
 to look like they're from
-.\" const User::CONFIRM_SUCCESS_TEMPLATE
-.SS CONFIRM_SUCCESS_TEMPLATE
+.\" const User::confirm_success_template
+.SS confirm_success_template
 This is the template returned by
 .BR confirm ()
 when it successfully confirms a new user
-.\" const User::CONFIRM_INCORRECT_CODE_TEMPLATE
-.SS CONFIRM_INCORRECT_CODE_TEMPLATE
+.\" const User::confirm_incorrect_code_template
+.SS confirm_incorrect_code_template
 This is the template returned by
 .BR confirm ()
 when the confirmation code in
@@ -376,8 +376,8 @@ when the confirmation code in
 doesn't match the one stored in the
 .I usersPending
 table in the database
-.\" const User::CONFIRM_NO_SUCH_ID_TEMPLATE
-.SS CONFIRM_NO_SUCH_ID_TEMPLATE
+.\" const User::confirm_no_such_id_template
+.SS confirm_no_such_id_template
 This is the template returned by
 .BR confirm ()
 when the
@@ -387,12 +387,12 @@ in
 does not match any stored in the
 .I usersPending
 table in the database
-.\" const User::SET_EMAIL_CONFIRM_SUBJECT
-.SS SET_EMAIL_CONFIRM_SUBJECT
+.\" const User::set_email_confirm_subject
+.SS set_email_confirm_subject
 This is the subject used in emails sent out to users to confirm
 a change of email address
-.\" const User::SET_EMAIL_CONFIRM_BODY_TEMPLATE
-.SS SET_EMAIL_CONFIRM_BODY_TEMPLATE
+.\" const User::set_email_confirm_body_template
+.SS set_email_confirm_body_template
 This is the template used by
 .I phpuserlite
 to generate the body of emails sent out to users to confirm a
@@ -402,19 +402,19 @@ attention to the
 placeholders, and note that the entire string
 .I ?id=[id]&code=[code]
 must remain intact at the end of the confirmation page file name
-.\" const User::SET_EMAIL_CONFIRM_FROM
-.SS SET_EMAIL_CONFIRM_FROM
+.\" const User::set_email_confirm_form
+.SS set_email_confirm_form
 This is the email address that emails sent out to users to
 confirm a change of email address will be spoofed by
 .I phpuserlite
 to look like they're from
-.\" const User::SET_EMAIL_CONFIRM_SUCCESS_TEMPLATE
-.SS SET_EMAIL_CONFIRM_SUCCESS_TEMPLATE
+.\" const User::set_email_confirm_success_template
+.SS set_email_confirm_success_template
 This is the template returned by
 .BR confirmSetEmail ()
 when it successfully changes a users email
-.\" const User::SET_EMAIL_CONFIRM_INCORRECT_CODE_TEMPLATE
-.SS SET_EMAIL_CONFIRM_INCORRECT_CODE_TEMPLATE
+.\" const User::set_email_confirm_incorrect_code_template
+.SS set_email_confirm_incorrect_code_template
 This is the template returned by
 .BR confirmSetEmail ()
 when the confirmation code in
@@ -422,8 +422,8 @@ when the confirmation code in
 doesn't match the one stored in the
 .I usersChangeEmail
 table in the database
-.\" const User::SET_EMAIL_CONFIRM_NO_SUCH_ID_TEMPLATE
-.SS SET_EMAIL_CONFIRM_NO_SUCH_ID_TEMPLATE
+.\" const User::set_email_confirm_no_such_id_template
+.SS set_email_confirm_no_such_id_template
 This is the template returned by
 .BR confirmSetEmail ()
 when the
@@ -467,13 +467,13 @@ This method adds a new user into the
 table of the database, provided that;
 .I username
 matches against
-.BR USERNAME_REGEX ,
+.BR username_regex ,
 .I password
 matches against
-.BR PASSWORD_REGEX ,
+.BR password_regex ,
 .I email
 matches against
-.BR EMAIL_REGEX ,
+.BR email_regex ,
 and
 .IR username " & " email
 are not already in the database. This method has no return value
@@ -492,17 +492,17 @@ This method adds a new user into the
 table of the database and sends out a confirmation email to
 .I email
 generated from the
-.BR CONFIRM_SUBJECT ", " CONFIRM_BODY_TEMPLATE " & " CONFIRM_FROM
+.BR confirm_subject ", " confirm_body_template " & " confirm_form
 constants, provided that;
 .I username
 matches against
-.BR USERNAME_REGEX ,
+.BR username_regex ,
 .I password
 matches against
-.BR PASSWORD_REGEX ,
+.BR password_regex ,
 .I email
 matches against
-.BR EMAIL_REGEX ,
+.BR email_regex ,
 and
 .IR username " & " email
 are not already in the database. This method has no return value
@@ -533,9 +533,9 @@ to the
 .I users
 table in the database. The return value is always a string
 containing 
-.B CONFIRM_SUCCESS_TEMPLATE
+.B confirm_success_template
 on success or one of
-.BR CONFIRM_INCORRECT_CODE_TEMPLATE ", " CONFIRM_NO_SUCH_ID_TEMPLATE
+.BR confirm_incorrect_code_template ", " confirm_no_such_id_template
 on failure, to be displayed to the user
 .\" static function User::confirmSetEmail()
 .SS confirmSetEmail\fR()
@@ -560,18 +560,18 @@ return value is always a
 If it is called without a login attempt in
 .IR $_POST []
 it will generate and return a login form from
-.BR LOGIN_FORM_TEMPLATE .
+.BR login_form_template .
 If it is called with a login attempt in
 .IR $_POST []
 and the login is unsuccessful it will generate a login form from
-.BR LOGIN_FORM_TEMPLATE ,
+.BR login_form_template ,
 injecting into the
 .IR [error] " and possibly " [username]
 placeholders. If it is called with a login attempt in
 .IR $_POST []
 and the login is successful it will generate and return a success
 message from
-.BR LOGIN_SUCCESS_TEMPLATE .
+.BR login_success_template .
 Note that this method must be called before any output as it
 needs to set cookies
 .\" static function User::register()
@@ -583,12 +583,12 @@ the return value is always a
 If it is called without a registration attempt in
 .IR $_POST []
 it will generate and return a registration form from
-.BR REGISTER_FORM_TEMPLATE .
+.BR register_form_template .
 If it is called with a registration attempt in
 .IR $_POST []
 and the registration is unsuccessful it will generate and return
 a registration form from
-.BR REGISTER_FORM_TEMPLATE ,
+.BR register_form_template ,
 injecting into the
 .IR [error]
 and, if relevant, the
@@ -599,16 +599,16 @@ and the registration is successful it will add a new user to the
 .I usersPending
 table in the database, send out a confirmation email and
 generate and return a success message from
-.B REGISTER_SUCCESS_TEMPLATE
+.B register_success_template
 .\" static function User::setupDB()
 .SS setupDB\fR()
 This method must be called after you set
-.B DB_PATH ,
+.B db_path ,
 but before you attempt to call any methods or create any
 .B User
 objects. You only need to call this once, unless you delete or
 move the database, or alter
-.BR DB_PATH ,
+.BR db_path ,
 and wish to recreate the database from scratch
 .\" +--------------------------+
 .\" | INSTANCE METHODS SECTION |
@@ -676,7 +676,7 @@ This method returns the
 of the user, as stored in the
 .I users
 table in the database; salted and hashed by
-.BR HASH_ALGORITHM ", " HASH_ITERATIONS
+.BR hash_algorithm ", " hash_iterations
 times
 .\" public function [user-object]->getSalt()
 .SS getSalt\fR()
@@ -711,11 +711,11 @@ return
 This method sets the username of the user to
 .IR username ,
 provided it matches against
-.BR USERNAME_REGEX ,
+.BR username_regex ,
 and does not clash with any username already in the database. If
 .I username
 does not match against
-.B USERNAME_REGEX
+.B username_regex
 it will throw a
 .BR UserInvalidUsernameException .
 If
@@ -727,11 +727,11 @@ clashes with a username already in the database it will throw a
 This method sets the username of the user to
 .IR password ,
 provided it matches against
-.BR PASSWORD_REGEX .
+.BR password_regex .
 If
 .I password
 does not match against
-.B PASSWORD_REGEX
+.B password_regex
 it will throw a
 .B UserInvalidPasswordException
 .\" public function [user-object]->setEmail()
@@ -739,11 +739,11 @@ it will throw a
 This method sets the email of the user to
 .IR email ,
 provided it matches against
-.BR EMAIL_REGEX ,
+.BR email_regex ,
 and does not clash with any email already in the database. If
 .I email
 does not match against
-.B EMAIL_REGEX
+.B email_regex
 it will throw a
 .BR UserInvalidEmailException .
 If
@@ -803,21 +803,21 @@ This exception extends
 .IR InvalidArgumentException ,
 and is thrown by methods that are passed a username that does
 not match against
-.B USERNAME_REGEX
+.B username_regex
 .\" class UserInvalidPasswordException extends InvalidArgumentException
 .SS UserInvalidPasswordException
 This exception extends
 .IR InvalidArgumentException ,
 and is thrown by methods that are passed a password that does
 not match against
-.B PASSWORD_REGEX
+.B password_regex
 .\" class UserInvalidEmailException extends InvalidArgumentException
 .SS UserInvalidEmailException
 This exception extends
 .IR InvalidArgumentException ,
 and is thrown by methods that are passed an email that does not
 match against
-.B EMAIL_REGEX
+.B email_regex
 .\" class UserUnavailableUsernameException extends InvalidArgumentException
 .SS UserUnavailableUsernameException
 This exception extends
