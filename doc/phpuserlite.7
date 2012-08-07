@@ -922,9 +922,11 @@ This method sets the
 .I failureCount
 of the user to
 .IR count ,
-provided it is a positive integer. If anything else is passed
+provided it is a positive integer. If a non-integer is passed
 then it will throw an
-.I InvalidArgumentException
+.IR InvalidArgumentException ,
+and if a negative integer is passed it will throw a
+.I DomainException
 .\" public function [user-object]->setFailureTime()
 .SS setFailureTime\fR(\fItime\fR)
 If the optional
@@ -940,11 +942,12 @@ is not passed this method sets the
 .I failureTime
 of the user to the current time. If 
 .I time
-is not numeric or not positive it will throw an
-.IR InvalidArgumentException .
-If
-.I time
-is greater than the current unix timestamp it will throw a
+is not numeric it will throw an
+.IR InvalidArgumentException ,
+if it is not positive then it will throw a
+.IR DomainException ,
+and if it is greater than the current unix timestamp it will
+throw a
 .I RangeException
 .\" public function [user-object]->loginLimitExceeded()
 .SS loginLimitExceeded\fR()
