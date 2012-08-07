@@ -813,12 +813,17 @@ class User
 		if(User::$configLoaded)
 			return;
 		if($file === NULL)
+		{
 			$file = __DIR__.'/'.User::DEFAULT_CONFIG_FILE;
+			if(is_file($file) && is_readable($file))
+				$pairs = array_change_key_case(parse_ini_file($file));
+		}
 		else if(!is_file($file))
 			throw new InvalidArgumentException("User::loadConfig() expects to be passed a file path, instead was passed: $file");
 		else if(!is_readable($file))
 			throw new RuntimeException("The file passed to User::loadConfig() is not readable: $file");
-		$pairs = array_change_key_case(parse_ini_file($file));
+		else
+			$pairs = array_change_key_case(parse_ini_file($file));
 		if($pairs)
 		{
 			$pairs = array_uintersect_assoc($pairs, User::$configData, create_function(NULL, "return 0;"));
