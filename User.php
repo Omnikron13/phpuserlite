@@ -812,6 +812,7 @@ class User
 		//If no attempt has been made to load the config, attempt to load it, and patch it over $configData
 		if(User::$configLoaded)
 			return;
+		$pairs = NULL;
 		if($file === NULL)
 		{
 			$file = __DIR__.'/'.User::DEFAULT_CONFIG_FILE;
