@@ -192,7 +192,7 @@ class User
 		$query->bindColumn('failureTime', $this->failureTime, PDO::PARAM_STR);
 		$query->fetch(PDO::FETCH_BOUND);
 		//May need to revise type of exception thrown here...
-		if($this->id == NULL)
+		if($this->id === NULL)
 			throw new OutOfBoundsException('No such user found in database: '.$id);
 	}
 	
