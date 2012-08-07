@@ -178,7 +178,7 @@ class User
 			$query->bindParam(':username', $uid, PDO::PARAM_STR);
 		}
 		else
-			throw new InvalidArgumentException("User::__construct expects parameter 2 to be one of User::GET_BY_ID or User::GET_BY_USERNAME, was instead passed: $getType");
+			throw new InvalidArgumentException("User::__construct expects parameter 2 to be one of User::GET_BY_ID or User::GET_BY_USERNAME, was instead passed: $getType"); //DomainException..?
 		$query->execute();
 		$query->bindColumn('id', $this->id, PDO::PARAM_INT);
 		$query->bindColumn('username', $this->username, PDO::PARAM_STR);
@@ -290,7 +290,7 @@ class User
 			$this->email = $email;
 		}
 		else
-			throw new InvalidArgumentException('Invalid mode for setEmail method, mode is either SET_EMAIL_CONFIRM or SET_EMAIL_DIRECT');
+			throw new InvalidArgumentException('Invalid mode for setEmail method, mode is either SET_EMAIL_CONFIRM or SET_EMAIL_DIRECT'); //DomainException? (see also;__construct()~181)
 	}
 	
 	//Checks $count is a positive integer, then updates the database & member
@@ -299,7 +299,7 @@ class User
 		if(!is_int($count))
 			throw new InvalidArgumentException('setFailureCount() expected integer, value given was: '.$count);
 		if($count < 0)
-			throw new InvalidArgumentException('setFailureCount() expected a positive integer, or 0, value given was: '.$count);
+			throw new DomainException('setFailureCount() expected a positive integer, or 0, value given was: '.$count);
 		$db = new PDO('sqlite:'.User::config('db_path'));
 		$query = $db->prepare('UPDATE users SET failureCount=:count WHERE id=:id');
 		$query->bindParam(':count', $count, PDO::PARAM_INT);
@@ -318,7 +318,7 @@ class User
 			if(!is_numeric($time))
 				throw new InvalidArgumentException('setFailureTime() expected a number, value given was: '.$time);
 			if($time < 0)
-				throw new InvalidArgumentException('setFailureTime() expected a positive value, value given was: '.$time);
+				throw new DomainException('setFailureTime() expected a positive value, value given was: '.$time);
 			if($time > gettimeofday(true))
 				throw new RangeException('setFailureTime() can only be called with timestamps up to the current time, or -1 for the current time');
 		}
