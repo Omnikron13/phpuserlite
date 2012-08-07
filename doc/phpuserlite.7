@@ -167,12 +167,42 @@ all cookies issued by
 The default value is an empty string
 .\" login_frequency_limit
 .SS login_frequency_limit
+This is the minimum amount of time in seconds (as a float) that
+.I phpuserlite
+will allow between login attempts. Attempts made within this
+limit will not be processed, so will never succeed even if the
+password entered was correct. The default value is
+.I 1.0
 .\" login_failure_limit
 .SS login_failure_limit
+This is the number of failed login attempts that
+.I phpuserlite
+will allow in a row within
+.I login_failure_period
+seconds of each other before it enforces a cooldown; blocking
+all login attempts for
+.I login_failure_cooldown
+seconds. The default value is
+.I 5
 .\" login_failure_period
 .SS login_failure_period
+This is the maximum amount of time (in seconds) between failed
+login attempts that
+.I phpuserlite
+will count as 'in a row' for the purposes of determining if
+.I login_failure_limit
+has been reached. The default value is
+.IR 300 ,
+which equates to five minutes
 .\" login_failure_cooldown
 .SS login_failure_cooldown
+This is the amount of time in seconds that
+.I phpuserlite
+will block login attempts for when
+.I login_failure_limit
+failed login attempts are made in a row. The default value is
+.IR 300 ,
+which equates to five minutes
 .\" const User::login_form_template
 .SS login_form_template
 This is the template used by
