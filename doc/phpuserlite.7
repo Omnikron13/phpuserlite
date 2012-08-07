@@ -911,6 +911,13 @@ is greater than the current unix timestamp it will throw a
 .I RangeException
 .\" public function [user-object]->loginLimitExceeded()
 .SS loginLimitExceeded\fR()
+This method returns
+.I true
+if the user is in a cooldown due to
+.I login_failure_limit
+or more failed login attempts having been made in a row,
+otherwise it returns
+.I false
 .\" public function [user-object]->checkPassword()
 .SS checkPassword\fR(\fIpassword\fR)
 This method checks to see if
@@ -922,6 +929,11 @@ if they match or
 if they do not match
 .\" public function [user-object]->loginFailure()
 .SS loginFailure\fR()
+This method logs a failed login attempt, incrementing
+.I failureCount
+and setting
+.I failureTime
+to the current time
 .\" public function [user-object]->startSession()
 .SS startSession\fR(\fIcookieDuration\fR)
 This method logs a user in, generating a new
