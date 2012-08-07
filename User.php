@@ -830,6 +830,7 @@ class User
 	public static function config($key)
 	{
 		User::loadConfig();
+		$key = strtolower($key);
 		if(array_key_exists($key, User::$configData))
 			return User::$configData[$key];
 		//else exception...
