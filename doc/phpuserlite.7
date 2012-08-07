@@ -258,6 +258,19 @@ placeholder in
 when a login attempt is made and the password entered does
 not match the password stored in the database for the
 username entered
+.\" login_cooldown_error
+.SS login_cooldown_error
+This is injected into the place of the
+.I [error]
+placeholder in
+.B login_form_template
+when a login attempt is made, but
+.I login_failure_limit
+or more failed attempts have been made within the allowed
+.I login_failure_period
+seconds and the user is still within the
+.I login_failure_cooldown
+seconds cooldown period
 .\" const User::register_no_username_error
 .SS register_no_username_error
 This is injected into the place of the
