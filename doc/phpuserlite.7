@@ -45,20 +45,17 @@ security
 .\" +-----------------------+
 .SH CONFIGURATION
 .I phpuserlite
-can be configured by changing a number of class constants in the
-.B User
-class. These constants can be found at the top of the class
-declaration. For the most part these settings can be left as
-their default values and
-.I phpuserlite
-will work fine, with the exception of
-.BR db_path ,
-the
-.BI CONFIRM_ *
-constants, and the
-.BI SET_EMAIL_CONFIRM_ *
-constants. Following is a complete list of the configuration
-constants available to you
+can be configured using 'ini style' config files containing
+.IR key = value
+pairs for the parameters you wish to change. You can load a
+specific config file using
+.BR loadConfig (),
+which you must call before any other methods (including
+.BR setupDB ())
+or config will be loaded from the file specified by the
+.B DEFAULT_CONFIG_FILE
+constant. Following is a complete list of the configuration
+parameters available to you
 .\" const User::db_path
 .SS db_path
 You should set this constant to the fully qualified path to the
