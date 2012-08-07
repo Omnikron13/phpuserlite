@@ -720,8 +720,26 @@ generate and return a success message from
 .B register_success_template
 .\" static function User::loadConfig()
 .SS loadConfig\fR(\fIfile\fR)
+This method is used to load configuration data from the config
+file specified by
+.IR file ,
+or from
+.B DEFAULT_CONFIG_FILE
+if
+.I file
+was not passed. It must be called before any other functions,
+including
+.BR setupDB (),
+as config data can only be loaded once, and
+.B User
+will call
+.BR loadConfig ()
+itself the first time it needs to access a config parameter
 .\" static function User::config()
 .SS config\fR(\fIkey\fR)
+This method returns the value of the configuration parameter
+specified by
+.I key
 .\" static function User::setupDB()
 .SS setupDB\fR()
 This method must be called after you call
