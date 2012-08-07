@@ -457,16 +457,16 @@ if at all possible, before submitting them to the bug tracker
 .SS DEFAULT_CONFIG_FILE
 .\" A note on flags
 .SS Flags
-After these configurable constants, there are a number of other
-constants labelled as
-.IR flags ;
+There are a number of constants labelled as
+.IR flags ,
+namely;
 .BR GET_BY_ID ,
 .BR GET_BY_USERNAME ,
 .BR SET_EMAIL_CONFIRM " &"
 .BR SET_EMAIL_DIRECT .
-These constants are NOT for configuraton, they are for passing
-to methods as flags to alter the methods behaviour, and as such
-they should NOT be modified
+These constants are for passing to certain methods as flags to
+alter the behaviour of the method. Specific usage should be
+documented in the section for the method in question
 .\" +------------------------+
 .\" | STATIC METHODS SECTION |
 .\" +------------------------+
