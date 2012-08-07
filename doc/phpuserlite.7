@@ -630,9 +630,10 @@ generate and return a success message from
 .B register_success_template
 .\" static function User::setupDB()
 .SS setupDB\fR()
-This method must be called after you set
-.BR db_path ,
-but before you attempt to call any methods or create any
+This method must be called after you call
+.BR loadConfig ()
+(if you are doing so) but before you attempt to call any other
+methods or create any
 .B User
 objects. You only need to call this once, unless you delete or
 move the database, or alter
