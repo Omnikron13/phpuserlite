@@ -169,11 +169,15 @@ The default value is an empty string
 .SS login_form_template
 This is the template used by
 .I phpuserlite
-to generate login forms. When modifying this template, pay
-attention to the
+to generate login forms. When modifying this template, note that
+you can use a form field named
+.I cookie_duration
+to pass an optional duration (in seconds) before the login
+cookies expire, for example to implement a 'keep me logged in'
+checkbox. Also pay attention to the
 .IR [error] " & " [username]
 placeholders, they are used to inject information into the
-template
+template when a login attempt fails
 .\" const User::login_success_template
 .SS login_success_template
 This is the template used by
