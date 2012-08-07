@@ -433,10 +433,18 @@ table in the database
 .SH CONSTANTS
 .\" const User::VERSION
 .SS VERSION
-This is not actually for configuration, it is just here to track
-the version of
-.I phpuserlite
-you have. This constant should NOT be modified
+This constant tracks the version number of
+.IR phpuserlite ,
+which will either be in the form
+.IR x . x . x
+or
+.IR trunk .
+Versions marked with
+.I trunk
+should not be considered stable, so please attempt to replicate
+any bugs with a numbered version of
+.IR phpuserlite ,
+if at all possible, before submitting them to the bug tracker
 .\" const User::DEFAULT_CONFIG_FILE
 .SS DEFAULT_CONFIG_FILE
 .\" A note on flags
