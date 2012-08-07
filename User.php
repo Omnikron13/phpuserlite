@@ -843,8 +843,8 @@ class User
 		$key = strtolower($key);
 		if(array_key_exists($key, User::$configData))
 			return User::$configData[$key];
-		//Replace with custom exception? DomainException rather than InvalidArgument..?
-		throw new InvalidArgumentException("User::config() passed a key not matching a config parameter: $key");
+		//Replace with custom exception?
+		throw new DomainException("User::config() passed a key not matching a config parameter: $key");
 	}
 	
 	//This method must be called to setup the database before any other code is called
