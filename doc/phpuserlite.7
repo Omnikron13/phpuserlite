@@ -165,6 +165,14 @@ This is the value that will be used for the domain attribute of
 all cookies issued by
 .IR phpuserlite .
 The default value is an empty string
+.\" login_frequency_limit
+.SS login_frequency_limit
+.\" login_failure_limit
+.SS login_failure_limit
+.\" login_failure_period
+.SS login_failure_period
+.\" login_failure_cooldown
+.SS login_failure_cooldown
 .\" const User::login_form_template
 .SS login_form_template
 This is the template used by
@@ -271,6 +279,8 @@ or more failed attempts have been made within the allowed
 seconds and the user is still within the
 .I login_failure_cooldown
 seconds cooldown period
+.\" login_frequency_error
+.SS login_frequency_error
 .\" const User::register_no_username_error
 .SS register_no_username_error
 This is injected into the place of the
@@ -443,6 +453,12 @@ in
 does not match any stored in the
 .I usersChangeEmail
 table in the database
+.\" db_users_table_schema
+.SS db_users_table_schema
+.\" db_userspending_table_schema
+.SS db_userspending_table_schema
+.\" db_userschangeemail_table_schema
+.SS db_userschangeemail_table_schema
 .\" +-------------------+
 .\" | CONSTANTS SECTION |
 .\" +-------------------+
