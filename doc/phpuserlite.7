@@ -887,11 +887,24 @@ it will throw a
 .B UserInvalidPasswordException
 .\" public function [user-object]->setEmail()
 .SS setEmail\fR(\fIemail\fR, \fImode\fR)
-This method sets the email of the user to
-.IR email ,
-provided it matches against
-.BR email_regex ,
-and does not clash with any email already in the database. If
+If
+.I mode
+is set to
+.B SET_EMAIL_CONFIRM
+(the default) this method adds a new record to the
+.I usersChangeEmail
+table and sends out a confirmation email to the user's
+current email address generated from the
+.BR set_email_confirm_subject , 
+.BR set_email_confirm_body_template " &" 
+.B set_email_confirm_from
+config parameters. If
+.I mode
+is set to
+.B SET_EMAIL_DIRECT
+this method sets the email of the user to
+.IR email .
+If
 .I email
 does not match against
 .B email_regex
