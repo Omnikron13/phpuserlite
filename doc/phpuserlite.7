@@ -59,12 +59,6 @@ constants, and the
 .BI SET_EMAIL_CONFIRM_ *
 constants. Following is a complete list of the configuration
 constants available to you
-.\" const User::VERSION
-.SS VERSION
-This is not actually for configuration, it is just here to track
-the version of
-.I phpuserlite
-you have. This constant should NOT be modified
 .\" const User::db_path
 .SS db_path
 You should set this constant to the fully qualified path to the
@@ -433,6 +427,18 @@ in
 does not match any stored in the
 .I usersChangeEmail
 table in the database
+.\" +-------------------+
+.\" | CONSTANTS SECTION |
+.\" +-------------------+
+.SH CONSTANTS
+.\" const User::VERSION
+.SS VERSION
+This is not actually for configuration, it is just here to track
+the version of
+.I phpuserlite
+you have. This constant should NOT be modified
+.\" const User::DEFAULT_CONFIG_FILE
+.SS DEFAULT_CONFIG_FILE
 .\" A note on flags
 .SS Flags
 After these configurable constants, there are a number of other
