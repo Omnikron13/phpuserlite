@@ -814,9 +814,13 @@ class User
 			return;
 		if($file === NULL)
 			$file = __DIR__.'/'.User::DEFAULT_CONFIG_FILE;
-		if(is_file($file) && is_readable($file))
+		else if(!is_file($file))
+			throw new InvalidArgumentException("User::loadConfig() expects to be passed a file path, instead was passed: $file");
+		else if(!is_readable($file))
+			throw new RuntimeException("The file passed to User::loadConfig() is not readable: $file");
+		$pairs = array_change_key_case(parse_ini_file($file));
+		if($pairs)
 		{
-			$pairs = array_change_key_case(parse_ini_file($file));
 			$pairs = array_uintersect_assoc($pairs, User::$configData, create_function(NULL, "return 0;"));
 			User::$configData = array_merge(User::$configData, $pairs);
 		}
@@ -834,7 +838,7 @@ class User
 		$key = strtolower($key);
 		if(array_key_exists($key, User::$configData))
 			return User::$configData[$key];
-		//Replace with custom exception?
+		//Replace with custom exception? DomainException rather than InvalidArgument..?
 		throw new InvalidArgumentException("User::config() passed a key not matching a config parameter: $key");
 	}
 	
