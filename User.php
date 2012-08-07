@@ -177,7 +177,8 @@ class User
 			$query = $db->prepare('SELECT * FROM users WHERE username = :username');
 			$query->bindParam(':username', $uid, PDO::PARAM_STR);
 		}
-		//else THROW ERROR
+		else
+			throw new InvalidArgumentException("User::__construct expects parameter 2 to be one of User::GET_BY_ID or User::GET_BY_USERNAME, was instead passed: $getType");
 		$query->execute();
 		$query->bindColumn('id', $this->id, PDO::PARAM_INT);
 		$query->bindColumn('username', $this->username, PDO::PARAM_STR);
@@ -833,7 +834,8 @@ class User
 		$key = strtolower($key);
 		if(array_key_exists($key, User::$configData))
 			return User::$configData[$key];
-		//else exception...
+		//Replace with custom exception?
+		throw new InvalidArgumentException("User::config() passed a key not matching a config parameter: $key");
 	}
 	
 	//This method must be called to setup the database before any other code is called
