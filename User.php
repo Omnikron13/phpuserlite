@@ -815,15 +815,9 @@ class User
 			$file = __DIR__.'/'.User::DEFAULT_CONFIG_FILE;
 		if(is_file($file) && is_readable($file))
 		{
-			$raw = file($file);
-			foreach($raw as $line)
-			{
-				$line = explode('=', $line, 2);
-				$line[0] = trim($line[0]);
-				$line[1] = trim($line[1]);
-				if(array_key_exists($line[0], User::$configData))
-					User::$configData[$line[0]] = $line[1];
-			}
+			$pairs = parse_ini_file($file);
+			$pairs = array_uintersect_assoc($pairs, User::$configData, create_function(NULL, "return 0;"));
+			User::$configData = array_merge(User::$configData, $pairs);
 		}
 		//Convert relative db_path values to absolute, taking '.' to be the parent directory of User.php
 		if(strncmp(User::$configData['db_path'], '/', 1) != 0 &&
