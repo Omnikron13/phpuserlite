@@ -825,6 +825,10 @@ This method returns the
 of the user if they are currently logged in, otherwise it will
 return
 .I NULL
+.\" public function [user-object]->getFailureCount()
+.SS getFailureCount\fR()
+.\" public function [user-object]->getFailureTime()
+.SS getFailureTime\fR()
 .\" public function [user-object]->setUsername()
 .SS setUsername\fR(\fIusername\fR)
 This method sets the username of the user to
@@ -869,6 +873,12 @@ If
 .I email
 clashes with an email already in the database it will throw a
 .B UserUnavailableEmailException
+.\" public function [user-object]->setFailureCount()
+.SS setFailureCount\fR(\fIcount\fR)
+.\" public function [user-object]->setFailureTime()
+.SS setFailureTime\fR(\fItime\fR)
+.\" public function [user-object]->loginLimitExceeded()
+.SS loginLimitExceeded\fR()
 .\" public function [user-object]->checkPassword()
 .SS checkPassword\fR(\fIpassword\fR)
 This method checks to see if
@@ -878,6 +888,8 @@ matches the password of the user, returning
 if they match or
 .I false
 if they do not match
+.\" public function [user-object]->loginFailure()
+.SS loginFailure\fR()
 .\" public function [user-object]->startSession()
 .SS startSession\fR(\fIcookieDuration\fR)
 This method logs a user in, generating a new
