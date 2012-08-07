@@ -789,12 +789,17 @@ if they match or
 .I false
 if they do not match
 .\" public function [user-object]->startSession()
-.SS startSession\fR()
+.SS startSession\fR(\fIcookieDuration\fR)
 This method logs a user in, generating a new
 .IR sessionKey " & " sessionIP ,
-saving them in the database and sending out session cookies.
-Note that this method must be called before any output as it
-needs to set cookies
+saving them in the database and sending out cookies. If the
+optional argument
+.I cookieDuration
+is set the cookies will be set to expire in
+.I cookieDuration
+seconds, otherwise they will be set as session cookies. Note
+that this method must be called before any output as it needs
+to set cookies
 .\" public function [user-object]->checkSession()
 .SS checkSession\fR(\fIsessionKey\fR)
 This method checks to see if the user is logged in by checking
