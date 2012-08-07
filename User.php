@@ -488,7 +488,7 @@ class User
 		if(!User::validateEmail($email))
 			throw new UserInvalidEmailException($email);
 		if(!User::availableUsername($username))
-			throw new UserUnavailableUsernameException($username);                                                     
+			throw new UserUnavailableUsernameException($username);
 		if(!User::availableEmail($email))
 			throw new UserUnavailableEmailException($email);   
 		//Main code follows...
