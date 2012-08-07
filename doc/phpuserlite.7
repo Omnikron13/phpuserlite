@@ -311,6 +311,13 @@ seconds and the user is still within the
 seconds cooldown period
 .\" login_frequency_error
 .SS login_frequency_error
+This is injected into the place of the
+.I [error]
+placeholder in
+.B login_form_template
+when a login attempt is made, but it is within
+.I login_frequency_limit
+seconds of the last login attempt
 .\" const User::register_no_username_error
 .SS register_no_username_error
 This is injected into the place of the
