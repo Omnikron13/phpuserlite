@@ -61,10 +61,28 @@ constants. Following is a complete list of the configuration
 constants available to you
 .\" const User::VERSION
 .SS VERSION
-This is not actually for configuration, it is just here to track
-the version of
+This constant tracks the version number of
+.IR phpuserlite ,
+which will either be in the form
+.IR x . x . x
+or
+.IR trunk .
+The version numbers represent major, minor and patch revisions.
+Significant structural changes are reflected in the major
+revision number, security fixes and other internal changes that
+won't affect usage in the minor revision number, and bug fixes
+in the patch revision number. It is advised you keep your copy
+of
 .I phpuserlite
-you have. This constant should NOT be modified
+up to date against the minor & patch revision at all times.
+Versions marked with
+.I trunk
+should not be considered stable, so please attempt to replicate
+any bugs with a numbered version of
+.IR phpuserlite ,
+if at all possible, before submitting them to the bug tracker.
+This constant is not for configuration and so should NOT be
+modified
 .\" const User::DB_PATH
 .SS DB_PATH
 You should set this constant to the fully qualified path to the
@@ -150,7 +168,7 @@ characters, and then that you only increase them
 .SS EMAIL_REGEX
 This is the regex used to attempt to assure that all users are
 registered with a valid email address. The default value is
-.IR /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i ,
+.IR /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\e.[A-Z]{2,4}$/i ,
 which you should only change if are sure it will continue to
 work, or if you wish to be more strict on who can register
 .\" const User::COOKIE_SESSION_LENGTH
@@ -736,11 +754,24 @@ it will throw a
 .B UserInvalidPasswordException
 .\" public function [user-object]->setEmail()
 .SS setEmail\fR(\fIemail\fR, \fImode\fR)
-This method sets the email of the user to
-.IR email ,
-provided it matches against
-.BR EMAIL_REGEX ,
-and does not clash with any email already in the database. If
+If
+.I mode
+is set to
+.B SET_EMAIL_CONFIRM
+(the default) this method adds a new record to the
+.I usersChangeEmail
+table and sends out a confirmation email to the user's
+current email address generated from the
+.BR SET_EMAIL_CONFIRM_SUBJECT , 
+.BR SET_EMAIL_CONFIRM_BODY_TEMPLATE " &" 
+.B SET_EMAIL_CONFIRM_FROM
+constants. If
+.I mode
+is set to
+.B SET_EMAIL_DIRECT
+this method sets the email of the user to
+.IR email .
+If
 .I email
 does not match against
 .B EMAIL_REGEX

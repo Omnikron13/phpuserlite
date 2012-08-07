@@ -23,7 +23,7 @@ THE SOFTWARE.
 class User
 {
 	//Version string...
-	const VERSION = '1.1.1';
+	const VERSION = '1.1.2';
 	
 	//Configuration parameters
 	const DB_PATH = '/f5/gamefreakslab/public/projects/UserClass/User_example.db';
@@ -186,7 +186,7 @@ class User
 		if(!User::validatePassword($password))
 			throw new UserInvalidPasswordException($password);
 		$salt = User::generateSalt();
-		$password = processPassword($password, $salt);
+		$password = User::processPassword($password, $salt);
 		$db = new PDO('sqlite:'.User::DB_PATH);
 		$query = $db->prepare('UPDATE users SET password=:password, salt=:salt WHERE id=:id');
 		$query->bindParam(':password', $password, PDO::PARAM_STR);
