@@ -345,7 +345,7 @@ class User
 	}
 	
 	//Checks if the last login was a permittable number of seconds ago to allow a login attempt, returns true if so
-	public function checkLoginFrequency()
+	protected function checkLoginFrequency()
 	{
 		if(is_null($this->failureTime))
 			return true;
