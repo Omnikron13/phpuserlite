@@ -455,6 +455,13 @@ any bugs with a numbered version of
 if at all possible, before submitting them to the bug tracker
 .\" const User::DEFAULT_CONFIG_FILE
 .SS DEFAULT_CONFIG_FILE
+This constant holds the filename that will be checked for a
+config file if no other file is specified to the
+.BR loadConfig ()
+method. Unless an absolute path is specified
+.I phpuserlite
+will assume the file is in the same directory as
+.I User.php
 .\" A note on flags
 .SS Flags
 There are a number of constants labelled as
