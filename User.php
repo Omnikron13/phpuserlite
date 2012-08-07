@@ -815,7 +815,7 @@ class User
 			$file = __DIR__.'/'.User::DEFAULT_CONFIG_FILE;
 		if(is_file($file) && is_readable($file))
 		{
-			$pairs = parse_ini_file($file);
+			$pairs = array_change_key_case(parse_ini_file($file));
 			$pairs = array_uintersect_assoc($pairs, User::$configData, create_function(NULL, "return 0;"));
 			User::$configData = array_merge(User::$configData, $pairs);
 		}
