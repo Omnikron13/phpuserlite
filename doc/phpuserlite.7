@@ -58,13 +58,15 @@ constant. Following is a complete list of the configuration
 parameters available to you
 .\" const User::db_path
 .SS db_path
-You should set this constant to the fully qualified path to the
+You should set this parameter to the path of the
 .I SQLite
 database file you want
 .I phpuserlite
-to use. The default value is the path to the database used to
-develop and test
-.I phpuserlite
+to use. Non-absolute paths will be treated as being relative
+to the directory that
+.I User.php
+is in. The default value is
+.I phpuserlite.db
 .\" const User::salt_length
 .SS salt_length
 This is the number of bytes of random data used to salt data
