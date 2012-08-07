@@ -380,6 +380,10 @@ class User
 	//Generates a new session key; sends out login cookies; updates the database & members
 	public function startSession($cookieDuration)
 	{
+		if(!is_int($cookieDuration) && !ctype_digit($cookieDuration))
+			throw new InvalidArgumentException("startSession() expects to be passed an integer for cookie duration, instead was passed: $cookieDuration");
+		if($cookieDuration < 0)
+			throw new DomainException("startSession() expects to be passed a positive integer for cookie duration, instead was passed: $cookieDuration");
 		//Ready session data...
 		$sessionKey = User::generateSessionKey();
 		$hashedKey = hash(User::config('hash_algorithm'), $sessionKey);
