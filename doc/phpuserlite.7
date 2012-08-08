@@ -920,6 +920,12 @@ is set to
 this method sets the email of the user to
 .IR email .
 If
+.I mode
+is set to anything other than
+.BR SET_EMAIL_CONFIRM " or " SET_EMAIL_DIRECT ,
+then it will throw a
+.IR DomainException .
+If
 .I email
 does not match against
 .B email_regex
