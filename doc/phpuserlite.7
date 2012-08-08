@@ -751,7 +751,10 @@ will throw a
 .SS config\fR(\fIkey\fR)
 This method returns the value of the configuration parameter
 specified by
-.I key
+.IR key ,
+if it exists, and throws a
+.I DomainException
+if it does not
 .\" static function User::setupDB()
 .SS setupDB\fR()
 This method must be called after you call
