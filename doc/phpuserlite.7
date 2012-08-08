@@ -992,7 +992,12 @@ This method logs a failed login attempt, incrementing
 .I failureCount
 and setting
 .I failureTime
-to the current time
+to the current time. If the last failed login attempt was more
+than
+.I login_failure_period
+seconds ago then
+.I failureCount
+will be set back to 1
 .\" public function [user-object]->startSession()
 .SS startSession\fR(\fIcookieDuration\fR)
 This method logs a user in, generating a new
