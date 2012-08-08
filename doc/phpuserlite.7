@@ -669,8 +669,11 @@ flag, transfering the relevant email address from the
 table to the corresponding user entry in the
 .I users
 table in the database. The return value is always a string
-containing a message of success or failure to be displayed to
-the user
+containing 
+.B set_email_confirm_success_template
+on success or one of
+.BR set_email_confirm_incorrect_code_template ", " set_email_confirm_no_such_id_template
+on failure, to be displayed to the user
 .\" static function User::login()
 .SS login\fR()
 This method is used to generate & process login forms, and will
@@ -736,7 +739,14 @@ as config data can only be loaded once, and
 .B User
 will call
 .BR loadConfig ()
-itself the first time it needs to access a config parameter
+itself the first time it needs to access a config parameter.
+If this method is passed anything other than a path to an
+existing file (bearing in mind that files PHP cannot see will
+be treated as not existing) it will throw an
+.IR InvalidArgumentException ,
+and if it is passed a path to a file it is unable to read it
+will throw a
+.I RuntimeException
 .\" static function User::config()
 .SS config\fR(\fIkey\fR)
 This method returns the value of the configuration parameter
