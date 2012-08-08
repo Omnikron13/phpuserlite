@@ -808,7 +808,13 @@ and creates a
 .B User
 object if it finds one, otherwise it throws an
 .IR OutOfBoundsException .
-The constructor may also throw one of
+If
+.I getType
+is not set to either
+.BR GET_BY_ID " or " GET_BY_USERNAME
+then a
+.I DomainException
+will be thrown. The constructor may also throw one of
 .I InvalidArgumentException
 or
 .B UserInvalidUsernameException
@@ -1009,7 +1015,13 @@ is set the cookies will be set to expire in
 .I cookieDuration
 seconds, otherwise they will be set as session cookies. Note
 that this method must be called before any output as it needs
-to set cookies
+to set cookies. If
+.I cookieDuration
+is not an integer (or a string of an integer) then an
+.I InvalidArgumentException
+will be thrown, and if it is not positive then a
+.I DomainException
+will be thrown
 .\" public function [user-object]->checkSession()
 .SS checkSession\fR(\fIsessionKey\fR)
 This method checks to see if the user is logged in by checking
