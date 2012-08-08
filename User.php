@@ -835,8 +835,8 @@ class User
 			User::$configData = array_merge(User::$configData, $pairs);
 		}
 		//Convert relative db_path values to absolute, taking '.' to be the parent directory of User.php
-		if(strncmp(User::$configData['db_path'], '/', 1) != 0 &&
-		   substr_compare(User::$configData['db_path'], ':', 1, 1) != 0)
+		$pathRegex = '%^(?:~?/|[A-Z]:[\\\\/]).+%i';
+		if(!preg_match($pathRegex, User::$configData['db_path']))
 			User::$configData['db_path'] = __DIR__.'/'.User::$configData['db_path'];
 		User::$configLoaded = true;
 	}
