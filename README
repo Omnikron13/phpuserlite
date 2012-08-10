@@ -7,3 +7,11 @@
                 \/|__|         \/                  \/             v[trunk] \/ 
 -------------------------------------------------------------------------------
 
+::: OVERVIEW :::
+phpuserlite is a PHP module that provides a class (User) for managing the basic
+functionality of a user system for websites including; login & registration
+forms, email confirmation, username/password/email validation, password
+processing etc. The design is focussed on a high level of security while
+maintaining ease of use and configuration, and uses SQLite to handle the
+underlying database.
+
