@@ -814,6 +814,8 @@ class User
 	public static function loadConfig($file = NULL, $force = false)
 	{
 		//If no attempt has been made to load the config, attempt to load it, and patch it over $configData
+		if(!is_bool($force))
+			throw new InvalidArgumentException("User::loadConfig() expects 2nd argument to be a boolean, instead was passed: $force");
 		if(User::$configLoaded && !$force)
 			return;
 		$pairs = NULL;
