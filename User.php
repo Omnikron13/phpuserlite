@@ -397,7 +397,6 @@ class User
 		User::sendCookies($this->username, $sessionKey, $cookieDuration);
 		//Update database...
 		$db = new PDO('sqlite:'.User::config('db_path'));
-//		$query = $db->prepare('UPDATE users SET sessionKey=:sessionKey, sessionIP=:sessionIP WHERE id=:id');
 		$query = $db->prepare('INSERT INTO usersSessions(uID, sessionKey, sessionIP) VALUES(:id, :sessionKey, :sessionIP)');
 		$query->bindParam(':sessionKey', $hashedKey, PDO::PARAM_STR);
 		$query->bindParam(':sessionIP', $sessionIP, PDO::PARAM_STR);
@@ -411,8 +410,6 @@ class User
 	//Checks if User has valid login session for the current script; checks if logged in
 	public function checkSession($sessionKey)
 	{
-//		if($_SERVER['REMOTE_ADDR'] != $this->sessionIP)
-//			return false;
 		$db = new PDO('sqlite:'.User::config('db_path'));
 		$query = $db->prepare('SELECT COUNT (*) FROM usersSessions WHERE uID = :uID AND sessionIP = :sessionIP');
 		$query->bindValue(':uID', $this->id, PDO::PARAM_INT);
@@ -420,8 +417,6 @@ class User
 		$query->execute();
 		if($query->fetch() == 0)
 			return false;
-//		if(hash(User::config('hash_algorithm'), $sessionKey) != $this->sessionKey)
-//			return false;
 		$query = $db->prepare('SELECT COUNT (*) FROM usersSessions WHERE uID = :uID AND sessionKey = :sessionKey');
 		$query->bindValue(':uID', $this->id, PDO::PARAM_INT);
 		$query->bindValue(':sessionKey', hash(User::config('hash_algorithm'), $sessionKey), PDO::PARAM_STR);
