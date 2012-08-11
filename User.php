@@ -430,12 +430,12 @@ class User
 	{
 		//Prep database...
 		$db = new PDO('sqlite:'.User::config('db_path'));
-		//Remove the record in the users table...
-		$query = $db->prepare('DELETE FROM users WHERE id=:id');
-		$query->bindParam(':id', $this->id, PDO::PARAM_INT);
-		$query->execute();
 		//Remove any record in the usersChangeEmail table... 
 		$query = $db->prepare('DELETE FROM usersChangeEmail WHERE userID=:id');
+		$query->bindParam(':id', $this->id, PDO::PARAM_INT);
+		$query->execute();
+		//Remove the record in the users table...
+		$query = $db->prepare('DELETE FROM users WHERE id=:id');
 		$query->bindParam(':id', $this->id, PDO::PARAM_INT);
 		$query->execute();
 	}
