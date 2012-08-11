@@ -811,10 +811,10 @@ class User
 	protected static $configLoaded = false;
 	
 	//This function loads config from a file, if applicable, and sets $configLoaded to true
-	public static function loadConfig($file = NULL)
+	public static function loadConfig($file = NULL, $force = false)
 	{
 		//If no attempt has been made to load the config, attempt to load it, and patch it over $configData
-		if(User::$configLoaded)
+		if(User::$configLoaded && !$force)
 			return;
 		$pairs = NULL;
 		if($file === NULL)
