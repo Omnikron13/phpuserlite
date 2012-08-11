@@ -21,4 +21,6 @@ earlier is not supported. phpuserlite also requires the mcrypt and PDO PHP
 extensions, with the SQLite PDO driver. SQLite version 3.6.19 or later is
 required to use the foreign key constraint in the usersChangeEmail table
 schema.
+mcrypt extension: http://php.net/manual/book.mcrypt.php
+PDO extension:    http://php.net/manual/book.pdo.php
 
