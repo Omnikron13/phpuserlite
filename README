@@ -15,6 +15,14 @@ processing etc. The design is focussed on a high level of security while
 maintaining ease of use and configuration, and uses SQLite to handle the
 underlying database.
 
+You can find the latest release of phpuserlite at the project homepage:
+http://phpuserlite.googlecode.com
+
+Alternatively you can anonymously check out the latest revision with svn from:
+http://phpuserlite.googlecode.com/svn/trunk
+
+Note that code checked out from the trunk is not guaranteed stable.
+
 ::: REQUIREMENTS :::
 phpuserlite has been tested to work on PHP 5.3 or higher, use on PHP 5.2 or
 earlier is not supported. phpuserlite also requires the mcrypt, PDO and SQLite
