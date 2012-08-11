@@ -25,3 +25,9 @@ mcrypt extension:  http://php.net/manual/book.mcrypt.php
 PDO extension:     http://php.net/manual/book.pdo.php
 SQLite PDO driver: http://pecl.php.net/package/PDO_SQLITE
 
+::: INSTALLATION :::
+To install phpuserlite, simply ensure that you have all the dependencies listed
+above, then copy User.php to wherever in your PHP include path you wish to keep
+library code. Optionally copy doc/phpuserlite.7 into section 7 of your manual,
+which would typically be /usr/share/man/man7
+
