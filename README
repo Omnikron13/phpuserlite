@@ -21,7 +21,8 @@ http://phpuserlite.googlecode.com
 Alternatively you can anonymously check out the latest revision with svn from:
 http://phpuserlite.googlecode.com/svn/trunk
 
-Note that code checked out from the trunk is not guaranteed stable.
+Note that code checked out from the trunk is not guaranteed stable, or indeed
+guaranteed functional.
 
 ::: REQUIREMENTS :::
 phpuserlite has been tested to work on PHP 5.3 or higher, use on PHP 5.2 or
