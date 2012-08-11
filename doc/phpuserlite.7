@@ -749,11 +749,16 @@ then the config parameters from
 .I file
 are loaded over the current ones, even if config data has
 already been loaded. If this method is passed anything other
-than a path to an existing file (bearing in mind that files
-PHP cannot see will be treated as not existing) it will throw an
+than a path to an existing file for
+.I file
+(bearing in mind that files PHP cannot see will be treated as
+not existing) or a non-boolean value for
+.I force
+it will throw an
 .IR InvalidArgumentException ,
-and if it is passed a path to a file it is unable to read it
-will throw a
+and if it is passed a path to a file it is unable to read for
+.I file
+it will throw a
 .I RuntimeException
 .\" static function User::config()
 .SS config\fR(\fIkey\fR)
