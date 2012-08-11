@@ -15,3 +15,10 @@ processing etc. The design is focussed on a high level of security while
 maintaining ease of use and configuration, and uses SQLite to handle the
 underlying database.
 
+::: REQUIREMENTS :::
+phpuserlite has been tested to work on PHP 5.3 or higher, use on PHP 5.2 or
+earlier is not supported. phpuserlite also requires the mcrypt and PDO PHP
+extensions, with the SQLite PDO driver. SQLite version 3.6.19 or later is
+required to use the foreign key constraint in the usersChangeEmail table
+schema.
+
