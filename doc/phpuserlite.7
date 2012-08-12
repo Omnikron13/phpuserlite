@@ -49,8 +49,10 @@ security
 .I phpuserlite
 can be configured using 'ini style' config files containing
 .IR key = value
-pairs for the parameters you wish to change. You can load a
-specific config file using
+pairs for the parameters you wish to change. Specifically, the
+structure of the config files should be the same as
+.I php.ini
+files. You can load a specific config file using
 .BR loadConfig (),
 which you must call before any other methods (including
 .BR setupDB ())
