@@ -422,11 +422,12 @@ class User
 		User::removeCookies();
 		//Remove database data...
 		$db = new PDO('sqlite:'.User::config('db_path'));
-		$query = $db->prepare('DELETE * FROM usersSessions WHERE userID=:userID');
+		$query = $db->prepare('DELETE * FROM usersSessions WHERE userID=:userID AND IP=:IP');
 		$query->bindParam(':userID', $this->id, PDO::PARAM_INT);
+		$query->bindParam(':IP', $_SERVER['REMOTE_ADDR'], PDO::PARAM_INT);
 		$query->execute();
-		//Clear $sessions array
-		$this->sessions = array();
+		//Remove current IP entry from $sessions array
+		unset($this->sessions[$_SERVER['REMOTE_ADDR']]);
 	}
 
 	public function remove()
