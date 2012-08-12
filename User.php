@@ -887,6 +887,9 @@ class User
 		//Create 'usersChangeEmail' table...
 		$query = $db->prepare(User::config('db_userschangeemail_table_schema'));
 		$query->execute();
+		//Create 'usersSessions' table...
+		$query = $db->prepare(User::config('db_userssessions_table_schema'));
+		$query->execute();
 	}
 }
 
