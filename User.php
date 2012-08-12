@@ -140,9 +140,10 @@ class User
 									     FOREIGN KEY (userID) REFERENCES users(id))',
 		'db_userssessions_table_schema'
 			=>	'CREATE TABLE IF NOT EXISTS usersSessions(id INTEGER PRIMARY KEY,
-									  uID INTEGER NOT NULL,
-									  sessionKey TEXT,
-									  sessionIP TEXT)');
+									  userID INTEGER NOT NULL,
+									  sessionKey TEXT NOT NULL,
+									  sessionIP TEXT NOT NULL,
+									  FOREIGN KEY (userID) REFERENCES users(id))');
 	
 	//Flags
 	const GET_BY_ID = 0;
@@ -397,7 +398,7 @@ class User
 		User::sendCookies($this->username, $sessionKey, $cookieDuration);
 		//Update database...
 		$db = new PDO('sqlite:'.User::config('db_path'));
-		$query = $db->prepare('INSERT INTO usersSessions(uID, sessionKey, sessionIP) VALUES(:id, :sessionKey, :sessionIP)');
+		$query = $db->prepare('INSERT INTO usersSessions(userID, sessionKey, sessionIP) VALUES(:id, :sessionKey, :sessionIP)');
 		$query->bindParam(':sessionKey', $hashedKey, PDO::PARAM_STR);
 		$query->bindParam(':sessionIP', $sessionIP, PDO::PARAM_STR);
 		$query->bindParam(':id', $this->id, PDO::PARAM_INT);
@@ -411,14 +412,14 @@ class User
 	public function checkSession($sessionKey)
 	{
 		$db = new PDO('sqlite:'.User::config('db_path'));
-		$query = $db->prepare('SELECT COUNT (*) FROM usersSessions WHERE uID = :uID AND sessionIP = :sessionIP');
-		$query->bindValue(':uID', $this->id, PDO::PARAM_INT);
+		$query = $db->prepare('SELECT COUNT (*) FROM usersSessions WHERE userID = :userID AND sessionIP = :sessionIP');
+		$query->bindValue(':userID', $this->id, PDO::PARAM_INT);
 		$query->bindValue(':sessionIP', $_SERVER['REMOTE_ADDR'], PDO::PARAM_STR);
 		$query->execute();
 		if($query->fetch() == 0)
 			return false;
-		$query = $db->prepare('SELECT COUNT (*) FROM usersSessions WHERE uID = :uID AND sessionKey = :sessionKey');
-		$query->bindValue(':uID', $this->id, PDO::PARAM_INT);
+		$query = $db->prepare('SELECT COUNT (*) FROM usersSessions WHERE userID = :userID AND sessionKey = :sessionKey');
+		$query->bindValue(':userID', $this->id, PDO::PARAM_INT);
 		$query->bindValue(':sessionKey', hash(User::config('hash_algorithm'), $sessionKey), PDO::PARAM_STR);
 		$query->execute();
 		if($query->fetch() == 0)
@@ -453,8 +454,8 @@ class User
 		$query->bindParam(':id', $this->id, PDO::PARAM_INT);
 		$query->execute();
 		//Remove any active session records...
-		$query = $db->prepare('DELETE FROM usersSessions WHERE uID=:uID');
-		$query->bindParam(':uID', $this->id, PDO::PARAM_INT);
+		$query = $db->prepare('DELETE FROM usersSessions WHERE userID=:userID');
+		$query->bindParam(':userID', $this->id, PDO::PARAM_INT);
 		$query->execute();
 	}
 	
