@@ -474,7 +474,7 @@ class User
 		$query->bindParam(':salt', $salt, PDO::PARAM_LOB); //is LOB right..?
 		$query->bindParam(':email', $email, PDO::PARAM_STR);
 		$query->bindParam(':date', time(), PDO::PARAM_STR);
-		$query->execute();	
+		$query->execute();
 	}
 	
 	//Adds a new user to the usersPending database; sends an email out for confirmation
