@@ -404,20 +404,10 @@ class User
 	//Checks if User has valid login session for the current script; checks if logged in
 	public function checkSession($sessionKey)
 	{
-		$db = new PDO('sqlite:'.User::config('db_path'));
-		$query = $db->prepare('SELECT COUNT (*) FROM usersSessions WHERE userID = :userID AND sessionIP = :sessionIP');
-		$query->bindValue(':userID', $this->id, PDO::PARAM_INT);
-		$query->bindValue(':sessionIP', $_SERVER['REMOTE_ADDR'], PDO::PARAM_STR);
-		$query->execute();
-		if($query->fetch() == 0)
-			return false;
-		$query = $db->prepare('SELECT COUNT (*) FROM usersSessions WHERE userID = :userID AND sessionKey = :sessionKey');
-		$query->bindValue(':userID', $this->id, PDO::PARAM_INT);
-		$query->bindValue(':sessionKey', hash(User::config('hash_algorithm'), $sessionKey), PDO::PARAM_STR);
-		$query->execute();
-		if($query->fetch() == 0)
-			return false;
-		return true;
+		if(array_key_exists($_SERVER['REMOTE_ADDR'], $this->sessions))
+			if(strcmp($this->sessions[$_SERVER['REMOTE_ADDR']], $sessionKey) == 0)
+				return true;
+		return false;
 	}
 	
 	public function endSession()
