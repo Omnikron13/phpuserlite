@@ -384,6 +384,8 @@ class User
 	//Generates a new session key; sends out login cookies; updates the database & members
 	public function startSession($cookieDuration)
 	{
+		if(count($this->sessions) >= User::config('max_sessions'))
+			return; //Throw exception? replace oldest? check if current ip is one of them..?
 		if(!is_int($cookieDuration) && !ctype_digit($cookieDuration))
 			throw new InvalidArgumentException("startSession() expects to be passed an integer for cookie duration, instead was passed: $cookieDuration");
 		if($cookieDuration < 0)
