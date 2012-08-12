@@ -28,7 +28,7 @@ class User
 	
 	protected static $configData = array(
 		//Configuration parametres
-		'db_path'		=>	'./phpuserlite.db',
+		'db_path'		=>	'phpuserlite.db',
 		'salt_length'		=>	16,
 		'session_key_length'	=>	32,
 		'confirm_code_length'	=>	16,
@@ -177,7 +177,8 @@ class User
 			$query = $db->prepare('SELECT * FROM users WHERE username = :username');
 			$query->bindParam(':username', $uid, PDO::PARAM_STR);
 		}
-		//else THROW ERROR
+		else
+			throw new DomainException("User::__construct expects parameter 2 to be one of User::GET_BY_ID or User::GET_BY_USERNAME, was instead passed: $getType");
 		$query->execute();
 		$query->bindColumn('id', $this->id, PDO::PARAM_INT);
 		$query->bindColumn('username', $this->username, PDO::PARAM_STR);
@@ -191,7 +192,7 @@ class User
 		$query->bindColumn('failureTime', $this->failureTime, PDO::PARAM_STR);
 		$query->fetch(PDO::FETCH_BOUND);
 		//May need to revise type of exception thrown here...
-		if($this->id == NULL)
+		if($this->id === NULL)
 			throw new OutOfBoundsException('No such user found in database: '.$id);
 	}
 	
@@ -289,7 +290,7 @@ class User
 			$this->email = $email;
 		}
 		else
-			throw new InvalidArgumentException('Invalid mode for setEmail method, mode is either SET_EMAIL_CONFIRM or SET_EMAIL_DIRECT');
+			throw new DomainException('Invalid mode for setEmail method, mode is either SET_EMAIL_CONFIRM or SET_EMAIL_DIRECT');
 	}
 	
 	//Checks $count is a positive integer, then updates the database & member
@@ -298,7 +299,7 @@ class User
 		if(!is_int($count))
 			throw new InvalidArgumentException('setFailureCount() expected integer, value given was: '.$count);
 		if($count < 0)
-			throw new InvalidArgumentException('setFailureCount() expected a positive integer, or 0, value given was: '.$count);
+			throw new DomainException('setFailureCount() expected a positive integer, or 0, value given was: '.$count);
 		$db = new PDO('sqlite:'.User::config('db_path'));
 		$query = $db->prepare('UPDATE users SET failureCount=:count WHERE id=:id');
 		$query->bindParam(':count', $count, PDO::PARAM_INT);
@@ -317,7 +318,7 @@ class User
 			if(!is_numeric($time))
 				throw new InvalidArgumentException('setFailureTime() expected a number, value given was: '.$time);
 			if($time < 0)
-				throw new InvalidArgumentException('setFailureTime() expected a positive value, value given was: '.$time);
+				throw new DomainException('setFailureTime() expected a positive value, value given was: '.$time);
 			if($time > gettimeofday(true))
 				throw new RangeException('setFailureTime() can only be called with timestamps up to the current time, or -1 for the current time');
 		}
@@ -344,7 +345,7 @@ class User
 	}
 	
 	//Checks if the last login was a permittable number of seconds ago to allow a login attempt, returns true if so
-	public function checkLoginFrequency()
+	protected function checkLoginFrequency()
 	{
 		if(is_null($this->failureTime))
 			return true;
@@ -382,6 +383,10 @@ class User
 	//Generates a new session key; sends out login cookies; updates the database & members
 	public function startSession($cookieDuration)
 	{
+		if(!is_int($cookieDuration) && !ctype_digit($cookieDuration))
+			throw new InvalidArgumentException("startSession() expects to be passed an integer for cookie duration, instead was passed: $cookieDuration");
+		if($cookieDuration < 0)
+			throw new DomainException("startSession() expects to be passed a positive integer for cookie duration, instead was passed: $cookieDuration");
 		//Ready session data...
 		$sessionKey = User::generateSessionKey();
 		$hashedKey = hash(User::config('hash_algorithm'), $sessionKey);
@@ -430,12 +435,12 @@ class User
 		User::processEventHandlers('onRemove', $this);
 		//Prep database...
 		$db = new PDO('sqlite:'.User::config('db_path'));
-		//Remove the record in the users table...
-		$query = $db->prepare('DELETE FROM users WHERE id=:id');
-		$query->bindParam(':id', $this->id, PDO::PARAM_INT);
-		$query->execute();
 		//Remove any record in the usersChangeEmail table... 
 		$query = $db->prepare('DELETE FROM usersChangeEmail WHERE userID=:id');
+		$query->bindParam(':id', $this->id, PDO::PARAM_INT);
+		$query->execute();
+		//Remove the record in the users table...
+		$query = $db->prepare('DELETE FROM users WHERE id=:id');
 		$query->bindParam(':id', $this->id, PDO::PARAM_INT);
 		$query->execute();
 	}
@@ -490,7 +495,7 @@ class User
 		if(!User::validateEmail($email))
 			throw new UserInvalidEmailException($email);
 		if(!User::availableUsername($username))
-			throw new UserUnavailableUsernameException($username); 
+			throw new UserUnavailableUsernameException($username);
 		if(!User::availableEmail($email))
 			throw new UserUnavailableEmailException($email);   
 		//Main code follows...
@@ -840,28 +845,36 @@ class User
 	protected static $configLoaded = false;
 	
 	//This function loads config from a file, if applicable, and sets $configLoaded to true
-	public static function loadConfig($file = NULL)
+	public static function loadConfig($file = NULL, $force = false)
 	{
 		//If no attempt has been made to load the config, attempt to load it, and patch it over $configData
-		if(User::$configLoaded)
+		if(!is_bool($force))
+			throw new InvalidArgumentException("User::loadConfig() expects 2nd argument to be a boolean, instead was passed: $force");
+		if(User::$configLoaded && !$force)
 			return;
+		$pairs = NULL;
+		$pathRegex = '%^(?:~?/|[A-Z]:[\\\\/]).+%i';
 		if($file === NULL)
-			$file = __DIR__.'/'.User::DEFAULT_CONFIG_FILE;
-		if(is_file($file) && is_readable($file))
 		{
-			$raw = file($file);
-			foreach($raw as $line)
-			{
-				$line = explode('=', $line, 2);
-				$line[0] = trim($line[0]);
-				$line[1] = trim($line[1]);
-				if(array_key_exists($line[0], User::$configData))
-					User::$configData[$line[0]] = $line[1];
-			}
+			$file = User::DEFAULT_CONFIG_FILE;
+			if(!preg_match($pathRegex, User::DEFAULT_CONFIG_FILE))
+				$file = __DIR__.'/'.$file;
+			if(is_file($file) && is_readable($file))
+				$pairs = array_change_key_case(parse_ini_file($file));
+		}
+		else if(!is_file($file))
+			throw new InvalidArgumentException("User::loadConfig() expects to be passed a file path, instead was passed: $file");
+		else if(!is_readable($file))
+			throw new RuntimeException("The file passed to User::loadConfig() is not readable: $file");
+		else
+			$pairs = array_change_key_case(parse_ini_file($file));
+		if($pairs)
+		{
+			$pairs = array_uintersect_assoc($pairs, User::$configData, create_function(NULL, "return 0;"));
+			User::$configData = array_merge(User::$configData, $pairs);
 		}
 		//Convert relative db_path values to absolute, taking '.' to be the parent directory of User.php
-		if(strncmp(User::$configData['db_path'], '/', 1) != 0 &&
-		   substr_compare(User::$configData['db_path'], ':', 1, 1) != 0)
+		if(!preg_match($pathRegex, User::$configData['db_path']))
 			User::$configData['db_path'] = __DIR__.'/'.User::$configData['db_path'];
 		User::$configLoaded = true;
 	}
@@ -870,9 +883,11 @@ class User
 	public static function config($key)
 	{
 		User::loadConfig();
+		$key = strtolower($key);
 		if(array_key_exists($key, User::$configData))
 			return User::$configData[$key];
-		//else exception...
+		//Replace with custom exception?
+		throw new DomainException("User::config() passed a key not matching a config parameter: $key");
 	}
 	
 	//This method must be called to setup the database before any other code is called
@@ -911,12 +926,12 @@ class UserInvalidEmailException extends InvalidArgumentException{
 		parent::__construct('Invalid email: '.$value);
 	}
 }
-class UserUnavailableUsernameException extends InvalidArgumentException{
+class UserUnavailableUsernameException extends RuntimeException{
 	public function __construct($value){
 		parent::__construct('Username \''.$value.'\' already exists in database.');
 	}
 }
-class UserUnavailableEmailException extends InvalidArgumentException{
+class UserUnavailableEmailException extends RuntimeException{
 	public function __construct($value){
 		parent::__construct('Email \''.$value.'\' already exists in database.');
 	}
