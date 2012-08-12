@@ -139,8 +139,8 @@ class User
 		'db_userssessions_table_schema'
 			=>	'CREATE TABLE IF NOT EXISTS usersSessions(id INTEGER PRIMARY KEY,
 									  userID INTEGER NOT NULL,
-									  sessionKey TEXT NOT NULL,
-									  sessionIP TEXT NOT NULL,
+									  key TEXT NOT NULL,
+									  IP TEXT NOT NULL,
 									  FOREIGN KEY (userID) REFERENCES users(id))');
 	
 	//Flags
@@ -392,9 +392,9 @@ class User
 		User::sendCookies($this->username, $sessionKey, $cookieDuration);
 		//Update database...
 		$db = new PDO('sqlite:'.User::config('db_path'));
-		$query = $db->prepare('INSERT INTO usersSessions(userID, sessionKey, sessionIP) VALUES(:id, :sessionKey, :sessionIP)');
-		$query->bindParam(':sessionKey', $hashedKey, PDO::PARAM_STR);
-		$query->bindParam(':sessionIP', $sessionIP, PDO::PARAM_STR);
+		$query = $db->prepare('INSERT INTO usersSessions(userID, key, IP) VALUES(:id, :key, :IP)');
+		$query->bindParam(':key', $hashedKey, PDO::PARAM_STR);
+		$query->bindParam(':IP', $sessionIP, PDO::PARAM_STR);
 		$query->bindParam(':id', $this->id, PDO::PARAM_INT);
 		$query->execute();
 		//Add/update session in $sessions array
