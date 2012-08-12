@@ -160,6 +160,7 @@ class User
 	protected $date = NULL;
 	protected $sessionKey = NULL;
 	protected $sessionIP = NULL;
+	protected $sessions = array();
 	protected $failureCount = NULL;
 	protected $failureTime = NULL;
 	
