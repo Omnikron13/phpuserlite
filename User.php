@@ -120,8 +120,6 @@ class User
 								  salt BLOB NOT NULL,
 								  email TEXT NOT NULL UNIQUE COLLATE NOCASE,
 								  date INTEGER NOT NULL,
-								  sessionKey TEXT,
-								  sessionIP TEXT,
 								  failureCount INTEGER,
 								  failureTime REAL)',
 		'db_userspending_table_schema'
@@ -158,8 +156,6 @@ class User
 	protected $salt = NULL;
 	protected $email = NULL;
 	protected $date = NULL;
-	protected $sessionKey = NULL;
-	protected $sessionIP = NULL;
 	protected $sessions = array();
 	protected $failureCount = NULL;
 	protected $failureTime = NULL;
@@ -193,14 +189,17 @@ class User
 		$query->bindColumn('salt', $this->salt, PDO::PARAM_LOB);
 		$query->bindColumn('email', $this->email, PDO::PARAM_STR);
 		$query->bindColumn('date', $this->date, PDO::PARAM_INT);
-		$query->bindColumn('sessionKey', $this->sessionKey, PDO::PARAM_STR);
-		$query->bindColumn('sessionIP', $this->sessionIP, PDO::PARAM_STR);
 		$query->bindColumn('failureCount', $this->failureCount, PDO::PARAM_INT);
 		$query->bindColumn('failureTime', $this->failureTime, PDO::PARAM_STR);
 		$query->fetch(PDO::FETCH_BOUND);
 		//May need to revise type of exception thrown here...
 		if($this->id === NULL)
 			throw new OutOfBoundsException('No such user found in database: '.$id);
+		$query = $db->prepare('SELECT * FROM usersSessions WHERE userID = :userID');
+		$query->bindParam(':userID', $this->id, PDO::PARAM_INT);
+		$query->execute();
+		foreach($query->fetchAll(PDO::FETCH_ASSOC) as $row)
+			$this->sessions[$row['sessionIP']] = $row['sessionKey'];
 	}
 	
 	public function getID(){
@@ -220,12 +219,6 @@ class User
 	}
 	public function getDate(){
 		return $this->date;
-	}
-	public function getSessionKey(){
-		return $this->sessionKey;
-	}
-	public function getSessionIP(){
-		return $this->sessionIP;
 	}
 	public function getFailureCount(){
 		return $this->failureCount;
@@ -404,9 +397,8 @@ class User
 		$query->bindParam(':sessionIP', $sessionIP, PDO::PARAM_STR);
 		$query->bindParam(':id', $this->id, PDO::PARAM_INT);
 		$query->execute();
-		//Update members...
-		$this->sessionKey = $hashedKey;
-		$this->sessionIP = $sessionIP;
+		//Add/update session in $sessions array
+		$this->sessions[$sessionIP] = $hashedKey;
 	}
 	
 	//Checks if User has valid login session for the current script; checks if logged in
@@ -434,12 +426,11 @@ class User
 		User::removeCookies();
 		//Remove database data...
 		$db = new PDO('sqlite:'.User::config('db_path'));
-		$query = $db->prepare('UPDATE users SET sessionKey=NULL, sessionIP=NULL WHERE id=:id');
-		$query->bindParam(':id', $this->id, PDO::PARAM_INT);
+		$query = $db->prepare('DELETE * FROM usersSessions WHERE userID=:userID');
+		$query->bindParam(':userID', $this->id, PDO::PARAM_INT);
 		$query->execute();
-		//Remove member data...
-		$this->sessionKey = NULL;
-		$this->sessionIP = NULL;
+		//Clear $sessions array
+		$this->sessions = array();
 	}
 
 	public function remove()
