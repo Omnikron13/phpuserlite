@@ -220,6 +220,9 @@ class User
 	public function getDate(){
 		return $this->date;
 	}
+	public function getSessions(){
+		return $this->sessions;
+	}
 	public function getFailureCount(){
 		return $this->failureCount;
 	}
