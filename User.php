@@ -438,13 +438,13 @@ class User
 		$query = $db->prepare('DELETE FROM usersChangeEmail WHERE userID=:id');
 		$query->bindParam(':id', $this->id, PDO::PARAM_INT);
 		$query->execute();
-		//Remove the record in the users table...
-		$query = $db->prepare('DELETE FROM users WHERE id=:id');
-		$query->bindParam(':id', $this->id, PDO::PARAM_INT);
-		$query->execute();
 		//Remove any active session records...
 		$query = $db->prepare('DELETE FROM usersSessions WHERE userID=:userID');
 		$query->bindParam(':userID', $this->id, PDO::PARAM_INT);
+		$query->execute();
+		//Remove the record in the users table...
+		$query = $db->prepare('DELETE FROM users WHERE id=:id');
+		$query->bindParam(':id', $this->id, PDO::PARAM_INT);
 		$query->execute();
 	}
 	
