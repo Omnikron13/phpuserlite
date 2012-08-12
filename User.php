@@ -28,7 +28,7 @@ class User
 	
 	protected static $configData = array(
 		//Configuration parametres
-		'db_path'		=>	'./phpuserlite.db',
+		'db_path'		=>	'phpuserlite.db',
 		'salt_length'		=>	16,
 		'session_key_length'	=>	32,
 		'confirm_code_length'	=>	16,
@@ -444,12 +444,12 @@ class User
 	{
 		//Prep database...
 		$db = new PDO('sqlite:'.User::config('db_path'));
-		//Remove the record in the users table...
-		$query = $db->prepare('DELETE FROM users WHERE id=:id');
-		$query->bindParam(':id', $this->id, PDO::PARAM_INT);
-		$query->execute();
 		//Remove any record in the usersChangeEmail table... 
 		$query = $db->prepare('DELETE FROM usersChangeEmail WHERE userID=:id');
+		$query->bindParam(':id', $this->id, PDO::PARAM_INT);
+		$query->execute();
+		//Remove the record in the users table...
+		$query = $db->prepare('DELETE FROM users WHERE id=:id');
 		$query->bindParam(':id', $this->id, PDO::PARAM_INT);
 		$query->execute();
 		//Remove any active session records...
@@ -492,7 +492,7 @@ class User
 		$query->bindParam(':salt', $salt, PDO::PARAM_LOB); //is LOB right..?
 		$query->bindParam(':email', $email, PDO::PARAM_STR);
 		$query->bindParam(':date', time(), PDO::PARAM_STR);
-		$query->execute();	
+		$query->execute();
 	}
 	
 	//Adds a new user to the usersPending database; sends an email out for confirmation
@@ -837,9 +837,12 @@ class User
 		if(User::$configLoaded && !$force)
 			return;
 		$pairs = NULL;
+		$pathRegex = '%^(?:~?/|[A-Z]:[\\\\/]).+%i';
 		if($file === NULL)
 		{
-			$file = __DIR__.'/'.User::DEFAULT_CONFIG_FILE;
+			$file = User::DEFAULT_CONFIG_FILE;
+			if(!preg_match($pathRegex, User::DEFAULT_CONFIG_FILE))
+				$file = __DIR__.'/'.$file;
 			if(is_file($file) && is_readable($file))
 				$pairs = array_change_key_case(parse_ini_file($file));
 		}
@@ -855,7 +858,6 @@ class User
 			User::$configData = array_merge(User::$configData, $pairs);
 		}
 		//Convert relative db_path values to absolute, taking '.' to be the parent directory of User.php
-		$pathRegex = '%^(?:~?/|[A-Z]:[\\\\/]).+%i';
 		if(!preg_match($pathRegex, User::$configData['db_path']))
 			User::$configData['db_path'] = __DIR__.'/'.User::$configData['db_path'];
 		User::$configLoaded = true;
