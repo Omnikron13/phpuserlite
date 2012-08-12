@@ -822,7 +822,9 @@ class User
 		$pathRegex = '%^(?:~?/|[A-Z]:[\\\\/]).+%i';
 		if($file === NULL)
 		{
-			$file = __DIR__.'/'.User::DEFAULT_CONFIG_FILE;
+			$file = User::DEFAULT_CONFIG_FILE;
+			if(!preg_match($pathRegex, User::DEFAULT_CONFIG_FILE))
+				$file = __DIR__.'/'.$file;
 			if(is_file($file) && is_readable($file))
 				$pairs = array_change_key_case(parse_ini_file($file));
 		}
