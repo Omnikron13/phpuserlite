@@ -28,7 +28,7 @@ class User
 	
 	protected static $configData = array(
 		//Configuration parametres
-		'db_path'		=>	'./phpuserlite.db',
+		'db_path'		=>	'phpuserlite.db',
 		'salt_length'		=>	16,
 		'session_key_length'	=>	32,
 		'confirm_code_length'	=>	16,
