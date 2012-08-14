@@ -156,12 +156,13 @@ class User
 	protected $sessionIP = NULL;
 	protected $failureCount = NULL;
 	protected $failureTime = NULL;
+	protected static $db = NULL;
 	
 	//Class constructor; loads User data from the database by id or username
 	//Maybe make consturctor private/protected, limiting construction to get()?
 	public function __construct($uid, $getType = User::GET_BY_ID)
 	{
-		$db = new PDO('sqlite:'.User::config('db_path'));
+		$db = User::getDB();
 		if($getType == User::GET_BY_ID)
 		{
 			//Need to revise this exception..?
@@ -234,7 +235,7 @@ class User
 			throw new UserInvalidUsernameException($username);
 		if(!User::availableUsername($username))
 			throw new UserUnavailableUsernameException($username);
-		$db = new PDO('sqlite:'.User::config('db_path'));
+		$db = User::getDB();
 		$query = $db->prepare('UPDATE users SET username=:username WHERE id=:id');
 		$query->bindParam(':username', $username, PDO::PARAM_STR);
 		$query->bindParam(':id', $this->id, PDO::PARAM_INT);
@@ -249,7 +250,7 @@ class User
 			throw new UserInvalidPasswordException($password);
 		$salt = User::generateSalt();
 		$password = User::processPassword($password, $salt);
-		$db = new PDO('sqlite:'.User::config('db_path'));
+		$db = User::getDB();
 		$query = $db->prepare('UPDATE users SET password=:password, salt=:salt WHERE id=:id');
 		$query->bindParam(':password', $password, PDO::PARAM_STR);
 		$query->bindParam(':salt', $salt, PDO::PARAM_LOB);
@@ -266,7 +267,7 @@ class User
 			throw new UserInvalidEmailException($email);
 		if(!User::availableEmail($email))
 			throw new UserUnavailableEmailException($email);
-		$db = new PDO('sqlite:'.User::config('db_path'));
+		$db = User::getDB();
 		if($mode == User::SET_EMAIL_CONFIRM)
 		{
 			$confirmCode = User::generateConfirmCode();
@@ -300,7 +301,7 @@ class User
 			throw new InvalidArgumentException('setFailureCount() expected integer, value given was: '.$count);
 		if($count < 0)
 			throw new DomainException('setFailureCount() expected a positive integer, or 0, value given was: '.$count);
-		$db = new PDO('sqlite:'.User::config('db_path'));
+		$db = User::getDB();
 		$query = $db->prepare('UPDATE users SET failureCount=:count WHERE id=:id');
 		$query->bindParam(':count', $count, PDO::PARAM_INT);
 		$query->bindParam(':id', $this->id, PDO::PARAM_INT);
@@ -322,7 +323,7 @@ class User
 			if($time > gettimeofday(true))
 				throw new RangeException('setFailureTime() can only be called with timestamps up to the current time, or -1 for the current time');
 		}
-		$db = new PDO('sqlite:'.User::config('db_path'));
+		$db = User::getDB();
 		$query = $db->prepare('UPDATE users SET failureTime=:time WHERE id=:id');
 		$query->bindValue(':time', strval($time));
 		$query->bindParam(':id', $this->id, PDO::PARAM_INT);
@@ -391,7 +392,7 @@ class User
 		//Send session cookies...
 		User::sendCookies($this->username, $sessionKey, $cookieDuration);
 		//Update database...
-		$db = new PDO('sqlite:'.User::config('db_path'));
+		$db = User::getDB();
 		$query = $db->prepare('UPDATE users SET sessionKey=:sessionKey, sessionIP=:sessionIP WHERE id=:id');
 		$query->bindParam(':sessionKey', $hashedKey, PDO::PARAM_STR);
 		$query->bindParam(':sessionIP', $sessionIP, PDO::PARAM_STR);
@@ -417,7 +418,7 @@ class User
 		//Remove cookies...
 		User::removeCookies();
 		//Remove database data...
-		$db = new PDO('sqlite:'.User::config('db_path'));
+		$db = User::getDB();
 		$query = $db->prepare('UPDATE users SET sessionKey=NULL, sessionIP=NULL WHERE id=:id');
 		$query->bindParam(':id', $this->id, PDO::PARAM_INT);
 		$query->execute();
@@ -429,7 +430,7 @@ class User
 	public function remove()
 	{
 		//Prep database...
-		$db = new PDO('sqlite:'.User::config('db_path'));
+		$db = User::getDB();
 		//Remove any record in the usersChangeEmail table... 
 		$query = $db->prepare('DELETE FROM usersChangeEmail WHERE userID=:id');
 		$query->bindParam(':id', $this->id, PDO::PARAM_INT);
@@ -467,7 +468,7 @@ class User
 			throw new UserUnavailableEmailException($email);   
 		//Main code follows...
 		$salt = User::generateSalt();
-		$db = new PDO('sqlite:'.User::config('db_path'));
+		$db = User::getDB();
 		$query = $db->prepare('INSERT INTO users(username, password, salt, email, date) VALUES(:username, :password, :salt, :email, :date)');
 		$query->bindParam(':username', $username, PDO::PARAM_STR);
 		$query->bindParam(':password', User::processPassword($password, $salt), PDO::PARAM_STR);
@@ -494,7 +495,7 @@ class User
 		//Main code follows...
 		$salt = User::generateSalt();
 		$confirmCode = User::generateConfirmCode();
-		$db = new PDO('sqlite:'.User::config('db_path'));
+		$db = User::getDB();
 		$query = $db->prepare('INSERT INTO usersPending(username, password, salt, email, date, confirmCode) VALUES(:username, :password, :salt, :email, :date, :confirmCode)');
 		$query->bindParam(':username', $username, PDO::PARAM_STR);
 		$query->bindParam(':password', User::processPassword($password, $salt), PDO::PARAM_STR);
@@ -514,7 +515,7 @@ class User
 	public static function confirm()
 	{
 		//validate input here..?
-		$db = new PDO('sqlite:'.User::config('db_path'));
+		$db = User::getDB();
 		$query = $db->prepare('SELECT * FROM usersPending WHERE id = :id');
 		$query->bindParam(':id', $_GET['id'], PDO::PARAM_INT);
 		$query->execute();
@@ -530,7 +531,7 @@ class User
 		if(hash(User::config('hash_algorithm'), $_GET['code']) == $confirmCode)
 		{
 			//Copy over data to users table...
-			$db = new PDO('sqlite:'.User::config('db_path'));
+			$db = User::getDB();
 			$query = $db->prepare('INSERT INTO users(username, password, salt, email, date) VALUES(:username, :password, :salt, :email, :date)');
 			$query->bindParam(':username', $username, PDO::PARAM_STR);
 			$query->bindParam(':password', $password, PDO::PARAM_STR);
@@ -551,7 +552,7 @@ class User
 	public static function confirmSetEmail()
 	{
 		//validate input here..?
-		$db = new PDO('sqlite:'.User::config('db_path'));
+		$db = User::getDB();
 		$query = $db->prepare('SELECT * FROM usersChangeEmail WHERE id = :id');
 		$query->bindParam(':id', $_GET['id'], PDO::PARAM_INT);
 		$query->execute();
@@ -713,7 +714,7 @@ class User
 	//Checks if $username already exists in database; returns true if it doesn't, otherwise false
 	protected static function availableUsername($username)
 	{
-		$db = new PDO('sqlite:'.User::config('db_path'));
+		$db = User::getDB();
 		$query = $db->prepare('SELECT COUNT (*) FROM users WHERE username = :username');
 		$query->bindParam(':username', $username, PDO::PARAM_STR);
 		$query->execute();
@@ -731,7 +732,7 @@ class User
 	//Checks if $email already exists in database; returns true if it doesn't, otherwise false
 	protected static function availableEmail($email)
 	{
-		$db = new PDO('sqlite:'.User::config('db_path'));
+		$db = User::getDB();
 		$query = $db->prepare('SELECT COUNT (*) FROM users WHERE email = :email');
 		$query->bindParam(':email', $email, PDO::PARAM_STR);
 		$query->execute();
@@ -859,7 +860,7 @@ class User
 	//This method must be called to setup the database before any other code is called
 	public static function setupDB()
 	{
-		$db = new PDO('sqlite:'.User::config('db_path'));
+		$db = User::getDB();
 		//Create 'users' table...
 		$query = $db->prepare(User::config('db_users_table_schema'));
 		$query->execute();
@@ -869,6 +870,18 @@ class User
 		//Create 'usersChangeEmail' table...
 		$query = $db->prepare(User::config('db_userschangeemail_table_schema'));
 		$query->execute();
+	}
+
+	//This method should always be used when accessing the database, to ensure the db is setup correctly
+	protected static function getDB()
+	{
+		if(User::$db === NULL)
+		{
+			User::$db = new PDO('sqlite:'.User::config('db_path'));
+			User::$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			User::$db->exec('PRAGMA foreign_keys = ON');
+		}
+		return User::$db;
 	}
 }
 
