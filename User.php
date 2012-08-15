@@ -843,6 +843,35 @@ class User
 			call_user_func_array($callback, $args);
 		}
 	}
+
+	//This method analyses a variable claimed to be a callback, returning a ReflectionFunction or ReflectionMethod
+	//object reflecting the function/method if it is a valid callback, and throwing a BadFunctionCallException otherwise
+	protected static function getReflector($callback)
+	{
+		if(is_array($callback))
+		{
+			if(is_object($callback[0]))
+			{
+				$reflect = new ReflectionObject($callback[0]);
+			}
+			else if(is_string($callback[0]) && preg_match('/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/', $callback[0]))
+			{
+				$reflect = new ReflectionClass($callback[0]);
+			}
+			return $reflect->getMethod($callback[1]);
+		}
+		else if(is_string($callback))
+		{
+			if(preg_match('/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/', $callback))
+				return new ReflectionFunction($callback);
+			if(preg_match('/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*::[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/', $callback))
+			{
+				$parts = explode('::', $callback);
+				return new ReflectionMethod($parts[0], $parts[1]);
+			}
+		}
+		throw new BadFunctionCallException('getReflector() could not identify passed value as a valid callback, unable to create a reflector');
+	}
 	
 	//This variable is to ensure configuration is loaded, and is only loaded once
 	protected static $configLoaded = false;
