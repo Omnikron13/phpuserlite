@@ -201,7 +201,7 @@ class User
 		$query->bindParam(':userID', $this->id, PDO::PARAM_INT);
 		$query->execute();
 		foreach($query->fetchAll(PDO::FETCH_ASSOC) as $row)
-			$this->sessions[$row['sessionIP']] = $row['sessionKey'];
+			$this->sessions[$row['sessionKey']] = $row['sessionIP'];
 	}
 	
 	public function getID(){
@@ -405,30 +405,32 @@ class User
 		$query->bindParam(':id', $this->id, PDO::PARAM_INT);
 		$query->execute();
 		//Add/update session in $sessions array
-		$this->sessions[$sessionIP] = $hashedKey;
+		$this->sessions[$hashedKey] = $sessionIP;
 	}
 	
 	//Checks if User has valid login session for the current script; checks if logged in
 	public function checkSession($sessionKey)
 	{
-		if(array_key_exists($_SERVER['REMOTE_ADDR'], $this->sessions))
-			if(strcmp($this->sessions[$_SERVER['REMOTE_ADDR']], $sessionKey) == 0)
+		$hashedKey = hash(User::config('hash_algorithm'), $sessionKey);
+		if(array_key_exists($hashedKey, $this->sessions))
+			if(strcmp($this->sessions[$hashedKey], $_SERVER['REMOTE_ADDR']) == 0)
 				return true;
 		return false;
 	}
 	
 	public function endSession()
 	{
+		$hashedKey = hash(User::config('hash_algorithm'), $sessionKey);
 		//Remove cookies...
 		User::removeCookies();
 		//Remove database data...
 		$db = User::getDB();
-		$query = $db->prepare('DELETE * FROM usersSessions WHERE userID=:userID AND IP=:IP');
+		$query = $db->prepare('DELETE * FROM usersSessions WHERE userID=:userID AND key=:key');
 		$query->bindParam(':userID', $this->id, PDO::PARAM_INT);
-		$query->bindParam(':IP', $_SERVER['REMOTE_ADDR'], PDO::PARAM_INT);
+		$query->bindParam(':key', $hashedKey, PDO::PARAM_STR);
 		$query->execute();
 		//Remove current IP entry from $sessions array
-		unset($this->sessions[$_SERVER['REMOTE_ADDR']]);
+		unset($this->sessions[$hashedKey);
 	}
 
 	public function remove()
