@@ -437,10 +437,6 @@ class User
 	{
 		//Prep database...
 		$db = User::getDB();
-		//Remove any record in the usersChangeEmail table... 
-		$query = $db->prepare('DELETE FROM usersChangeEmail WHERE userID=:id');
-		$query->bindParam(':id', $this->id, PDO::PARAM_INT);
-		$query->execute();
 		//Remove the record in the users table...
 		$query = $db->prepare('DELETE FROM users WHERE id=:id');
 		$query->bindParam(':id', $this->id, PDO::PARAM_INT);
