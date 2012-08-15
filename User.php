@@ -137,7 +137,13 @@ class User
 									     userID INTEGER UNIQUE NOT NULL,
 									     email TEXT NOT NULL UNIQUE COLLATE NOCASE,
 									     confirmCode TEXT NOT NULL,
-									     FOREIGN KEY (userID) REFERENCES users(id))');
+									     FOREIGN KEY (userID) REFERENCES users(id))',
+		'db_usersondelete_trigger_schema'
+			=>	'CREATE TRIGGER IF NOT EXISTS usersOnDelete BEFORE DELETE ON users 
+					FOR EACH ROW
+						BEGIN
+							DELETE * FROM usersChangeEmail WHERE userID = OLD.id;
+						END');
 	
 	//Flags
 	const GET_BY_ID = 0;
@@ -436,10 +442,6 @@ class User
 		User::processEventHandlers('onRemove', $this);
 		//Prep database...
 		$db = User::getDB();
-		//Remove any record in the usersChangeEmail table... 
-		$query = $db->prepare('DELETE FROM usersChangeEmail WHERE userID=:id');
-		$query->bindParam(':id', $this->id, PDO::PARAM_INT);
-		$query->execute();
 		//Remove the record in the users table...
 		$query = $db->prepare('DELETE FROM users WHERE id=:id');
 		$query->bindParam(':id', $this->id, PDO::PARAM_INT);
@@ -905,6 +907,9 @@ class User
 		$query->execute();
 		//Create 'usersChangeEmail' table...
 		$query = $db->prepare(User::config('db_userschangeemail_table_schema'));
+		$query->execute();
+		//Create 'usersOnDelete' trigger...
+		$query = $db->prepare(User::config('db_usersondelete_trigger_schema'));
 		$query->execute();
 		//Call any registered postSetup callbacks, passing them the open db connection
 		User::processEventHandlers('postSetup', $db);
