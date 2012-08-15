@@ -876,6 +876,9 @@ class User
 		//Create 'usersChangeEmail' table...
 		$query = $db->prepare(User::config('db_userschangeemail_table_schema'));
 		$query->execute();
+		//Create 'usersOnDelete' trigger...
+		$query = $db->prepare(User::config('db_usersondelete_trigger_schema'));
+		$query->execute();
 	}
 
 	//This method should always be used when accessing the database, to ensure the db is setup correctly
