@@ -203,6 +203,11 @@ class User
 			throw new OutOfBoundsException('No such user found in database: '.$id);
 	}
 	
+	//Stringifies to just the username for the time being
+	public function __toString(){
+		return $this->username;
+	}
+	
 	public function getID(){
 		return $this->id;
 	}
