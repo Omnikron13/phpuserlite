@@ -142,7 +142,7 @@ class User
 			=>	'CREATE TRIGGER IF NOT EXISTS usersOnDelete BEFORE DELETE ON users 
 					FOR EACH ROW
 						BEGIN
-							DELETE * FROM usersChangeEmail WHERE userID = OLD.id;
+							DELETE FROM usersChangeEmail WHERE userID = OLD.id;
 						END');
 	
 	//Flags
