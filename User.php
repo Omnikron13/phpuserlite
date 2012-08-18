@@ -840,7 +840,7 @@ class User
 		else if(!is_file($file))
 			throw new InvalidArgumentException("User::loadConfig() expects to be passed a file path, instead was passed: $file");
 		else if(!is_readable($file))
-			throw new RuntimeException("The file passed to User::loadConfig() is not readable: $file");
+			throw new UserFileUnreadableException('loadConfig()', $file);
 		else
 			$pairs = array_change_key_case(parse_ini_file($file));
 		if($pairs)
