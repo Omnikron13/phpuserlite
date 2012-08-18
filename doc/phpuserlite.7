@@ -810,8 +810,8 @@ matches
 .I uid
 and creates a
 .B User
-object if it finds one, otherwise it throws an
-.IR OutOfBoundsException .
+object if it finds one, otherwise it throws a
+.BR UserNoSuchUserException .
 If
 .I getType
 is set to
@@ -824,16 +824,16 @@ matches
 .I uid
 and creates a
 .B User
-object if it finds one, otherwise it throws an
-.IR OutOfBoundsException .
+object if it finds one, otherwise it throws a
+.BR UserNoSuchUserException .
 If
 .I getType
 is not set to either
 .BR GET_BY_ID " or " GET_BY_USERNAME
 then a
-.I DomainException
+.B UserInvalidModeException
 will be thrown. The constructor may also throw one of
-.I InvalidArgumentException
+.B UserIncorrectDatatypeException
 or
 .B UserInvalidUsernameException
 if
