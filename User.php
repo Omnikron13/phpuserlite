@@ -85,9 +85,9 @@ class User
 		'confirm_subject'
 			=>	'Confirm your account at XYZ',
 		'confirm_body_template'
-			=>	'http://lab.s4t4n.net/projects/UserClass/demo/confirm.php?id=[id]&code=[code]',
+			=>	'http://example.com/confirm.php?id=[id]&code=[code]',
 		'confirm_from'
-			=>	'accounts@lab.s4t4n.net',
+			=>	'accounts@example.com',
 		//General:
 		'confirm_success_template'
 			=>	'Email confirmed; you may now log in.',
@@ -101,9 +101,9 @@ class User
 		'set_email_confirm_subject'
 			=>	'Confirm your new email address at XYZ',
 		'set_email_confirm_body_template'
-			=>	'http://lab.s4t4n.net/projects/UserClass/demo/confirm_email.php?id=[id]&code=[code]',
+			=>	'http://example.com/confirm_email.php?id=[id]&code=[code]',
 		'set_email_confirm_from'
-			=>	'accounts@lab.s4t4n.net',
+			=>	'accounts@example.com',
 		//General:
 		'set_email_confirm_success_template'
 			=>	'Email change confirmed.',
