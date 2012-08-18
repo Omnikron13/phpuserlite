@@ -929,4 +929,10 @@ class UserUnavailableEmailException extends RuntimeException{
 	}
 }
 
+class UserFileUnreadableException extends RuntimeException {
+	public __construct($method, $file) {
+		parent::__construct("$method was unable to read the specified file: $file");
+	}
+}
+
 ?>
