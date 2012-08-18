@@ -253,6 +253,7 @@ class User
 		$query->bindParam(':id', $this->id, PDO::PARAM_INT);
 		$query->execute();
 		$this->username = $username;
+		User::processEventHandlers('onUsernameChange', $this);
 	}
 	
 	//Validates $password, then updates database & member
@@ -270,6 +271,7 @@ class User
 		$query->execute();
 		$this->password = $password;
 		$this->salt = $salt;
+		User::processEventHandlers('onPasswordChange', $this);
 	}
 	
 	//This method needs revision to confirm new email
