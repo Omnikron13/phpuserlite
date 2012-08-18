@@ -837,6 +837,14 @@ class User
 	{
 		if(!array_key_exists($event, User::$events))
 			return; //replace with exception
+		$reflector = User::getReflector($callback);
+		if(strcmp(get_class($reflector), 'ReflectionMethod') == 0)
+		{
+			if($reflector->isAbstract())
+				return; //Replace with exception - callbacks cannot be abstract
+			if(!$relector->isPublic())
+				return; //replace with exception - callbacks must be public
+		}
 		User::$events[$event][] = $callback;
 	}
 	
