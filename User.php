@@ -903,6 +903,12 @@ class UserInvalidModeException extends DomainException {
 	}
 }
 
+class UserIncorrectDatatypeException extends InvalidArgumentException {
+	public function __construct($method, $param, $type, $data) {
+		parent::__construct("$method expected parameter $param to be $type, instead was passed: $data");
+	}
+}
+
 class UserNoSuchUserException extends OutOfBoundsException {
 	public function __construct($uid, $mode = NULL) {
 		if($mode !== NULL) {
