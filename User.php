@@ -844,7 +844,7 @@ class User
 			throw new InvalidArgumentException("User::addEventHandler() requires that its second parameter be a function or method callback, was instead passed: $callback", 0, $e);
 		}
 		if($reflector->getNumberOfRequiredParameters() > 1) //Revise to be specific if any events pass > 1 parameter
-			return; //replace with exception
+			throw new InvalidArgumentException("User::addEventHandler() was passed a callback that requires more parameters than would be passed to it: $callback");
 		if(strcmp(get_class($reflector), 'ReflectionMethod') == 0)
 		{
 			if($reflector->isAbstract())
