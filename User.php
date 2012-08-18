@@ -897,6 +897,12 @@ class User
 }
 
 //CLASS SPECIFIC EXCEPTIONS FOLLOW
+class UserInvalidModeException extends DomainException {
+	public function __construct($method, $mode, $modes) {
+		parent::__construct("$method called with invalid mode flag: $mode. Possible modes are: $modes");
+	}
+}
+
 class UserInvalidUsernameException extends InvalidArgumentException{
 	public function __construct($value){
 		parent::__construct('Invalid username: '.$value);
