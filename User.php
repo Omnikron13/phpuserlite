@@ -836,7 +836,7 @@ class User
 	public static function addEventHandler($event, $callback)
 	{
 		if(!array_key_exists($event, User::$events))
-			return; //replace with exception
+			throw new DomainException("User::addEventHandler passed an event that does not exist: $event");
 		try {
 			$reflector = User::getReflector($callback);
 		}
