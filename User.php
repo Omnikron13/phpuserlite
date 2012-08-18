@@ -825,6 +825,8 @@ class User
 		$_COOKIE['sessionKey'] = NULL;
 	}
 	
+	//This array holds the valid events that can be hooked as keys, and an array of the attached
+	//callbacks as the values
 	protected static $events = array(
 		'preSetup'	=>	array(),
 		'postSetup'	=>	array(),
