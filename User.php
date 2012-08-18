@@ -935,4 +935,10 @@ class UserFileUnreadableException extends RuntimeException {
 	}
 }
 
+class UserNoSuchConfigParameterException extends DomainException {
+	public __construct($key) {
+		parent::__construct("Attempted to access non-existent config parameter: $key");
+	}
+}
+
 ?>
