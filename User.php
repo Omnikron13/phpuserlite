@@ -903,6 +903,18 @@ class UserInvalidModeException extends DomainException {
 	}
 }
 
+class UserNoSuchUserException extends OutOfBoundsException {
+	public function __construct($uid, $mode = NULL) {
+		if($mode !== NULL) {
+			if($mode == User::GET_BY_ID)
+				$mode = 'id:';
+			if($mode == User::GET_BY_USERNAME)
+				$mode = 'username:';
+		}
+		parent::__construct("Requested User does not exist: $mode$uid");
+	}
+}
+
 class UserInvalidUsernameException extends InvalidArgumentException{
 	public function __construct($value){
 		parent::__construct('Invalid username: '.$value);
