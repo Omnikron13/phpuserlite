@@ -143,7 +143,8 @@ class User
 					FOR EACH ROW
 						BEGIN
 							DELETE FROM usersChangeEmail WHERE userID = OLD.id;
-						END');
+						END',
+	);
 	
 	//Flags
 	const GET_BY_ID = 0;
