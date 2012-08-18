@@ -186,7 +186,7 @@ class User
 			$query->bindParam(':username', $uid, PDO::PARAM_STR);
 		}
 		else
-			throw new DomainException("User::__construct expects parameter 2 to be one of User::GET_BY_ID or User::GET_BY_USERNAME, was instead passed: $getType");
+			throw new UserInvalidModeException('__construct()', $getType, 'User::GET_BY_ID, User::GET_BY_USERNAME');
 		$query->execute();
 		$query->bindColumn('id', $this->id, PDO::PARAM_INT);
 		$query->bindColumn('username', $this->username, PDO::PARAM_STR);
@@ -303,7 +303,7 @@ class User
 			$this->email = $email;
 		}
 		else
-			throw new DomainException('Invalid mode for setEmail method, mode is either SET_EMAIL_CONFIRM or SET_EMAIL_DIRECT');
+			throw new UserInvalidModeException('setEmail()', $mode, 'User::SET_EMAIL_CONFIRM, User::SET_EMAIL_DIRECT');
 	}
 	
 	//Checks $count is a positive integer, then updates the database & member
