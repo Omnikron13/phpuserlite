@@ -201,7 +201,7 @@ class User
 		$query->fetch(PDO::FETCH_BOUND);
 		//May need to revise type of exception thrown here...
 		if($this->id === NULL)
-			throw new OutOfBoundsException('No such user found in database: '.$id);
+			throw new UserNoSuchUserException($uid, $getType);
 	}
 	
 	//Stringifies to just the username for the time being
