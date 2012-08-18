@@ -1075,27 +1075,49 @@ This method deletes the user's entry from the database
 .SS UserInvalidModeException
 This exception extends
 .IR DomainException ,
+and is thrown by methods that have a (usually optional) mode argument and are
+passed a mode other than those defined
 .\" class UserIncorrectDatatypeException extends InvalidArgumentException
 .SS UserIncorrectDatatypeException
 This exception extends
 .IR InvalidArgumentException ,
+and is thrown by a large number of methods when they are passed completely the
+wrong type of data (e.g. passed a
+.I string
+when expecting an
+.IR integer )
+in one of their arguments
 .\" class UserNegativeValueException extends DomainException
 .SS UserNegativeValueException
 This exception extends
 .IR DomainException ,
+and is thrown by methods that require a positive
+.IR integer / float
+as one of their arguments but are passed a negative
+.IR integer / float
+instead
 .\" class UserNegativeTimestampException extends UserNegativeValueException
 .SS UserNegativeTimestampException
 This exception extends
 .BR UserNegativeValueException ,
+and is merely a specific version thrown by methods expecting a positive UNIX
+timestamp when passed a negative value
 .\" class UserFutureTimestampException extends RangeException
 .SS UserFutureTimestampException
 This exception extends
 .IR RangeException ,
+and is thrown by methods expecting a UNIX timestamp equating to the current
+time or before as one of their arguments when passed a timestamp equating to
+some time in the future
 .\" class UserNoSuchUserException extends OutOfBoundsException
 .SS UserNoSuchUserException
 This exception extends
 .IR OutOfBoundsException ,
-
+and is thrown when an attempt is made to create a new
+.B User
+object from an
+.IR id " or " username
+that does not exist
 .\" class UserInvalidUsernameException extends InvalidArgumentException
 .SS UserInvalidUsernameException
 This exception extends
@@ -1131,16 +1153,24 @@ This exception extends
 and is thrown by methods that either add users to the database,
 or change the email of those already in the database, if they are
 passed an email already in the database
-
 .\" class UserFileUnreadableException extends RuntimeException
 .SS UserFileUnreadableException
 This exception extends
 .IR RuntimeException ,
+and is thrown by methods that read files when the file they have been told
+to read returns
+.I false
+on an
+.IR is_readable ()
+check
 .\" class UserNoSuchConfigParameterException extends DomainException
 .SS UserNoSuchConfigParameterException
 This exception extends
 .IR DomainException ,
-
+and is thrown when at attempt is made to access a configuration parameter that
+.B User
+does not have, generally by
+.BR config ()
 .\" +---------------+
 .\" | NOTES SECTION |
 .\" +---------------+
