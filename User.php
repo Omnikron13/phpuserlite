@@ -697,6 +697,8 @@ class User
 			return User::processRegisterForm(User::config('register_password_mismatch_error'), $_POST['username'], $_POST['email']);
 		//Add user to the usersPending table..
 		User::addPending($_POST['username'], $_POST['password'], $_POST['email']);
+		//Process any onRegister callbacks, passing them, at present, nothing...
+		User::processEventHandlers('onRegister');
 		return User::config('register_success_template');
 	}
 	
