@@ -909,6 +909,12 @@ class UserIncorrectDatatypeException extends InvalidArgumentException {
 	}
 }
 
+class UserNegativeTimestampException extends DomainException {
+	public function __construct($method, $time) {
+		parent::__construct("$method was passed a negative value when expecting a timestamp: $time");
+	}
+}
+
 class UserNoSuchUserException extends OutOfBoundsException {
 	public function __construct($uid, $mode = NULL) {
 		if($mode !== NULL) {
