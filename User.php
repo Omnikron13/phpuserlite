@@ -333,7 +333,7 @@ class User
 			if($time < 0)
 				throw new UserNegativeTimestampException('setFailureTime()', $time);
 			if($time > gettimeofday(true))
-				throw new RangeException('setFailureTime() can only be called with timestamps up to the current time, or -1 for the current time');
+				throw new UserFutureTimestampException('setFailureTime()', $time);
 		}
 		$db = User::getDB();
 		$query = $db->prepare('UPDATE users SET failureTime=:time WHERE id=:id');
