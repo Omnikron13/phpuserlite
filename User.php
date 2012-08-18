@@ -909,6 +909,12 @@ class UserIncorrectDatatypeException extends InvalidArgumentException {
 	}
 }
 
+class UserNegativeValueException extends DomainException {
+	public function __construct($method, $value, $expect = 'otherwise') {
+		parent::__construct("$method was passed a negative value when expecting $expect: $value");
+	}
+}
+
 class UserNegativeTimestampException extends DomainException {
 	public function __construct($method, $time) {
 		parent::__construct("$method was passed a negative value when expecting a timestamp: $time");
