@@ -849,7 +849,7 @@ class User
 		{
 			if($reflector->isAbstract())
 				throw new InvalidArgumentException("User::addEventHander() was passed a callback method that was abstract: $callback");
-			if(!$relector->isPublic())
+			if(!$reflector->isPublic())
 				return; //replace with exception - callbacks must be public
 		}
 		User::$events[$event][] = $callback;
