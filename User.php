@@ -833,6 +833,9 @@ class User
 		'onRemove'	=>	array(),
 		);
 	
+	//This method is used by code using the User class to add their own callbacks into various areas of the logic
+	//of various methods of User, such as setting up their own database tables, triggers, etc. when User::setupDB
+	//is called, or responding to a user being added or removed from the db etc.
 	public static function addEventHandler($event, $callback)
 	{
 		if(!array_key_exists($event, User::$events))
