@@ -1071,6 +1071,31 @@ This method deletes the user's entry from the database
 .\" | EXCEPTIONS SECTION |
 .\" +--------------------+
 .SH EXCEPTIONS
+.\" class UserInvalidModeException extends DomainException
+.SS UserInvalidModeException
+This exception extends
+.IR DomainException ,
+.\" class UserIncorrectDatatypeException extends InvalidArgumentException
+.SS UserIncorrectDatatypeException
+This exception extends
+.IR InvalidArgumentException ,
+.\" class UserNegativeValueException extends DomainException
+.SS UserNegativeValueException
+This exception extends
+.IR DomainException ,
+.\" class UserNegativeTimestampException extends UserNegativeValueException
+.SS UserNegativeTimestampException
+This exception extends
+.BR UserNegativeValueException ,
+.\" class UserFutureTimestampException extends RangeException
+.SS UserFutureTimestampException
+This exception extends
+.IR RangeException ,
+.\" class UserNoSuchUserException extends OutOfBoundsException
+.SS UserNoSuchUserException
+This exception extends
+.IR OutOfBoundsException ,
+
 .\" class UserInvalidUsernameException extends InvalidArgumentException
 .SS UserInvalidUsernameException
 This exception extends
@@ -1092,20 +1117,30 @@ This exception extends
 and is thrown by methods that are passed an email that does not
 match against
 .B email_regex
-.\" class UserUnavailableUsernameException extends InvalidArgumentException
+.\" class UserUnavailableUsernameException extends RuntimeException
 .SS UserUnavailableUsernameException
 This exception extends
 .IR RuntimeException ,
 and is thrown by methods that either add users to the database,
 or change the username of those already in the database, if they
 are passed a username already in the database
-.\" class UserUnavailableEmailException extends InvalidArgumentException
+.\" class UserUnavailableEmailException extends RuntimeException
 .SS UserUnavailableEmailException
 This exception extends
 .IR RuntimeException ,
 and is thrown by methods that either add users to the database,
 or change the email of those already in the database, if they are
 passed an email already in the database
+
+.\" class UserFileUnreadableException extends RuntimeException
+.SS UserFileUnreadableException
+This exception extends
+.IR RuntimeException ,
+.\" class UserNoSuchConfigParameterException extends DomainException
+.SS UserNoSuchConfigParameterException
+This exception extends
+.IR DomainException ,
+
 .\" +---------------+
 .\" | NOTES SECTION |
 .\" +---------------+
