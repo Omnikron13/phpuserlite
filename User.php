@@ -174,7 +174,7 @@ class User
 		{
 			//Need to revise this exception..?
 			if(!is_int($uid))
-				throw new InvalidArgumentException('User class constructor expected integer, value given was: '.$uid);
+				throw new UserIncorrectDatatypeException('__construct()', 1, 'integer', $uid);
 			$query = $db->prepare('SELECT * FROM users WHERE id = :id');
 			$query->bindParam(':id', $uid, PDO::PARAM_INT);
 		}
@@ -186,7 +186,7 @@ class User
 			$query->bindParam(':username', $uid, PDO::PARAM_STR);
 		}
 		else
-			throw new DomainException("User::__construct expects parameter 2 to be one of User::GET_BY_ID or User::GET_BY_USERNAME, was instead passed: $getType");
+			throw new UserInvalidModeException('__construct()', $getType, 'User::GET_BY_ID, User::GET_BY_USERNAME');
 		$query->execute();
 		$query->bindColumn('id', $this->id, PDO::PARAM_INT);
 		$query->bindColumn('username', $this->username, PDO::PARAM_STR);
@@ -201,7 +201,7 @@ class User
 		$query->fetch(PDO::FETCH_BOUND);
 		//May need to revise type of exception thrown here...
 		if($this->id === NULL)
-			throw new OutOfBoundsException('No such user found in database: '.$id);
+			throw new UserNoSuchUserException($uid, $getType);
 	}
 	
 	//Stringifies to just the username for the time being
@@ -306,16 +306,16 @@ class User
 			User::processEventHandlers('onEmailChange', $this);
 		}
 		else
-			throw new DomainException('Invalid mode for setEmail method, mode is either SET_EMAIL_CONFIRM or SET_EMAIL_DIRECT');
+			throw new UserInvalidModeException('setEmail()', $mode, 'User::SET_EMAIL_CONFIRM, User::SET_EMAIL_DIRECT');
 	}
 	
 	//Checks $count is a positive integer, then updates the database & member
 	public function setFailureCount($count)
 	{
 		if(!is_int($count))
-			throw new InvalidArgumentException('setFailureCount() expected integer, value given was: '.$count);
+			throw new UserIncorrectDatatypeException('setFailureCount()', 1, 'integer', $count);
 		if($count < 0)
-			throw new DomainException('setFailureCount() expected a positive integer, or 0, value given was: '.$count);
+			throw new UserNegativeValueException('setFailureCount()', $count);
 		$db = User::getDB();
 		$query = $db->prepare('UPDATE users SET failureCount=:count WHERE id=:id');
 		$query->bindParam(':count', $count, PDO::PARAM_INT);
@@ -332,11 +332,11 @@ class User
 		else
 		{
 			if(!is_numeric($time))
-				throw new InvalidArgumentException('setFailureTime() expected a number, value given was: '.$time);
+				throw new UserIncorrectDatatypeException('setFailureTime()', 1, 'numeric', $time);
 			if($time < 0)
-				throw new DomainException('setFailureTime() expected a positive value, value given was: '.$time);
+				throw new UserNegativeTimestampException('setFailureTime()', $time);
 			if($time > gettimeofday(true))
-				throw new RangeException('setFailureTime() can only be called with timestamps up to the current time, or -1 for the current time');
+				throw new UserFutureTimestampException('setFailureTime()', $time);
 		}
 		$db = User::getDB();
 		$query = $db->prepare('UPDATE users SET failureTime=:time WHERE id=:id');
@@ -400,9 +400,9 @@ class User
 	public function startSession($cookieDuration)
 	{
 		if(!is_int($cookieDuration) && !ctype_digit($cookieDuration))
-			throw new InvalidArgumentException("startSession() expects to be passed an integer for cookie duration, instead was passed: $cookieDuration");
+			throw new UserIncorrectDatatypeException('startSession()', 1, 'integer', $cookieDuration);
 		if($cookieDuration < 0)
-			throw new DomainException("startSession() expects to be passed a positive integer for cookie duration, instead was passed: $cookieDuration");
+			throw new UserNegativeValueException('startSession()', $cookieDuration);
 		//Ready session data...
 		$sessionKey = User::generateSessionKey();
 		$hashedKey = hash(User::config('hash_algorithm'), $sessionKey);
@@ -627,7 +627,7 @@ class User
 			try{
 				$user = new User($_POST['username'], User::GET_BY_USERNAME);
 			}
-			catch(OutOfBoundsException $e){
+			catch(UserNoSuchUserException $e){
 				return User::processLoginForm(User::config('login_no_such_username_error'));
 			}
 			//Check if user is in cooldown
@@ -921,7 +921,7 @@ class User
 	{
 		//If no attempt has been made to load the config, attempt to load it, and patch it over $configData
 		if(!is_bool($force))
-			throw new InvalidArgumentException("User::loadConfig() expects 2nd argument to be a boolean, instead was passed: $force");
+			throw new UserInvalidModeException('loadConfig', $force, 'false (don\'t force), true (force)');
 		if(User::$configLoaded && !$force)
 			return;
 		$pairs = NULL;
@@ -935,9 +935,9 @@ class User
 				$pairs = array_change_key_case(parse_ini_file($file));
 		}
 		else if(!is_file($file))
-			throw new InvalidArgumentException("User::loadConfig() expects to be passed a file path, instead was passed: $file");
+			throw new UserIncorrectDatatypeException('loadConfig()', 1, 'file path', $file);
 		else if(!is_readable($file))
-			throw new RuntimeException("The file passed to User::loadConfig() is not readable: $file");
+			throw new UserFileUnreadableException('loadConfig()', $file);
 		else
 			$pairs = array_change_key_case(parse_ini_file($file));
 		if($pairs)
@@ -959,7 +959,7 @@ class User
 		if(array_key_exists($key, User::$configData))
 			return User::$configData[$key];
 		//Replace with custom exception?
-		throw new DomainException("User::config() passed a key not matching a config parameter: $key");
+		throw new UserNoSuchConfigParameterException($key);
 	}
 	
 	//This method must be called to setup the database before any other code is called
@@ -998,6 +998,48 @@ class User
 }
 
 //CLASS SPECIFIC EXCEPTIONS FOLLOW
+class UserInvalidModeException extends DomainException {
+	public function __construct($method, $mode, $modes) {
+		parent::__construct("$method called with invalid mode flag: $mode. Possible modes are: $modes");
+	}
+}
+
+class UserIncorrectDatatypeException extends InvalidArgumentException {
+	public function __construct($method, $param, $type, $data) {
+		parent::__construct("$method expected parameter $param to be $type, instead was passed: $data");
+	}
+}
+
+class UserNegativeValueException extends DomainException {
+	public function __construct($method, $value, $expect = 'otherwise') {
+		parent::__construct("$method was passed a negative value when expecting $expect: $value");
+	}
+}
+
+class UserNegativeTimestampException extends UserNegativeValueException {
+	public function __construct($method, $time) {
+		parent::__construct($method, $time, 'timestamp');
+	}
+}
+
+class UserFutureTimestampException extends RangeException {
+	public function __construct($method, $time) {
+		parent::__construct("$method was passed a timestamp greater than the current time when expecting a past time: $time");
+	}
+}
+
+class UserNoSuchUserException extends OutOfBoundsException {
+	public function __construct($uid, $mode = NULL) {
+		if($mode !== NULL) {
+			if($mode == User::GET_BY_ID)
+				$mode = 'id:';
+			if($mode == User::GET_BY_USERNAME)
+				$mode = 'username:';
+		}
+		parent::__construct("Requested User does not exist: $mode$uid");
+	}
+}
+
 class UserInvalidUsernameException extends InvalidArgumentException{
 	public function __construct($value){
 		parent::__construct('Invalid username: '.$value);
@@ -1021,6 +1063,18 @@ class UserUnavailableUsernameException extends RuntimeException{
 class UserUnavailableEmailException extends RuntimeException{
 	public function __construct($value){
 		parent::__construct('Email \''.$value.'\' already exists in database.');
+	}
+}
+
+class UserFileUnreadableException extends RuntimeException {
+	public function __construct($method, $file) {
+		parent::__construct("$method was unable to read the specified file: $file");
+	}
+}
+
+class UserNoSuchConfigParameterException extends DomainException {
+	public function __construct($key) {
+		parent::__construct("Attempted to access non-existent config parameter: $key");
 	}
 }
 
