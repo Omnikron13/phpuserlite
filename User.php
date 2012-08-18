@@ -930,13 +930,13 @@ class UserUnavailableEmailException extends RuntimeException{
 }
 
 class UserFileUnreadableException extends RuntimeException {
-	public __construct($method, $file) {
+	public function __construct($method, $file) {
 		parent::__construct("$method was unable to read the specified file: $file");
 	}
 }
 
 class UserNoSuchConfigParameterException extends DomainException {
-	public __construct($key) {
+	public function __construct($key) {
 		parent::__construct("Attempted to access non-existent config parameter: $key");
 	}
 }
