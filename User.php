@@ -862,7 +862,7 @@ class User
 		if(array_key_exists($key, User::$configData))
 			return User::$configData[$key];
 		//Replace with custom exception?
-		throw new DomainException("User::config() passed a key not matching a config parameter: $key");
+		throw new UserNoSuchConfigParameterException($key);
 	}
 	
 	//This method must be called to setup the database before any other code is called
