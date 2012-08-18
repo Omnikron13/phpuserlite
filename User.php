@@ -331,7 +331,7 @@ class User
 			if(!is_numeric($time))
 				throw new UserIncorrectDatatypeException('setFailureTime()', 1, 'numeric', $time);
 			if($time < 0)
-				throw new DomainException('setFailureTime() expected a positive value, value given was: '.$time);
+				throw new UserNegativeTimestampException('setFailureTime()', $time);
 			if($time > gettimeofday(true))
 				throw new RangeException('setFailureTime() can only be called with timestamps up to the current time, or -1 for the current time');
 		}
