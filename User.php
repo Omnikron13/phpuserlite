@@ -303,6 +303,7 @@ class User
 			$query->bindParam(':id', $this->id, PDO::PARAM_INT);
 			$query->execute();
 			$this->email = $email;
+			User::processEventHandlers('onEmailChange', $this);
 		}
 		else
 			throw new DomainException('Invalid mode for setEmail method, mode is either SET_EMAIL_CONFIRM or SET_EMAIL_DIRECT');
@@ -592,6 +593,7 @@ class User
 			$query = $db->prepare('DELETE FROM usersChangeEmail WHERE id = :id');
 			$query->bindParam(':id', $_GET['id'], PDO::PARAM_INT);
 			$query->execute();
+			User::processEventHandlers('onEmailChange', new User($userID));
 			return User::config('set_email_confirm_success_template');
 		}
 		return User::config('set_email_confirm_incorrect_code_template');
