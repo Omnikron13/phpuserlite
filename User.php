@@ -174,7 +174,7 @@ class User
 		{
 			//Need to revise this exception..?
 			if(!is_int($uid))
-				throw new InvalidArgumentException('User class constructor expected integer, value given was: '.$uid);
+				throw new UserIncorrectDatatypeException('__construct()', 1, 'integer', $uid);
 			$query = $db->prepare('SELECT * FROM users WHERE id = :id');
 			$query->bindParam(':id', $uid, PDO::PARAM_INT);
 		}
@@ -310,7 +310,7 @@ class User
 	public function setFailureCount($count)
 	{
 		if(!is_int($count))
-			throw new InvalidArgumentException('setFailureCount() expected integer, value given was: '.$count);
+			throw new UserIncorrectDatatypeException('setFailureCount()', 1, 'integer', $count);
 		if($count < 0)
 			throw new DomainException('setFailureCount() expected a positive integer, or 0, value given was: '.$count);
 		$db = User::getDB();
@@ -329,7 +329,7 @@ class User
 		else
 		{
 			if(!is_numeric($time))
-				throw new InvalidArgumentException('setFailureTime() expected a number, value given was: '.$time);
+				throw new UserIncorrectDatatypeException('setFailureTime()', 1, 'numeric', $time);
 			if($time < 0)
 				throw new DomainException('setFailureTime() expected a positive value, value given was: '.$time);
 			if($time > gettimeofday(true))
@@ -394,7 +394,7 @@ class User
 	public function startSession($cookieDuration)
 	{
 		if(!is_int($cookieDuration) && !ctype_digit($cookieDuration))
-			throw new InvalidArgumentException("startSession() expects to be passed an integer for cookie duration, instead was passed: $cookieDuration");
+			throw new UserIncorrectDatatypeException('startSession()', 1, 'integer', $cookieDuration);
 		if($cookieDuration < 0)
 			throw new DomainException("startSession() expects to be passed a positive integer for cookie duration, instead was passed: $cookieDuration");
 		//Ready session data...
@@ -838,7 +838,7 @@ class User
 				$pairs = array_change_key_case(parse_ini_file($file));
 		}
 		else if(!is_file($file))
-			throw new InvalidArgumentException("User::loadConfig() expects to be passed a file path, instead was passed: $file");
+			throw new UserIncorrectDatatypeException('loadConfig()', 1, 'file path', $file);
 		else if(!is_readable($file))
 			throw new UserFileUnreadableException('loadConfig()', $file);
 		else
