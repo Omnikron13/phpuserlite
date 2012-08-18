@@ -612,7 +612,7 @@ class User
 			try{
 				$user = new User($_POST['username'], User::GET_BY_USERNAME);
 			}
-			catch(OutOfBoundsException $e){
+			catch(UserNoSuchUserException $e){
 				return User::processLoginForm(User::config('login_no_such_username_error'));
 			}
 			//Check if user is in cooldown
