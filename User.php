@@ -828,11 +828,14 @@ class User
 	//This array holds the valid events that can be hooked as keys, and an array of the attached
 	//callbacks as the values
 	protected static $events = array(
-		'preSetup'	=>	array(),
-		'postSetup'	=>	array(),
-		'onAdd'		=>	array(),
-		'onLockdown'	=>	array(),
-		'onRemove'	=>	array(),
+		'preSetup'		=>	array(),
+		'postSetup'		=>	array(),
+		'onAdd'			=>	array(),
+		'onUsernameChange'	=>	array(),
+		'onPasswordChange'	=>	array(),
+		'onEmailChange'		=>	array(),
+		'onLockdown'		=>	array(),
+		'onRemove'		=>	array(),
 		);
 	
 	//This method is used by code using the User class to add their own callbacks into various areas of the logic
