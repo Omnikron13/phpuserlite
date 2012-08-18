@@ -830,7 +830,7 @@ class User
 		'postSetup'	=>	array(),
 		'onAdd'		=>	array(),
 		'onLockdown'	=>	array(),
-		'onRemove'	=>	array()
+		'onRemove'	=>	array(),
 		);
 	
 	public static function addEventHandler($event, $callback)
