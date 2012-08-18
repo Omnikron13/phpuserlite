@@ -836,6 +836,7 @@ class User
 	protected static $events = array(
 		'preSetup'		=>	array(),
 		'postSetup'		=>	array(),
+		'onRegister'		=>	array(),
 		'onAdd'			=>	array(),
 		'onUsernameChange'	=>	array(),
 		'onPasswordChange'	=>	array(),
