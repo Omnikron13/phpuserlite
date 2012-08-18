@@ -841,6 +841,7 @@ class User
 		'onEmailChange'		=>	array(),
 		'onLockdown'		=>	array(),
 		'onSessionStart'	=>	array(),
+		'onSessionEnd'		=>	array(),
 		'onRemove'		=>	array(),
 		);
 	
