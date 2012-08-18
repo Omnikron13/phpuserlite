@@ -444,6 +444,7 @@ class User
 		//Remove member data...
 		$this->sessionKey = NULL;
 		$this->sessionIP = NULL;
+		User::processEventHandlers('onSessionEnd', $this);
 	}
 
 	public function remove()
