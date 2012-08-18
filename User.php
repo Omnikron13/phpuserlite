@@ -848,7 +848,7 @@ class User
 		if(strcmp(get_class($reflector), 'ReflectionMethod') == 0)
 		{
 			if($reflector->isAbstract())
-				throw new InvalidArgumentException("User::addEventHander() was passed a callback method that was abstract: $callback");
+				throw new InvalidArgumentException("User::addEventHandler() was passed a callback method that was abstract: $callback");
 			if(!$reflector->isPublic())
 				throw new InvalidArgumentException("User::addEventHandler() was passed a callback method that was not public: $callback");
 		}
