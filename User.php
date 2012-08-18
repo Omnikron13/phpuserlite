@@ -312,7 +312,7 @@ class User
 		if(!is_int($count))
 			throw new UserIncorrectDatatypeException('setFailureCount()', 1, 'integer', $count);
 		if($count < 0)
-			throw new DomainException('setFailureCount() expected a positive integer, or 0, value given was: '.$count);
+			throw new UserNegativeValueException('setFailureCount()', $count);
 		$db = User::getDB();
 		$query = $db->prepare('UPDATE users SET failureCount=:count WHERE id=:id');
 		$query->bindParam(':count', $count, PDO::PARAM_INT);
@@ -396,7 +396,7 @@ class User
 		if(!is_int($cookieDuration) && !ctype_digit($cookieDuration))
 			throw new UserIncorrectDatatypeException('startSession()', 1, 'integer', $cookieDuration);
 		if($cookieDuration < 0)
-			throw new DomainException("startSession() expects to be passed a positive integer for cookie duration, instead was passed: $cookieDuration");
+			throw new UserNegativeValueException('startSession()', $cookieDuration);
 		//Ready session data...
 		$sessionKey = User::generateSessionKey();
 		$hashedKey = hash(User::config('hash_algorithm'), $sessionKey);
