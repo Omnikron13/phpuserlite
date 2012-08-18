@@ -419,6 +419,7 @@ class User
 		//Update members...
 		$this->sessionKey = $hashedKey;
 		$this->sessionIP = $sessionIP;
+		User::processEventHandlers('onSessionStart', $this);
 	}
 	
 	//Checks if User has valid login session for the current script; checks if logged in
