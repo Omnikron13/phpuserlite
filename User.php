@@ -921,6 +921,12 @@ class UserNegativeTimestampException extends UserNegativeValueException {
 	}
 }
 
+class UserFutureTimestampException extends RangeException {
+	public function __construct($method, $time) {
+		parent::__construct("$method was passed a timestamp greater than the current time when expecting a past time: $time");
+	}
+}
+
 class UserNoSuchUserException extends OutOfBoundsException {
 	public function __construct($uid, $mode = NULL) {
 		if($mode !== NULL) {
