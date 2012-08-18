@@ -915,9 +915,9 @@ class UserNegativeValueException extends DomainException {
 	}
 }
 
-class UserNegativeTimestampException extends DomainException {
+class UserNegativeTimestampException extends UserNegativeValueException {
 	public function __construct($method, $time) {
-		parent::__construct("$method was passed a negative value when expecting a timestamp: $time");
+		parent::__construct($method, $time, 'timestamp');
 	}
 }
 
