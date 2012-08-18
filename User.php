@@ -838,6 +838,8 @@ class User
 		if(!array_key_exists($event, User::$events))
 			return; //replace with exception
 		$reflector = User::getReflector($callback);
+		if($reflector->getNumberOfRequiredParameters() > 1) //Revise to be specific if any events pass > 1 parameter
+			return; //replace with exception
 		if(strcmp(get_class($reflector), 'ReflectionMethod') == 0)
 		{
 			if($reflector->isAbstract())
