@@ -736,10 +736,9 @@ or from
 .B DEFAULT_CONFIG_FILE
 if
 .I file
-was not passed. It must be called before any other functions,
-including
+was not passed. It should be called before any other functions, including
 .BR setupDB (),
-as config data can only be loaded once, and
+as config data will normally only be loaded once, and
 .B User
 will call
 .BR loadConfig ()
@@ -756,15 +755,15 @@ are loaded over the current ones, even if config data has
 already been loaded. If this method is passed anything other
 than a path to an existing file for
 .I file
-(bearing in mind that files PHP cannot see will be treated as
-not existing) or a non-boolean value for
-.I force
-it will throw an
-.IR InvalidArgumentException ,
-and if it is passed a path to a file it is unable to read for
-.I file
+(bearing in mind that files PHP cannot see will be treated as not existing)
 it will throw a
-.I RuntimeException
+.BR UserIncorrectDatatypeException .
+If it is passed a path to a file it is unable to read it will throw a
+.BR UserFileUnreadableException .
+If it is passed a non-boolean value for
+.I force
+it will throw a
+.B UserInvalidModeException
 .\" static function User::config()
 .SS config\fR(\fIkey\fR)
 This method returns the value of the configuration parameter
@@ -948,7 +947,7 @@ If
 is set to anything other than
 .BR SET_EMAIL_CONFIRM " or " SET_EMAIL_DIRECT ,
 then it will throw a
-.IR DomainException .
+.BR UserInvalidModeException .
 If
 .I email
 does not match against
