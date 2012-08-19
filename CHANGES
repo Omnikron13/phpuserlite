@@ -1,0 +1,27 @@
+phpuserlite change log
+----------------------
+
+v2.0.0-rc.1
+
+v1.1.2
+    Bugs:
+        Fixed a bug that was rendering setPassword() inoperable
+    Documentation:
+        Added an explanation of the numbering scheme to the entry for the
+        VERSION constant in the man page.
+        Corrected the entry for setEmail() to describe the two modes it may
+        be invoked in.
+        Fixed the default email regex quoted in the man page so the
+        backslash in the pattern displays correctly.
+        Minor formatting
+
+v1.1.1
+    Bugs:
+        Fixed a bug causing login forms from login() to throw an exception
+        on login attempts with non-existent usernames instead of failing
+        gracefully and returning the form again with an error message
+
+v1.1.0
+    Security:
+        Patched a potential XSS vulnerability in login() and register()
+
