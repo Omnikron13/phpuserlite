@@ -1,6 +1,24 @@
 phpuserlite change log
 ----------------------
 
+v2.0.0-rc.2 --SUBJECT TO CHANGE TILL TAGGED--
+    Database:
+        Added a usersOnDelete trigger to the database with the default
+        schema automatically deleting rows from usersChangeEmail just
+        before their parent row in users is deleted to prevent foreign key
+        issues.
+        Foreign key constraints are now enforced throughout User
+    API:
+        Added __toString() method, which returns the username.
+        Added eight new custom exceptions - UserInvalidModeException,
+        UserIncorrectDatatypeException, UserNegativeValueException,
+        UserNegativeTimestampException, UserFutureTimestampException,
+        UserNoSuchUseException, UserFileUnreadableException and
+        UserNoSuchConfigParameterException.
+        Changed the cookie duration argument of startSession to be optional
+        with the default being 0, bringing the code back in line with the
+        man pages claim that the default is session cookies
+
 v2.0.0-rc.1
     Security:
         Added a new system that temporarily blocks login attempts, on a per
