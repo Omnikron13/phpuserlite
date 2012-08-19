@@ -850,6 +850,17 @@ or
 if
 .I uid
 is invalid
+.\" public function [user-object]->__toString()
+.SS __toString\fR()
+This is the
+.I magic method
+automatically called if a
+.B User
+object is used in a string context, such as in an
+.I echo
+statement. It will return the
+.I username
+of the user it represents
 .\" public function [user-object]->getID()
 .SS getID\fR()
 This method returns the
