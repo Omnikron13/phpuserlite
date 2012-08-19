@@ -770,7 +770,7 @@ This method returns the value of the configuration parameter
 specified by
 .IR key ,
 if it exists, and throws a
-.I DomainException
+.B UserNoSuchConfigParameterException
 if it does not
 .\" static function User::setupDB()
 .SS setupDB\fR()
@@ -965,10 +965,10 @@ This method sets the
 of the user to
 .IR count ,
 provided it is a positive integer. If a non-integer is passed
-then it will throw an
-.IR InvalidArgumentException ,
+then it will throw a
+.BR UserIncorrectDatatypeException ,
 and if a negative integer is passed it will throw a
-.I DomainException
+.B UserNegativeValueException
 .\" public function [user-object]->setFailureTime()
 .SS setFailureTime\fR(\fItime\fR)
 If the optional
@@ -984,13 +984,13 @@ is not passed this method sets the
 .I failureTime
 of the user to the current time. If 
 .I time
-is not numeric it will throw an
-.IR InvalidArgumentException ,
+is not numeric it will throw a
+.BR UserIncorrectDatatypeException ,
 if it is not positive then it will throw a
-.IR DomainException ,
+.BR UserNegativeTimestampException ,
 and if it is greater than the current unix timestamp it will
 throw a
-.I RangeException
+.B UserFutureTimestampException
 .\" public function [user-object]->loginLimitExceeded()
 .SS loginLimitExceeded\fR()
 This method returns
@@ -1034,10 +1034,10 @@ seconds, otherwise they will be set as session cookies. Note
 that this method must be called before any output as it needs
 to set cookies. If
 .I cookieDuration
-is not an integer (or a string of an integer) then an
-.I InvalidArgumentException
+is not an integer (or a string of an integer) then a
+.B UserIncorrectDatatypeException
 will be thrown, and if it is not positive then a
-.I DomainException
+.B UserNegativeValueException
 will be thrown
 .\" public function [user-object]->checkSession()
 .SS checkSession\fR(\fIsessionKey\fR)
