@@ -391,7 +391,7 @@ class User
 	}
 	
 	//Generates a new session key; sends out login cookies; updates the database & members
-	public function startSession($cookieDuration)
+	public function startSession($cookieDuration = 0)
 	{
 		if(!is_int($cookieDuration) && !ctype_digit($cookieDuration))
 			throw new UserIncorrectDatatypeException('startSession()', 1, 'integer', $cookieDuration);
