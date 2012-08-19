@@ -2,6 +2,36 @@ phpuserlite change log
 ----------------------
 
 v2.0.0-rc.1
+    Security:
+        Added a new system that temporarily blocks login attempts, on a per
+        user basis, when it detects suspect login attempt activity as a
+        measure to prevent brute-force attacks
+    Database:
+        Two columns necessary for the new brute-force prevention system
+        added to the users table schema.
+        Foreign key contraint added to the default usersChangeEmail table
+        schema, keying the userID column to the id column in the users
+        table.
+	Table schema moved into the configuration system
+    API:
+        Configuration constants replaced with protected static array of
+        config parameters initially populated with class defaults and
+        overwritable using 'ini style' config files.
+        New config() & loadConfig() public static methods for accessing and
+        initialising the new configuration system respectively.
+        New public methods for working with the brute force prevention
+        system - loginFailure(), loginLimitExceeded(), getFailureTime(),
+        setFailureTime(), getFailureCount() & setFailureCount().
+        Cookie duration (in seconds) now required to be passed to the
+        startSession() method.
+	The login() logic now checks for an optional form field named
+        'cookie_duration' which if present is passed on as the cookie
+        duration argument of startSession().
+        New config options login_frequency_limit, login_failure_limit,
+        login_failure_period & login_failure_cooldown.
+        New login errors login_cooldown_error & login_frequency_error.
+        UserUnavailableUsernameException & UserUnavailableEmailException
+        now extend RuntimeException instead of InvalidArgumentException
 
 v1.1.2
     Bugs:
