@@ -519,6 +519,18 @@ table to the database. Note that if you only have a version of
 earlier than 3.6.19 available you will need to remove the
 .I FOREIGN KEY
 constrait from the statement
+.\" db_usersondelete_trigger_schema
+.SS db_usersondelete_trigger_schema
+This is the 'CREATE TRIGGER' SQL statement that
+.BR setupDB ()
+uses to add the
+.I usersOnDelete
+trigger to the database. The default schema for this trigger merely clears
+any records in the
+.I usersChangeEmail
+table that reference a record in the
+.I users
+table when it is removed from the database
 .\" +-------------------+
 .\" | CONSTANTS SECTION |
 .\" +-------------------+
