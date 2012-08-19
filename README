@@ -46,7 +46,7 @@ example.cfg is located in the same directory as User.php, and then adding a new
 user to the database
 
 <?php
-require_once('User.php');
+require_once 'User.php';
 User::loadConfig('example.cfg');
 User::setupDB();
 User::add('a_user', 'password', 'user@example.com');
