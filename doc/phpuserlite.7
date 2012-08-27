@@ -795,6 +795,17 @@ objects. You only need to call this once, unless you delete or
 move the database, or alter
 .BR db_path ,
 and wish to recreate the database from scratch
+.\" static function User::getDB()
+.SS getDB\fR()
+This method returns the (current) database being used by
+.B User
+as a
+.I PDO
+object. Note that the returned database will have foreign keys switched on,
+and the
+.I PDO::ATTR_ERRMODE
+will be set to
+.I PDO::ERRMODE_EXCEPTION
 .\" +--------------------------+
 .\" | INSTANCE METHODS SECTION |
 .\" +--------------------------+
