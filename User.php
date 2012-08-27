@@ -884,7 +884,7 @@ class User
 	}
 
 	//This method should always be used when accessing the database, to ensure the db is setup correctly
-	protected static function getDB()
+	public static function getDB()
 	{
 		if(User::$db === NULL)
 		{
