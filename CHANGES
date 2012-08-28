@@ -29,7 +29,7 @@ v2.0.0-rc.1
     Database:
         Two columns necessary for the new brute-force prevention system
         added to the users table schema.
-        Foreign key contraint added to the default usersChangeEmail table
+        Foreign key constraint added to the default usersChangeEmail table
         schema, keying the userID column to the id column in the users
         table.
 	Table schema moved into the configuration system
