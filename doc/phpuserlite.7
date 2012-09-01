@@ -182,10 +182,10 @@ password entered was correct. The default value is
 This is the number of failed login attempts that
 .I phpuserlite
 will allow in a row within
-.I login_failure_period
+.B login_failure_period
 seconds of each other before it enforces a cooldown; blocking
 all login attempts for
-.I login_failure_cooldown
+.B login_failure_cooldown
 seconds. The default value is
 .I 5
 .\" login_failure_period
@@ -194,7 +194,7 @@ This is the maximum amount of time (in seconds) between failed
 login attempts that
 .I phpuserlite
 will count as 'in a row' for the purposes of determining if
-.I login_failure_limit
+.B login_failure_limit
 has been reached. The default value is
 .IR 300 ,
 which equates to five minutes
@@ -203,7 +203,7 @@ which equates to five minutes
 This is the amount of time in seconds that
 .I phpuserlite
 will block login attempts for when
-.I login_failure_limit
+.B login_failure_limit
 failed login attempts are made in a row. The default value is
 .IR 300 ,
 which equates to five minutes
@@ -307,11 +307,11 @@ This is injected into the place of the
 placeholder in
 .B login_form_template
 when a login attempt is made, but
-.I login_failure_limit
+.B login_failure_limit
 or more failed attempts have been made within the allowed
-.I login_failure_period
+.B login_failure_period
 seconds and the user is still within the
-.I login_failure_cooldown
+.B login_failure_cooldown
 seconds cooldown period
 .\" login_frequency_error
 .SS login_frequency_error
@@ -320,7 +320,7 @@ This is injected into the place of the
 placeholder in
 .B login_form_template
 when a login attempt is made, but it is within
-.I login_frequency_limit
+.B login_frequency_limit
 seconds of the last login attempt
 .\" const User::register_no_username_error
 .SS register_no_username_error
@@ -1030,7 +1030,7 @@ throw a
 This method returns
 .I true
 if the user is in a cooldown due to
-.I login_failure_limit
+.B login_failure_limit
 or more failed login attempts having been made in a row,
 otherwise it returns
 .I false
@@ -1051,7 +1051,7 @@ and setting
 .I failureTime
 to the current time. If the last failed login attempt was more
 than
-.I login_failure_period
+.B login_failure_period
 seconds ago then
 .I failureCount
 will be set back to 1
