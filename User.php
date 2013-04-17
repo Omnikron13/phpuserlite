@@ -86,9 +86,9 @@ class User
 		'confirm_subject'
 			=>	'Confirm your account at XYZ',
 		'confirm_body_template'
-			=>	'http://lab.s4t4n.net/projects/UserClass/demo/confirm.php?id=[id]&code=[code]',
+			=>	'http://example.com/confirm.php?id=[id]&code=[code]',
 		'confirm_from'
-			=>	'accounts@lab.s4t4n.net',
+			=>	'accounts@example.com',
 		//General:
 		'confirm_success_template'
 			=>	'Email confirmed; you may now log in.',
@@ -102,9 +102,9 @@ class User
 		'set_email_confirm_subject'
 			=>	'Confirm your new email address at XYZ',
 		'set_email_confirm_body_template'
-			=>	'http://lab.s4t4n.net/projects/UserClass/demo/confirm_email.php?id=[id]&code=[code]',
+			=>	'http://example.com/confirm_email.php?id=[id]&code=[code]',
 		'set_email_confirm_from'
-			=>	'accounts@lab.s4t4n.net',
+			=>	'accounts@example.com',
 		//General:
 		'set_email_confirm_success_template'
 			=>	'Email change confirmed.',
@@ -143,6 +143,13 @@ class User
 									  key TEXT NOT NULL,
 									  IP TEXT NOT NULL,
 									  FOREIGN KEY (userID) REFERENCES users(id))');
+		'db_usersondelete_trigger_schema'
+			=>	'CREATE TRIGGER IF NOT EXISTS usersOnDelete BEFORE DELETE ON users 
+					FOR EACH ROW
+						BEGIN
+							DELETE FROM usersChangeEmail WHERE userID = OLD.id;
+						END',
+	);
 	
 	//Flags
 	const GET_BY_ID = 0;
@@ -171,7 +178,7 @@ class User
 		{
 			//Need to revise this exception..?
 			if(!is_int($uid))
-				throw new InvalidArgumentException('User class constructor expected integer, value given was: '.$uid);
+				throw new UserIncorrectDatatypeException('__construct()', 1, 'integer', $uid);
 			$query = $db->prepare('SELECT * FROM users WHERE id = :id');
 			$query->bindParam(':id', $uid, PDO::PARAM_INT);
 		}
@@ -183,7 +190,7 @@ class User
 			$query->bindParam(':username', $uid, PDO::PARAM_STR);
 		}
 		else
-			throw new DomainException("User::__construct expects parameter 2 to be one of User::GET_BY_ID or User::GET_BY_USERNAME, was instead passed: $getType");
+			throw new UserInvalidModeException('__construct()', $getType, 'User::GET_BY_ID, User::GET_BY_USERNAME');
 		$query->execute();
 		$query->bindColumn('id', $this->id, PDO::PARAM_INT);
 		$query->bindColumn('username', $this->username, PDO::PARAM_STR);
@@ -202,6 +209,11 @@ class User
 		$query->execute();
 		foreach($query->fetchAll(PDO::FETCH_ASSOC) as $row)
 			$this->sessions[$row['sessionKey']] = $row['sessionIP'];
+	}
+	
+	//Stringifies to just the username for the time being
+	public function __toString(){
+		return $this->username;
 	}
 	
 	public function getID(){
@@ -245,6 +257,7 @@ class User
 		$query->bindParam(':id', $this->id, PDO::PARAM_INT);
 		$query->execute();
 		$this->username = $username;
+		User::processEventHandlers('onUsernameChange', $this);
 	}
 	
 	//Validates $password, then updates database & member
@@ -262,6 +275,7 @@ class User
 		$query->execute();
 		$this->password = $password;
 		$this->salt = $salt;
+		User::processEventHandlers('onPasswordChange', $this);
 	}
 	
 	//This method needs revision to confirm new email
@@ -293,18 +307,19 @@ class User
 			$query->bindParam(':id', $this->id, PDO::PARAM_INT);
 			$query->execute();
 			$this->email = $email;
+			User::processEventHandlers('onEmailChange', $this);
 		}
 		else
-			throw new DomainException('Invalid mode for setEmail method, mode is either SET_EMAIL_CONFIRM or SET_EMAIL_DIRECT');
+			throw new UserInvalidModeException('setEmail()', $mode, 'User::SET_EMAIL_CONFIRM, User::SET_EMAIL_DIRECT');
 	}
 	
 	//Checks $count is a positive integer, then updates the database & member
 	public function setFailureCount($count)
 	{
 		if(!is_int($count))
-			throw new InvalidArgumentException('setFailureCount() expected integer, value given was: '.$count);
+			throw new UserIncorrectDatatypeException('setFailureCount()', 1, 'integer', $count);
 		if($count < 0)
-			throw new DomainException('setFailureCount() expected a positive integer, or 0, value given was: '.$count);
+			throw new UserNegativeValueException('setFailureCount()', $count);
 		$db = User::getDB();
 		$query = $db->prepare('UPDATE users SET failureCount=:count WHERE id=:id');
 		$query->bindParam(':count', $count, PDO::PARAM_INT);
@@ -321,11 +336,11 @@ class User
 		else
 		{
 			if(!is_numeric($time))
-				throw new InvalidArgumentException('setFailureTime() expected a number, value given was: '.$time);
+				throw new UserIncorrectDatatypeException('setFailureTime()', 1, 'numeric', $time);
 			if($time < 0)
-				throw new DomainException('setFailureTime() expected a positive value, value given was: '.$time);
+				throw new UserNegativeTimestampException('setFailureTime()', $time);
 			if($time > gettimeofday(true))
-				throw new RangeException('setFailureTime() can only be called with timestamps up to the current time, or -1 for the current time');
+				throw new UserFutureTimestampException('setFailureTime()', $time);
 		}
 		$db = User::getDB();
 		$query = $db->prepare('UPDATE users SET failureTime=:time WHERE id=:id');
@@ -380,17 +395,20 @@ class User
 		else
 			$this->setFailureCount($this->failureCount + 1);
 		$this->setFailureTime();
+		//Check if user has just been forced into brute force lockdown, if so trigger onLockdown callbacks
+		if($this->failureCount == User::config('login_failure_limit'))
+			User::processEventHandlers('onLockdown', $this);
 	}
 	
 	//Generates a new session key; sends out login cookies; updates the database & members
-	public function startSession($cookieDuration)
+	public function startSession($cookieDuration = 0)
 	{
 		if(count($this->sessions) >= User::config('max_sessions'))
 			return; //Throw exception? replace oldest? check if current ip is one of them..?
 		if(!is_int($cookieDuration) && !ctype_digit($cookieDuration))
-			throw new InvalidArgumentException("startSession() expects to be passed an integer for cookie duration, instead was passed: $cookieDuration");
+			throw new UserIncorrectDatatypeException('startSession()', 1, 'integer', $cookieDuration);
 		if($cookieDuration < 0)
-			throw new DomainException("startSession() expects to be passed a positive integer for cookie duration, instead was passed: $cookieDuration");
+			throw new UserNegativeValueException('startSession()', $cookieDuration);
 		//Ready session data...
 		$sessionKey = User::generateSessionKey();
 		$hashedKey = hash(User::config('hash_algorithm'), $sessionKey);
@@ -435,6 +453,8 @@ class User
 
 	public function remove()
 	{
+		//Call any registered onRemove callbacks, passing the user object
+		User::processEventHandlers('onRemove', $this);
 		//Prep database...
 		$db = User::getDB();
 		//Remove any record in the usersChangeEmail table... 
@@ -486,6 +506,8 @@ class User
 		$query->bindParam(':email', $email, PDO::PARAM_STR);
 		$query->bindParam(':date', time(), PDO::PARAM_STR);
 		$query->execute();
+		//Call any registered onAdd callbacks, passing a new user object representing the added user
+		User::processEventHandlers('onAdd', new User(intval($db->lastInsertId())));
 	}
 	
 	//Adds a new user to the usersPending database; sends an email out for confirmation
@@ -553,6 +575,8 @@ class User
 			$query = $db->prepare('DELETE FROM usersPending WHERE id = :id');
 			$query->bindParam(':id', $_GET['id'], PDO::PARAM_INT);
 			$query->execute();
+			//Call any registered onAdd callbacks, passing a new user object representing the added user
+			User::processEventHandlers('onAdd', new User(intval($db->lastInsertId())));
 			return User::config('confirm_success_template');
 		}
 		return User::config('confirm_incorrect_code_template');
@@ -583,6 +607,7 @@ class User
 			$query = $db->prepare('DELETE FROM usersChangeEmail WHERE id = :id');
 			$query->bindParam(':id', $_GET['id'], PDO::PARAM_INT);
 			$query->execute();
+			User::processEventHandlers('onEmailChange', new User($userID));
 			return User::config('set_email_confirm_success_template');
 		}
 		return User::config('set_email_confirm_incorrect_code_template');
@@ -614,7 +639,7 @@ class User
 			try{
 				$user = new User($_POST['username'], User::GET_BY_USERNAME);
 			}
-			catch(OutOfBoundsException $e){
+			catch(UserNoSuchUserException $e){
 				return User::processLoginForm(User::config('login_no_such_username_error'));
 			}
 			//Check if user is in cooldown
@@ -684,6 +709,8 @@ class User
 			return User::processRegisterForm(User::config('register_password_mismatch_error'), $_POST['username'], $_POST['email']);
 		//Add user to the usersPending table..
 		User::addPending($_POST['username'], $_POST['password'], $_POST['email']);
+		//Process any onRegister callbacks, passing them, at present, nothing...
+		User::processEventHandlers('onRegister');
 		return User::config('register_success_template');
 	}
 	
@@ -818,6 +845,86 @@ class User
 		$_COOKIE['sessionKey'] = NULL;
 	}
 	
+	//This array holds the valid events that can be hooked as keys, and an array of the attached
+	//callbacks as the values
+	protected static $events = array(
+		'preSetup'		=>	array(),
+		'postSetup'		=>	array(),
+		'onRegister'		=>	array(),
+		'onAdd'			=>	array(),
+		'onUsernameChange'	=>	array(),
+		'onPasswordChange'	=>	array(),
+		'onEmailChange'		=>	array(),
+		'onLockdown'		=>	array(),
+		'onSessionStart'	=>	array(),
+		'onSessionEnd'		=>	array(),
+		'onRemove'		=>	array(),
+		);
+	
+	//This method is used by code using the User class to add their own callbacks into various areas of the logic
+	//of various methods of User, such as setting up their own database tables, triggers, etc. when User::setupDB
+	//is called, or responding to a user being added or removed from the db etc.
+	public static function addEventHandler($event, $callback)
+	{
+		if(!array_key_exists($event, User::$events))
+			throw new DomainException("User::addEventHandler passed an event that does not exist: $event");
+		try {
+			$reflector = User::getReflector($callback);
+		}
+		catch(ReflectionException $e) {
+			throw new InvalidArgumentException("User::addEventHandler() requires that its second parameter be a function or method callback, was instead passed: $callback", 0, $e);
+		}
+		if($reflector->getNumberOfRequiredParameters() > 1) //Revise to be specific if any events pass > 1 parameter
+			throw new InvalidArgumentException("User::addEventHandler() was passed a callback that requires more parameters than would be passed to it: $callback");
+		if(strcmp(get_class($reflector), 'ReflectionMethod') == 0)
+		{
+			if($reflector->isAbstract())
+				throw new InvalidArgumentException("User::addEventHandler() was passed a callback method that was abstract: $callback");
+			if(!$reflector->isPublic())
+				throw new InvalidArgumentException("User::addEventHandler() was passed a callback method that was not public: $callback");
+		}
+		User::$events[$event][] = $callback;
+	}
+	
+	protected static function processEventHandlers()
+	{
+		$args = func_get_args();
+		$event = array_shift($args);
+		foreach(User::$events[$event] as $callback)
+		{
+			call_user_func_array($callback, $args);
+		}
+	}
+
+	//This method analyses a variable claimed to be a callback, returning a ReflectionFunction or ReflectionMethod
+	//object reflecting the function/method if it is a valid callback, and throwing a BadFunctionCallException otherwise
+	protected static function getReflector($callback)
+	{
+		if(is_array($callback))
+		{
+			if(is_object($callback[0]))
+			{
+				$reflect = new ReflectionObject($callback[0]);
+			}
+			else if(is_string($callback[0]) && preg_match('/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/', $callback[0]))
+			{
+				$reflect = new ReflectionClass($callback[0]);
+			}
+			return $reflect->getMethod($callback[1]);
+		}
+		else if(is_string($callback))
+		{
+			if(preg_match('/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/', $callback))
+				return new ReflectionFunction($callback);
+			if(preg_match('/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*::[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/', $callback))
+			{
+				$parts = explode('::', $callback);
+				return new ReflectionMethod($parts[0], $parts[1]);
+			}
+		}
+		throw new BadFunctionCallException('getReflector() could not identify passed value as a valid callback, unable to create a reflector');
+	}
+	
 	//This variable is to ensure configuration is loaded, and is only loaded once
 	protected static $configLoaded = false;
 	
@@ -826,7 +933,7 @@ class User
 	{
 		//If no attempt has been made to load the config, attempt to load it, and patch it over $configData
 		if(!is_bool($force))
-			throw new InvalidArgumentException("User::loadConfig() expects 2nd argument to be a boolean, instead was passed: $force");
+			throw new UserInvalidModeException('loadConfig', $force, 'false (don\'t force), true (force)');
 		if(User::$configLoaded && !$force)
 			return;
 		$pairs = NULL;
@@ -840,9 +947,9 @@ class User
 				$pairs = array_change_key_case(parse_ini_file($file));
 		}
 		else if(!is_file($file))
-			throw new InvalidArgumentException("User::loadConfig() expects to be passed a file path, instead was passed: $file");
+			throw new UserIncorrectDatatypeException('loadConfig()', 1, 'file path', $file);
 		else if(!is_readable($file))
-			throw new RuntimeException("The file passed to User::loadConfig() is not readable: $file");
+			throw new UserFileUnreadableException('loadConfig()', $file);
 		else
 			$pairs = array_change_key_case(parse_ini_file($file));
 		if($pairs)
@@ -864,13 +971,15 @@ class User
 		if(array_key_exists($key, User::$configData))
 			return User::$configData[$key];
 		//Replace with custom exception?
-		throw new DomainException("User::config() passed a key not matching a config parameter: $key");
+		throw new UserNoSuchConfigParameterException($key);
 	}
 	
 	//This method must be called to setup the database before any other code is called
 	public static function setupDB()
 	{
 		$db = User::getDB();
+		//Call any registered preSetup callbacks, passing them the open db connection
+		User::processEventHandlers('preSetup', $db);
 		//Create 'users' table...
 		$query = $db->prepare(User::config('db_users_table_schema'));
 		$query->execute();
@@ -882,11 +991,15 @@ class User
 		$query->execute();
 		//Create 'usersSessions' table...
 		$query = $db->prepare(User::config('db_userssessions_table_schema'));
+		//Create 'usersOnDelete' trigger...
+		$query = $db->prepare(User::config('db_usersondelete_trigger_schema'));
 		$query->execute();
+		//Call any registered postSetup callbacks, passing them the open db connection
+		User::processEventHandlers('postSetup', $db);
 	}
 
 	//This method should always be used when accessing the database, to ensure the db is setup correctly
-	protected static function getDB()
+	public static function getDB()
 	{
 		if(User::$db === NULL)
 		{
@@ -899,6 +1012,48 @@ class User
 }
 
 //CLASS SPECIFIC EXCEPTIONS FOLLOW
+class UserInvalidModeException extends DomainException {
+	public function __construct($method, $mode, $modes) {
+		parent::__construct("$method called with invalid mode flag: $mode. Possible modes are: $modes");
+	}
+}
+
+class UserIncorrectDatatypeException extends InvalidArgumentException {
+	public function __construct($method, $param, $type, $data) {
+		parent::__construct("$method expected parameter $param to be $type, instead was passed: $data");
+	}
+}
+
+class UserNegativeValueException extends DomainException {
+	public function __construct($method, $value, $expect = 'otherwise') {
+		parent::__construct("$method was passed a negative value when expecting $expect: $value");
+	}
+}
+
+class UserNegativeTimestampException extends UserNegativeValueException {
+	public function __construct($method, $time) {
+		parent::__construct($method, $time, 'timestamp');
+	}
+}
+
+class UserFutureTimestampException extends RangeException {
+	public function __construct($method, $time) {
+		parent::__construct("$method was passed a timestamp greater than the current time when expecting a past time: $time");
+	}
+}
+
+class UserNoSuchUserException extends OutOfBoundsException {
+	public function __construct($uid, $mode = NULL) {
+		if($mode !== NULL) {
+			if($mode == User::GET_BY_ID)
+				$mode = 'id:';
+			if($mode == User::GET_BY_USERNAME)
+				$mode = 'username:';
+		}
+		parent::__construct("Requested User does not exist: $mode$uid");
+	}
+}
+
 class UserInvalidUsernameException extends InvalidArgumentException{
 	public function __construct($value){
 		parent::__construct('Invalid username: '.$value);
@@ -922,6 +1077,18 @@ class UserUnavailableUsernameException extends RuntimeException{
 class UserUnavailableEmailException extends RuntimeException{
 	public function __construct($value){
 		parent::__construct('Email \''.$value.'\' already exists in database.');
+	}
+}
+
+class UserFileUnreadableException extends RuntimeException {
+	public function __construct($method, $file) {
+		parent::__construct("$method was unable to read the specified file: $file");
+	}
+}
+
+class UserNoSuchConfigParameterException extends DomainException {
+	public function __construct($key) {
+		parent::__construct("Attempted to access non-existent config parameter: $key");
 	}
 }
 
