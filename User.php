@@ -450,7 +450,7 @@ class User
 		$query->bindParam(':key', $hashedKey, PDO::PARAM_STR);
 		$query->execute();
 		//Remove current IP entry from $sessions array
-		unset($this->sessions[$hashedKey);
+		unset($this->sessions[$hashedKey]);
         User::processEventHandlers('onSessionEnd', $this);
 	}
 
