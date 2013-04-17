@@ -203,7 +203,7 @@ class User
 		$query->fetch(PDO::FETCH_BOUND);
 		//May need to revise type of exception thrown here...
 		if($this->id === NULL)
-			throw new OutOfBoundsException('No such user found in database: '.$id);
+			throw new UserNoSuchUserException($uid, $getType);
 		$query = $db->prepare('SELECT * FROM usersSessions WHERE userID = :userID');
 		$query->bindParam(':userID', $this->id, PDO::PARAM_INT);
 		$query->execute();
