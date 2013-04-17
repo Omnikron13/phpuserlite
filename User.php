@@ -253,6 +253,7 @@ class User
 		$query->bindParam(':id', $this->id, PDO::PARAM_INT);
 		$query->execute();
 		$this->username = $username;
+		User::processEventHandlers('onUsernameChange', $this);
 	}
 	
 	//Validates $password, then updates database & member
@@ -270,6 +271,7 @@ class User
 		$query->execute();
 		$this->password = $password;
 		$this->salt = $salt;
+		User::processEventHandlers('onPasswordChange', $this);
 	}
 	
 	//This method needs revision to confirm new email
@@ -301,6 +303,7 @@ class User
 			$query->bindParam(':id', $this->id, PDO::PARAM_INT);
 			$query->execute();
 			$this->email = $email;
+			User::processEventHandlers('onEmailChange', $this);
 		}
 		else
 			throw new UserInvalidModeException('setEmail()', $mode, 'User::SET_EMAIL_CONFIRM, User::SET_EMAIL_DIRECT');
@@ -388,6 +391,9 @@ class User
 		else
 			$this->setFailureCount($this->failureCount + 1);
 		$this->setFailureTime();
+		//Check if user has just been forced into brute force lockdown, if so trigger onLockdown callbacks
+		if($this->failureCount == User::config('login_failure_limit'))
+			User::processEventHandlers('onLockdown', $this);
 	}
 	
 	//Generates a new session key; sends out login cookies; updates the database & members
@@ -413,6 +419,7 @@ class User
 		//Update members...
 		$this->sessionKey = $hashedKey;
 		$this->sessionIP = $sessionIP;
+		User::processEventHandlers('onSessionStart', $this);
 	}
 	
 	//Checks if User has valid login session for the current script; checks if logged in
@@ -437,10 +444,13 @@ class User
 		//Remove member data...
 		$this->sessionKey = NULL;
 		$this->sessionIP = NULL;
+		User::processEventHandlers('onSessionEnd', $this);
 	}
 
 	public function remove()
 	{
+		//Call any registered onRemove callbacks, passing the user object
+		User::processEventHandlers('onRemove', $this);
 		//Prep database...
 		$db = User::getDB();
 		//Remove the record in the users table...
@@ -484,6 +494,8 @@ class User
 		$query->bindParam(':email', $email, PDO::PARAM_STR);
 		$query->bindParam(':date', time(), PDO::PARAM_STR);
 		$query->execute();
+		//Call any registered onAdd callbacks, passing a new user object representing the added user
+		User::processEventHandlers('onAdd', new User(intval($db->lastInsertId())));
 	}
 	
 	//Adds a new user to the usersPending database; sends an email out for confirmation
@@ -551,6 +563,8 @@ class User
 			$query = $db->prepare('DELETE FROM usersPending WHERE id = :id');
 			$query->bindParam(':id', $_GET['id'], PDO::PARAM_INT);
 			$query->execute();
+			//Call any registered onAdd callbacks, passing a new user object representing the added user
+			User::processEventHandlers('onAdd', new User(intval($db->lastInsertId())));
 			return User::config('confirm_success_template');
 		}
 		return User::config('confirm_incorrect_code_template');
@@ -581,6 +595,7 @@ class User
 			$query = $db->prepare('DELETE FROM usersChangeEmail WHERE id = :id');
 			$query->bindParam(':id', $_GET['id'], PDO::PARAM_INT);
 			$query->execute();
+			User::processEventHandlers('onEmailChange', new User($userID));
 			return User::config('set_email_confirm_success_template');
 		}
 		return User::config('set_email_confirm_incorrect_code_template');
@@ -682,6 +697,8 @@ class User
 			return User::processRegisterForm(User::config('register_password_mismatch_error'), $_POST['username'], $_POST['email']);
 		//Add user to the usersPending table..
 		User::addPending($_POST['username'], $_POST['password'], $_POST['email']);
+		//Process any onRegister callbacks, passing them, at present, nothing...
+		User::processEventHandlers('onRegister');
 		return User::config('register_success_template');
 	}
 	
@@ -816,6 +833,86 @@ class User
 		$_COOKIE['sessionKey'] = NULL;
 	}
 	
+	//This array holds the valid events that can be hooked as keys, and an array of the attached
+	//callbacks as the values
+	protected static $events = array(
+		'preSetup'		=>	array(),
+		'postSetup'		=>	array(),
+		'onRegister'		=>	array(),
+		'onAdd'			=>	array(),
+		'onUsernameChange'	=>	array(),
+		'onPasswordChange'	=>	array(),
+		'onEmailChange'		=>	array(),
+		'onLockdown'		=>	array(),
+		'onSessionStart'	=>	array(),
+		'onSessionEnd'		=>	array(),
+		'onRemove'		=>	array(),
+		);
+	
+	//This method is used by code using the User class to add their own callbacks into various areas of the logic
+	//of various methods of User, such as setting up their own database tables, triggers, etc. when User::setupDB
+	//is called, or responding to a user being added or removed from the db etc.
+	public static function addEventHandler($event, $callback)
+	{
+		if(!array_key_exists($event, User::$events))
+			throw new DomainException("User::addEventHandler passed an event that does not exist: $event");
+		try {
+			$reflector = User::getReflector($callback);
+		}
+		catch(ReflectionException $e) {
+			throw new InvalidArgumentException("User::addEventHandler() requires that its second parameter be a function or method callback, was instead passed: $callback", 0, $e);
+		}
+		if($reflector->getNumberOfRequiredParameters() > 1) //Revise to be specific if any events pass > 1 parameter
+			throw new InvalidArgumentException("User::addEventHandler() was passed a callback that requires more parameters than would be passed to it: $callback");
+		if(strcmp(get_class($reflector), 'ReflectionMethod') == 0)
+		{
+			if($reflector->isAbstract())
+				throw new InvalidArgumentException("User::addEventHandler() was passed a callback method that was abstract: $callback");
+			if(!$reflector->isPublic())
+				throw new InvalidArgumentException("User::addEventHandler() was passed a callback method that was not public: $callback");
+		}
+		User::$events[$event][] = $callback;
+	}
+	
+	protected static function processEventHandlers()
+	{
+		$args = func_get_args();
+		$event = array_shift($args);
+		foreach(User::$events[$event] as $callback)
+		{
+			call_user_func_array($callback, $args);
+		}
+	}
+
+	//This method analyses a variable claimed to be a callback, returning a ReflectionFunction or ReflectionMethod
+	//object reflecting the function/method if it is a valid callback, and throwing a BadFunctionCallException otherwise
+	protected static function getReflector($callback)
+	{
+		if(is_array($callback))
+		{
+			if(is_object($callback[0]))
+			{
+				$reflect = new ReflectionObject($callback[0]);
+			}
+			else if(is_string($callback[0]) && preg_match('/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/', $callback[0]))
+			{
+				$reflect = new ReflectionClass($callback[0]);
+			}
+			return $reflect->getMethod($callback[1]);
+		}
+		else if(is_string($callback))
+		{
+			if(preg_match('/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/', $callback))
+				return new ReflectionFunction($callback);
+			if(preg_match('/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*::[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/', $callback))
+			{
+				$parts = explode('::', $callback);
+				return new ReflectionMethod($parts[0], $parts[1]);
+			}
+		}
+		throw new BadFunctionCallException('getReflector() could not identify passed value as a valid callback, unable to create a reflector');
+	}
+	
 	//This variable is to ensure configuration is loaded, and is only loaded once
 	protected static $configLoaded = false;
 	
@@ -869,6 +966,8 @@ class User
 	public static function setupDB()
 	{
 		$db = User::getDB();
+		//Call any registered preSetup callbacks, passing them the open db connection
+		User::processEventHandlers('preSetup', $db);
 		//Create 'users' table...
 		$query = $db->prepare(User::config('db_users_table_schema'));
 		$query->execute();
@@ -881,6 +980,8 @@ class User
 		//Create 'usersOnDelete' trigger...
 		$query = $db->prepare(User::config('db_usersondelete_trigger_schema'));
 		$query->execute();
+		//Call any registered postSetup callbacks, passing them the open db connection
+		User::processEventHandlers('postSetup', $db);
 	}
 
 	//This method should always be used when accessing the database, to ensure the db is setup correctly
