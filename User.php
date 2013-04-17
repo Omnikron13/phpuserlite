@@ -424,6 +424,7 @@ class User
 		$query->execute();
 		//Add/update session in $sessions array
 		$this->sessions[$hashedKey] = $sessionIP;
+        User::processEventHandlers('onSessionStart', $this);
 	}
 	
 	//Checks if User has valid login session for the current script; checks if logged in
@@ -449,6 +450,7 @@ class User
 		$query->execute();
 		//Remove current IP entry from $sessions array
 		unset($this->sessions[$hashedKey);
+        User::processEventHandlers('onSessionEnd', $this);
 	}
 
 	public function remove()
