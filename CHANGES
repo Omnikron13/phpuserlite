@@ -1,0 +1,77 @@
+phpuserlite change log
+----------------------
+
+v2.0.0-rc.2 --SUBJECT TO CHANGE TILL TAGGED--
+    Database:
+        Added a usersOnDelete trigger to the database with the default
+        schema automatically deleting rows from usersChangeEmail just
+        before their parent row in users is deleted to prevent foreign key
+        issues.
+        Foreign key constraints are now enforced throughout User
+    API:
+        Added __toString() method, which returns the username.
+        Added eight new custom exceptions - UserInvalidModeException,
+        UserIncorrectDatatypeException, UserNegativeValueException,
+        UserNegativeTimestampException, UserFutureTimestampException,
+        UserNoSuchUseException, UserFileUnreadableException and
+        UserNoSuchConfigParameterException.
+        Changed the cookie duration argument of startSession to be optional
+        with the default being 0, bringing the code back in line with the
+        man pages claim that the default is session cookies.
+        Added a new public getDB() method, which returns a PDO object
+        representing the database User is (currently) using
+
+v2.0.0-rc.1
+    Security:
+        Added a new system that temporarily blocks login attempts, on a per
+        user basis, when it detects suspect login attempt activity as a
+        measure to prevent brute-force attacks
+    Database:
+        Two columns necessary for the new brute-force prevention system
+        added to the users table schema.
+        Foreign key constraint added to the default usersChangeEmail table
+        schema, keying the userID column to the id column in the users
+        table.
+	Table schema moved into the configuration system
+    API:
+        Configuration constants replaced with protected static array of
+        config parameters initially populated with class defaults and
+        overwritable using 'ini style' config files.
+        New config() & loadConfig() public static methods for accessing and
+        initialising the new configuration system respectively.
+        New public methods for working with the brute force prevention
+        system - loginFailure(), loginLimitExceeded(), getFailureTime(),
+        setFailureTime(), getFailureCount() & setFailureCount().
+        Cookie duration (in seconds) now required to be passed to the
+        startSession() method.
+	The login() logic now checks for an optional form field named
+        'cookie_duration' which if present is passed on as the cookie
+        duration argument of startSession().
+        New config options login_frequency_limit, login_failure_limit,
+        login_failure_period & login_failure_cooldown.
+        New login errors login_cooldown_error & login_frequency_error.
+        UserUnavailableUsernameException & UserUnavailableEmailException
+        now extend RuntimeException instead of InvalidArgumentException
+
+v1.1.2
+    Bugs:
+        Fixed a bug that was rendering setPassword() inoperable
+    Documentation:
+        Added an explanation of the numbering scheme to the entry for the
+        VERSION constant in the man page.
+        Corrected the entry for setEmail() to describe the two modes it may
+        be invoked in.
+        Fixed the default email regex quoted in the man page so the
+        backslash in the pattern displays correctly.
+        Minor formatting
+
+v1.1.1
+    Bugs:
+        Fixed a bug causing login forms from login() to throw an exception
+        on login attempts with non-existent usernames instead of failing
+        gracefully and returning the form again with an error message
+
+v1.1.0
+    Security:
+        Patched a potential XSS vulnerability in login() and register()
+

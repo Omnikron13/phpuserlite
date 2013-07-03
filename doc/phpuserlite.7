@@ -1,0 +1,1235 @@
+.TH PHPUSERLITE 7 2012-12-03 "Copyright Joey Sabey" "PHP Programmer's Manual"
+.SH NAME
+phpuserlite \- provides oo user functionality to php
+.\" +------------------+
+.\" | CONTENTS SECTION |
+.\" +------------------+
+.SH CONTENTS
+This documentation is divided into a number of sections, each
+providing detailed information about an aspect of
+.IR phpuserlite .
+.br
+Sections in this manual are:
+.in +2n
+.B INTRODUCTION
+.br
+.B CONFIGURATION
+.br
+.B CONSTANTS
+.br
+.B STATIC METHODS
+.br
+.B INSTANCE METHODS
+.br
+.B EXCEPTIONS
+.br
+.\".B NOTES
+.\".br
+.B BUGS
+.br
+.\".B EXAMPLE
+.\".br
+.\".B SEE ALSO
+.\".br
+.\".B COLOPHON
+.\" +----------------------+
+.\" | INTRODUCTION SECTION |
+.\" +----------------------+
+.SH INTRODUCTION
+.I phpuserlite
+is a PHP module that provides a class
+.RB ( User )
+for managing the basic functionality of a user system for websites, including;
+login & registration forms, email confirmation, username/password/email
+validation, password processing etc. The design is focussed on a high level of
+security, while remaining easy to install, configure & use. 
+.I SQLite
+is used throughout to handle the underlying database
+.\" +-----------------------+
+.\" | CONFIGURATION SECTION |
+.\" +-----------------------+
+.SH CONFIGURATION
+.I phpuserlite
+can be configured using 'ini style' config files containing
+.IR key = value
+pairs for the parameters you wish to change. Specifically, the
+structure of the config files should be the same as
+.I php.ini
+files. You can load a specific config file using
+.BR loadConfig (),
+which you must call before any other methods (including
+.BR setupDB ())
+or config will be loaded from the file specified by the
+.B DEFAULT_CONFIG_FILE
+constant. Following is a complete list of the configuration
+parameters available to you
+.\" const User::db_path
+.SS db_path
+You should set this parameter to the path of the
+.I SQLite
+database file you want
+.I phpuserlite
+to use. Non-absolute paths will be treated as being relative
+to the directory that
+.I User.php
+is in. The default value is
+.I phpuserlite.db
+.\" const User::salt_length
+.SS salt_length
+This is the number of bytes of random data used to salt data
+that is hashed by
+.IR phpuserlite .
+The default value is
+.IR 16 ,
+which should be sufficient, so you probably do not need to alter
+this
+.\" const User::session_key_length
+.SS session_key_length
+This is the number of bytes of random data that is used to
+generate the session keys used in login cookies. The default
+value is
+.IR 32 ,
+which should be sufficient, so you probably do not need to
+alter this
+.\" const User::confirm_code_length
+.SS confirm_code_length
+This is the number of bytes of random data that is used to
+generate the confirmation codes sent to users to confirm
+registration and change of email. The default value is
+.IR 16 ,
+which should be sufficient, so you probably do not need to
+alter this
+.\" const User::hash_algorithm
+.SS hash_algorithm
+This is the hashing algorithm that
+.I phpuserlite
+uses throughout, with the exception of
+.BR generateConfirmCode (),
+which uses
+.I sha1
+for brevity. The default value is
+.IR sha512 ,
+but if you wish to use another hashing algorithm, you may
+set this to any algorithm available to the php
+.IR hash ()
+function
+.\" const User::hash_iterations
+.SS hash_iterations
+This is the number of times a password is passed through 
+.B hash_algorithm
+before being stored in, or checked against, the database.
+The default value is
+.IR 256 ,
+which should be sufficient, so you probably do not need to
+alter this
+.\" const User::username_regex
+.SS username_regex
+This defines the prototype that all usernames of users managed
+by
+.I phpuserlite
+must conform to.
+.I phpuserlite
+will refuse to register users who wish to register with
+usernames that do not conform to this regex, and will ask
+them to enter another username. The default value is
+.I /^\[rs]w{4,32}$/
+.\" const User::password_regex
+.SS password_regex
+This defines the prototype that all passwords of users managed
+by
+.I phpuserlite
+must conform to.
+.I phpuserlite
+will refuse to register users who wish to register with
+passwords that do not conform to this regex, and will ask
+them to enter another password. The default value is
+.IR /^.{6,128}$/ .
+It is recommended that you only modify the minimum and maximum
+characters, and then that you only increase them
+.\" const User::email_regex
+.SS email_regex
+This is the regex used to attempt to assure that all users are
+registered with a valid email address. The default value is
+.IR /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\e.[A-Z]{2,4}$/i ,
+which you should only change if are sure it will continue to
+work, or if you wish to be more strict on who can register
+.\" const User::cookie_session_length
+.SS cookie_session_length
+This is the time in seconds before a login session cookie will
+expire, thus the amount of time a user will stay logged in
+unless they logout manually. The default value is
+.IR 604800 ,
+which equates to 7 days
+.\" const User::cookie_path
+.SS cookie_path
+This is the value that will be used for the path attribure of
+all cookies issued by
+.IR phpuserlite .
+The default value is an empty string
+.\" const User::cookie_domain
+.SS cookie_domain
+This is the value that will be used for the domain attribute of
+all cookies issued by
+.IR phpuserlite .
+The default value is an empty string
+.\" login_frequency_limit
+.SS login_frequency_limit
+This is the minimum amount of time in seconds (as a float) that
+.I phpuserlite
+will allow between login attempts. Attempts made within this
+limit will not be processed, so will never succeed even if the
+password entered was correct. The default value is
+.I 1.0
+.\" login_failure_limit
+.SS login_failure_limit
+This is the number of failed login attempts that
+.I phpuserlite
+will allow in a row within
+.B login_failure_period
+seconds of each other before it enforces a cooldown; blocking
+all login attempts for
+.B login_failure_cooldown
+seconds. The default value is
+.I 5
+.\" login_failure_period
+.SS login_failure_period
+This is the maximum amount of time (in seconds) between failed
+login attempts that
+.I phpuserlite
+will count as 'in a row' for the purposes of determining if
+.B login_failure_limit
+has been reached. The default value is
+.IR 300 ,
+which equates to five minutes
+.\" login_failure_cooldown
+.SS login_failure_cooldown
+This is the amount of time in seconds that
+.I phpuserlite
+will block login attempts for when
+.B login_failure_limit
+failed login attempts are made in a row. The default value is
+.IR 300 ,
+which equates to five minutes
+.\" const User::login_form_template
+.SS login_form_template
+This is the template used by
+.I phpuserlite
+to generate login forms. When modifying this template, note that
+you can use a form field named
+.I cookie_duration
+to pass an optional duration (in seconds) before the login
+cookies expire, for example to implement a 'keep me logged in'
+checkbox. Also pay attention to the
+.IR [error] " & " [username]
+placeholders, they are used to inject information into the
+template when a login attempt fails
+.\" const User::login_success_template
+.SS login_success_template
+This is the template used by
+.I phpuserlite
+to report a successful login. When modifying this template
+pay attention to the
+.I [username]
+placeholder, it is used to inject the username of the user
+that has logged in
+.\" const User::register_form_template
+.SS register_form_template
+This is the template used by
+.I phpuserlite
+to generate registration forms. When modifying this template,
+pay attention to the
+.IR [error] ", " [username] " & " [email]
+placeholders, they are used to inject information into the
+template
+.\" const User::register_success_template
+.SS register_success_template
+This is the template used by
+.I phpuserlite
+to report a successful registration
+.\" const User::login_no_username_error
+.SS login_no_username_error
+This is injected into the place of the
+.I [error]
+placeholder in
+.B login_form_template
+when a login attempt is made without a username
+.\" const User::login_no_password_error
+.SS login_no_password_error
+This is injected into the place of the
+.I [error]
+placeholder in
+.B login_form_template
+when a login attempt is made without a password
+.\" const User::login_no_input_error
+.SS login_no_input_error
+This is injected into the place of the
+.I [error]
+placeholder in
+.B login_form_template
+when a login attempt is made without either a username or
+password
+.\" const User::login_invalid_username_error
+.SS login_invalid_username_error
+This is injected into the place of the
+.I [error]
+placeholder in
+.B login_form_template
+when a login attempt is made with a username that does not
+match against
+.B username_regex
+.\" const User::login_invalid_password_error
+.SS login_invalid_password_error
+This is injected into the place of the
+.I [error]
+placeholder in
+.B login_form_template
+when a login attempt is made with a password that does not
+match against
+.B password_regex
+.\" const User::login_no_such_username_error
+.SS login_no_such_username_error
+This is injected into the place of the
+.I [error]
+placeholder in
+.B login_form_template
+when a login attempt is made and the username entered was
+not found in the database
+.\" const User::login_incorrect_password_error
+.SS login_incorrect_password_error
+This is injected into the place of the
+.I [error]
+placeholder in
+.B login_form_template
+when a login attempt is made and the password entered does
+not match the password stored in the database for the
+username entered
+.\" login_cooldown_error
+.SS login_cooldown_error
+This is injected into the place of the
+.I [error]
+placeholder in
+.B login_form_template
+when a login attempt is made, but
+.B login_failure_limit
+or more failed attempts have been made within the allowed
+.B login_failure_period
+seconds and the user is still within the
+.B login_failure_cooldown
+seconds cooldown period
+.\" login_frequency_error
+.SS login_frequency_error
+This is injected into the place of the
+.I [error]
+placeholder in
+.B login_form_template
+when a login attempt is made, but it is within
+.B login_frequency_limit
+seconds of the last login attempt
+.\" const User::register_no_username_error
+.SS register_no_username_error
+This is injected into the place of the
+.I [error]
+placeholder in
+.B register_form_template
+when a registration attempt is made without a username
+.\" const User::register_no_password_error
+.SS register_no_password_error
+This is injected into the place of the
+.I [error]
+placeholder in
+.B register_form_template
+when a registration attempt is made without a password
+.\" const User::register_no_confirm_password_error
+.SS register_no_confirm_password_error
+This is injected into the place of the
+.I [error]
+placeholder in
+.B register_form_template
+when a registration attempt is made without the password
+being confirmed
+.\" const User::register_no_email_error
+.SS register_no_email_error
+This is injected into the place of the
+.I [error]
+placeholder in
+.B register_form_template
+when a registration attempt is made without an email
+.\" const User::register_invalid_username_error
+.SS register_invalid_username_error
+This is injected into the place of the
+.I [error]
+placeholder in
+.B register_form_template
+when a registration attempt is made with a username that does
+not match against
+.B username_regex
+.\" const User::register_invalid_password_error
+.SS register_invalid_password_error
+This is injected into the place of the
+.I [error]
+placeholder in
+.B register_form_template
+when a registration attempt is made with a username that does
+not match against
+.B password_regex
+.\" const User::register_invalid_email_error
+.SS register_invalid_email_error
+This is injected into the place of the
+.I [error]
+placeholder in
+.B register_form_template
+when a registration attempt is made with an email that does
+not match against
+.B email_regex
+.\" const User::register_password_mismatch_error
+.SS register_password_mismatch_error
+This is injected into the place of the
+.I [error]
+placeholder in
+.B register_form_template
+when a registration attempt is made and the password does not
+match the confirmation password
+.\" const User::register_unavailable_username_error
+.SS register_unavailable_username_error
+This is injected into the place of the
+.I [error]
+placeholder in
+.B register_form_template
+when a registration attempt is made and the username entered
+is already registered in the database
+.\" const User::register_unavailable_email_error
+.SS register_unavailable_email_error
+This is injected into the place of the
+.I [error]
+placeholder in
+.B register_form_template
+when a registration attempt is made and the email entered is
+already registered in the database
+.\" const User::confirm_subject
+.SS confirm_subject
+This is the subject used in emails sent out to new users to
+confirm their email address
+.\" const User::confirm_body_template
+.SS confirm_body_template
+This is the template used by
+.I phpuserlite
+to generate the body of emails sent out to new users to confirm
+their email address. When modifying this template, pay attention
+to the
+.IR [id] " & " [code]
+placeholders, and note that the entire string
+.I ?id=[id]&code=[code]
+must remain intact at the end of the confirmation page file name
+.\" const User::confirm_form
+.SS confirm_form
+This is the email address that emails sent out to new users to
+confirm their email address will be spoofed by 
+.I phpuserlite
+to look like they're from
+.\" const User::confirm_success_template
+.SS confirm_success_template
+This is the template returned by
+.BR confirm ()
+when it successfully confirms a new user
+.\" const User::confirm_incorrect_code_template
+.SS confirm_incorrect_code_template
+This is the template returned by
+.BR confirm ()
+when the confirmation code in
+.IR $_GET []
+doesn't match the one stored in the
+.I usersPending
+table in the database
+.\" const User::confirm_no_such_id_template
+.SS confirm_no_such_id_template
+This is the template returned by
+.BR confirm ()
+when the
+.I id
+in
+.IR $_GET []
+does not match any stored in the
+.I usersPending
+table in the database
+.\" const User::set_email_confirm_subject
+.SS set_email_confirm_subject
+This is the subject used in emails sent out to users to confirm
+a change of email address
+.\" const User::set_email_confirm_body_template
+.SS set_email_confirm_body_template
+This is the template used by
+.I phpuserlite
+to generate the body of emails sent out to users to confirm a
+change of email address. When modifying this template, pay
+attention to the
+.IR [id] " & " [code]
+placeholders, and note that the entire string
+.I ?id=[id]&code=[code]
+must remain intact at the end of the confirmation page file name
+.\" const User::set_email_confirm_form
+.SS set_email_confirm_form
+This is the email address that emails sent out to users to
+confirm a change of email address will be spoofed by
+.I phpuserlite
+to look like they're from
+.\" const User::set_email_confirm_success_template
+.SS set_email_confirm_success_template
+This is the template returned by
+.BR confirmSetEmail ()
+when it successfully changes a users email
+.\" const User::set_email_confirm_incorrect_code_template
+.SS set_email_confirm_incorrect_code_template
+This is the template returned by
+.BR confirmSetEmail ()
+when the confirmation code in
+.IR $_GET []
+doesn't match the one stored in the
+.I usersChangeEmail
+table in the database
+.\" const User::set_email_confirm_no_such_id_template
+.SS set_email_confirm_no_such_id_template
+This is the template returned by
+.BR confirmSetEmail ()
+when the
+.I id
+in
+.IR $_GET []
+does not match any stored in the
+.I usersChangeEmail
+table in the database
+.\" db_users_table_schema
+.SS db_users_table_schema
+This is the 'CREATE TABLE' SQL statement that
+.BR setupDB ()
+uses to add the
+.I users
+table to the database
+.\" db_userspending_table_schema
+.SS db_userspending_table_schema
+This is the 'CREATE TABLE' SQL statement that
+.BR setupDB ()
+uses to add the
+.I usersPending
+table to the database
+.\" db_userschangeemail_table_schema
+.SS db_userschangeemail_table_schema
+This is the 'CREATE TABLE' SQL statement that
+.BR setupDB ()
+uses to add the
+.I usersChangeEmail
+table to the database. Note that if you only have a version of
+.I SQLite
+earlier than 3.6.19 available you will need to remove the
+.I FOREIGN KEY
+constrait from the statement
+.\" db_usersondelete_trigger_schema
+.SS db_usersondelete_trigger_schema
+This is the 'CREATE TRIGGER' SQL statement that
+.BR setupDB ()
+uses to add the
+.I usersOnDelete
+trigger to the database. The default schema for this trigger merely clears
+any records in the
+.I usersChangeEmail
+table that reference a record in the
+.I users
+table when it is removed from the database
+.\" +-------------------+
+.\" | CONSTANTS SECTION |
+.\" +-------------------+
+.SH CONSTANTS
+.\" const User::VERSION
+.SS VERSION
+This constant tracks the version number of
+.IR phpuserlite ,
+which will either be in the form
+.IR x . x . x
+.RI ( x . x . x -rc. x " for release candidates)"
+or
+.IR trunk .
+The version numbers represent major, minor and patch revisions.
+Significant structural changes are reflected in the major
+revision number, security fixes and other internal changes that
+won't affect usage in the minor revision number, and bug fixes
+in the patch revision number. (Additional information on the
+versioning scheme can be found at
+.IR http://semver.org )
+It is advised you keep your copy of
+.I phpuserlite
+up to date against the minor & patch revision at all times.
+Versions marked with
+.I trunk
+should not be considered stable, so please attempt to replicate
+any bugs with a numbered version of
+.IR phpuserlite ,
+if at all possible, before submitting them to the bug tracker
+.\" const User::DEFAULT_CONFIG_FILE
+.SS DEFAULT_CONFIG_FILE
+This constant holds the filename that will be checked for a
+config file if no other file is specified to the
+.BR loadConfig ()
+method. Unless an absolute path is specified
+.I phpuserlite
+will assume the file is in the same directory as
+.I User.php
+.\" A note on flags
+.SS Flags
+There are a number of constants labelled as
+.IR flags ,
+namely;
+.BR GET_BY_ID ,
+.BR GET_BY_USERNAME ,
+.BR SET_EMAIL_CONFIRM " &"
+.BR SET_EMAIL_DIRECT .
+These constants are for passing to certain methods as flags to
+alter the behaviour of the method. Specific usage should be
+documented in the section for the method in question
+.\" +------------------------+
+.\" | STATIC METHODS SECTION |
+.\" +------------------------+
+.SH STATIC METHODS
+The static methods in
+.I phpuserlite
+are used to add users to the database, display & process forms,
+and perform initial setup
+.\" static function User::getCurrent()
+.SS getCurrent\fR()
+This method attempts to identify the current logged in user by
+login cookies, returning a
+.B User
+object on success, otherwise
+.I NULL
+.\" static function User::add()
+.SS add\fR(\fIusername\fR, \fIpassword\fR, \fIemail\fR)
+This method adds a new user into the
+.I users
+table of the database, provided that;
+.I username
+matches against
+.BR username_regex ,
+.I password
+matches against
+.BR password_regex ,
+.I email
+matches against
+.BR email_regex ,
+and
+.IR username " & " email
+are not already in the database. This method has no return value
+through might throw one of
+.BR UserInvalidUsernameException ,
+.BR UserInvalidPasswordException ,
+.BR UserInvalidEmailException ,
+.BR UserUnavailableUsernameException ,
+.BR UserUnavailableEmailException
+if there is an error. Note that this method does not pass through
+email verification, so should be used sparingly
+.\" static function User::addPending()
+.SS addPending\fR(\fIusername\fR, \fIpassword\fR, \fIemail\fR)
+This method adds a new user into the
+.I usersPending
+table of the database and sends out a confirmation email to
+.I email
+generated from the
+.BR confirm_subject ", " confirm_body_template " & " confirm_form
+config parameter, provided that;
+.I username
+matches against
+.BR username_regex ,
+.I password
+matches against
+.BR password_regex ,
+.I email
+matches against
+.BR email_regex ,
+and
+.IR username " & " email
+are not already in the database. This method has no return value
+though might throw one of
+.BR UserInvalidUsernameException ,
+.BR UserInvalidPasswordException ,
+.BR UserInvalidEmailException ,
+.BR UserUnavailableUsernameException ,
+.BR UserUnavailableEmailException
+if there is an error. Note that there must be a page set up with
+the
+.BR confirm ()
+method to verify that
+.I email
+exists and is owned by the user for the data to be tranfered to
+the
+.I users
+table in the database, activating the user and allowing them to
+log in
+.\" static function User::confirm()
+.SS confirm\fR()
+This method processes a confirmation code, as emailed out to new
+users by
+.BR addPending (),
+transfering the relevant user from the
+.I usersPending
+to the
+.I users
+table in the database. The return value is always a string
+containing 
+.B confirm_success_template
+on success or one of
+.BR confirm_incorrect_code_template ", " confirm_no_such_id_template
+on failure, to be displayed to the user
+.\" static function User::confirmSetEmail()
+.SS confirmSetEmail\fR()
+This method processes a change of email confirmation code, as
+emailed out to users by
+.BR setEmail ()
+when called with the
+.B SET_EMAIL_CONFIRM
+flag, transfering the relevant email address from the
+.I usersChangeEmail
+table to the corresponding user entry in the
+.I users
+table in the database. The return value is always a string
+containing 
+.B set_email_confirm_success_template
+on success or one of
+.BR set_email_confirm_incorrect_code_template ", " set_email_confirm_no_such_id_template
+on failure, to be displayed to the user
+.\" static function User::login()
+.SS login\fR()
+This method is used to generate & process login forms, and will
+behave differently if called in different contexts, but the
+return value is always a
+.IR string .
+If it is called without a login attempt in
+.IR $_POST []
+it will generate and return a login form from
+.BR login_form_template .
+If it is called with a login attempt in
+.IR $_POST []
+and the login is unsuccessful it will generate a login form from
+.BR login_form_template ,
+injecting into the
+.IR [error] " and possibly " [username]
+placeholders. If it is called with a login attempt in
+.IR $_POST []
+and the login is successful it will generate and return a success
+message from
+.BR login_success_template .
+Note that this method must be called before any output as it
+needs to set cookies
+.\" static function User::register()
+.SS register\fR()
+This method is used to generate & process registration forms,
+and will behave differently if called in different contexts, but
+the return value is always a
+.IR string .
+If it is called without a registration attempt in
+.IR $_POST []
+it will generate and return a registration form from
+.BR register_form_template .
+If it is called with a registration attempt in
+.IR $_POST []
+and the registration is unsuccessful it will generate and return
+a registration form from
+.BR register_form_template ,
+injecting into the
+.IR [error]
+and, if relevant, the
+.IR [username] " and/or " [email]
+placeholders. If it is called with a registration attempt in
+.IR $_POST []
+and the registration is successful it will add a new user to the
+.I usersPending
+table in the database, send out a confirmation email and
+generate and return a success message from
+.B register_success_template
+.\" static function User::loadConfig()
+.SS loadConfig\fR(\fIfile\fR, \fIforce\fR)
+This method is used to load configuration data from the config
+file specified by
+.IR file ,
+or from
+.B DEFAULT_CONFIG_FILE
+if
+.I file
+was not passed. It should be called before any other functions, including
+.BR setupDB (),
+as config data will normally only be loaded once, and
+.B User
+will call
+.BR loadConfig ()
+itself the first time it needs to access a config parameter.
+If the optional argument
+.I force
+is
+.I true
+(the default being
+.IR false )
+then the config parameters from
+.I file
+are loaded over the current ones, even if config data has
+already been loaded. If this method is passed anything other
+than a path to an existing file for
+.I file
+(bearing in mind that files PHP cannot see will be treated as not existing)
+it will throw a
+.BR UserIncorrectDatatypeException .
+If it is passed a path to a file it is unable to read it will throw a
+.BR UserFileUnreadableException .
+If it is passed a non-boolean value for
+.I force
+it will throw a
+.B UserInvalidModeException
+.\" static function User::config()
+.SS config\fR(\fIkey\fR)
+This method returns the value of the configuration parameter
+specified by
+.IR key ,
+if it exists, and throws a
+.B UserNoSuchConfigParameterException
+if it does not
+.\" static function User::setupDB()
+.SS setupDB\fR()
+This method must be called after you call
+.BR loadConfig ()
+(if you are doing so) but before you attempt to call any other
+methods or create any
+.B User
+objects. You only need to call this once, unless you delete or
+move the database, or alter
+.BR db_path ,
+and wish to recreate the database from scratch
+.\" static function User::getDB()
+.SS getDB\fR()
+This method returns the (current) database being used by
+.B User
+as a
+.I PDO
+object. Note that the returned database will have foreign keys switched on,
+and the
+.I PDO::ATTR_ERRMODE
+will be set to
+.I PDO::ERRMODE_EXCEPTION
+.\" +--------------------------+
+.\" | INSTANCE METHODS SECTION |
+.\" +--------------------------+
+.SH INSTANCE METHODS
+.\" User class constructor
+.SS Constructor\fR(\fIuid\fR, \fIgetType\fR)
+The class constructor for
+.B User
+treats
+.I uid
+differently depending on the value of
+.IR getType ,
+which can be one of the flags
+.BR GET_BY_ID " or " GET_BY_USERNAME .
+If
+.I getType
+is set to
+.B GET_BY_ID
+(the default) then the constructor looks for a user in the
+.I users
+table in the database where
+.I id
+matches
+.I uid
+and creates a
+.B User
+object if it finds one, otherwise it throws a
+.BR UserNoSuchUserException .
+If
+.I getType
+is set to
+.B GET_BY_USERNAME
+then the constructor looks for a user in the
+.I users
+table in the database where
+.I username
+matches
+.I uid
+and creates a
+.B User
+object if it finds one, otherwise it throws a
+.BR UserNoSuchUserException .
+If
+.I getType
+is not set to either
+.BR GET_BY_ID " or " GET_BY_USERNAME
+then a
+.B UserInvalidModeException
+will be thrown. The constructor may also throw one of
+.B UserIncorrectDatatypeException
+or
+.B UserInvalidUsernameException
+if
+.I uid
+is invalid
+.\" public function [user-object]->__toString()
+.SS __toString\fR()
+This is the
+.I magic method
+automatically called if a
+.B User
+object is used in a string context, such as in an
+.I echo
+statement. It will return the
+.I username
+of the user it represents
+.\" public function [user-object]->getID()
+.SS getID\fR()
+This method returns the
+.I id
+of the user
+.\" public function [user-object]->getUsername()
+.SS getUsername\fR()
+This method returns the
+.I username
+of the user
+.\" public function [user-object]->getPassword()
+.SS getPassword\fR()
+This method returns the
+.I password
+of the user, as stored in the
+.I users
+table in the database; salted and hashed by
+.BR hash_algorithm ", " hash_iterations
+times
+.\" public function [user-object]->getSalt()
+.SS getSalt\fR()
+This method returns the
+.I salt
+data used to salt the users password
+.\" public function [user-object]->getEmail()
+.SS getEmail\fR()
+This method returns the
+.I email
+of the user
+.\" public function [user-object]->getDate()
+.SS getDate\fR()
+This method returns the date that the user was registered in the
+database
+.\" public function [user-object]->getSessionKey()
+.SS getSessionKey\fR()
+This method returns the
+.I sessionKey
+of the user if they are currently logged in, otherwise it will
+return
+.I NULL
+.\" public function [user-object]->getSessionIP()
+.SS getSessionIP\fR()
+This method returns the
+.I sessionIP
+of the user if they are currently logged in, otherwise it will
+return
+.I NULL
+.\" public function [user-object]->getFailureCount()
+.SS getFailureCount\fR()
+This method returns the
+.I failureCount
+of the user
+.\" public function [user-object]->getFailureTime()
+.SS getFailureTime\fR()
+This method returns the
+.I failureTime
+of the user
+.\" public function [user-object]->setUsername()
+.SS setUsername\fR(\fIusername\fR)
+This method sets the username of the user to
+.IR username ,
+provided it matches against
+.BR username_regex ,
+and does not clash with any username already in the database. If
+.I username
+does not match against
+.B username_regex
+it will throw a
+.BR UserInvalidUsernameException .
+If
+.I username
+clashes with a username already in the database it will throw a
+.B UserUnavailableUsernameException
+.\" public function [user-object]->setPassword()
+.SS setPassword\fR(\fIpassword\fR)
+This method sets the username of the user to
+.IR password ,
+provided it matches against
+.BR password_regex .
+If
+.I password
+does not match against
+.B password_regex
+it will throw a
+.B UserInvalidPasswordException
+.\" public function [user-object]->setEmail()
+.SS setEmail\fR(\fIemail\fR, \fImode\fR)
+If
+.I mode
+is set to
+.B SET_EMAIL_CONFIRM
+(the default) this method adds a new record to the
+.I usersChangeEmail
+table and sends out a confirmation email to the user's
+current email address generated from the
+.BR set_email_confirm_subject , 
+.BR set_email_confirm_body_template " &" 
+.B set_email_confirm_from
+config parameters. If
+.I mode
+is set to
+.B SET_EMAIL_DIRECT
+this method sets the email of the user to
+.IR email .
+If
+.I mode
+is set to anything other than
+.BR SET_EMAIL_CONFIRM " or " SET_EMAIL_DIRECT ,
+then it will throw a
+.BR UserInvalidModeException .
+If
+.I email
+does not match against
+.B email_regex
+it will throw a
+.BR UserInvalidEmailException .
+If
+.I email
+clashes with an email already in the database it will throw a
+.B UserUnavailableEmailException
+.\" public function [user-object]->setFailureCount()
+.SS setFailureCount\fR(\fIcount\fR)
+This method sets the
+.I failureCount
+of the user to
+.IR count ,
+provided it is a positive integer. If a non-integer is passed
+then it will throw a
+.BR UserIncorrectDatatypeException ,
+and if a negative integer is passed it will throw a
+.B UserNegativeValueException
+.\" public function [user-object]->setFailureTime()
+.SS setFailureTime\fR(\fItime\fR)
+If the optional
+.I time
+argument is passed this method sets the
+.I failureTime
+of the user to
+.IR time ,
+provided it is a positive float that is not greater than the
+current unix timestamp. If
+.I time
+is not passed this method sets the
+.I failureTime
+of the user to the current time. If 
+.I time
+is not numeric it will throw a
+.BR UserIncorrectDatatypeException ,
+if it is not positive then it will throw a
+.BR UserNegativeTimestampException ,
+and if it is greater than the current unix timestamp it will
+throw a
+.B UserFutureTimestampException
+.\" public function [user-object]->loginLimitExceeded()
+.SS loginLimitExceeded\fR()
+This method returns
+.I true
+if the user is in a cooldown due to
+.B login_failure_limit
+or more failed login attempts having been made in a row,
+otherwise it returns
+.I false
+.\" public function [user-object]->checkPassword()
+.SS checkPassword\fR(\fIpassword\fR)
+This method checks to see if
+.I password
+matches the password of the user, returning
+.I true
+if they match or
+.I false
+if they do not match
+.\" public function [user-object]->loginFailure()
+.SS loginFailure\fR()
+This method logs a failed login attempt, incrementing
+.I failureCount
+and setting
+.I failureTime
+to the current time. If the last failed login attempt was more
+than
+.B login_failure_period
+seconds ago then
+.I failureCount
+will be set back to 1
+.\" public function [user-object]->startSession()
+.SS startSession\fR(\fIcookieDuration\fR)
+This method logs a user in, generating a new
+.IR sessionKey " & " sessionIP ,
+saving them in the database and sending out cookies. If the
+optional argument
+.I cookieDuration
+is set the cookies will be set to expire in
+.I cookieDuration
+seconds, otherwise they will be set as session cookies. Note
+that this method must be called before any output as it needs
+to set cookies. If
+.I cookieDuration
+is not an integer (or a string of an integer) then a
+.B UserIncorrectDatatypeException
+will be thrown, and if it is not positive then a
+.B UserNegativeValueException
+will be thrown
+.\" public function [user-object]->checkSession()
+.SS checkSession\fR(\fIsessionKey\fR)
+This method checks to see if the user is logged in by checking
+.I sessionKey
+against the session key in the database, along with checking
+.IR $_SERVER [' REMOTE_ADDR ']
+against the session IP stored in the database. It returns
+.I true
+if they match, or
+.I false
+if they do not match
+.\" public function [user-object]->endSession()
+.SS endSession\fR()
+This method clears all of the cookies issued by
+.I phpuserlite
+and clears the
+.IR sessionKey " & " sessionIP
+data from the
+.B User
+object and corresponding data in the
+.I users
+table of the database. This is probably the best and easiest way
+to implement a logout page. Note that this method must be called
+before any output as it needs to set cookies
+.\" public function [user-object]->remove()
+.SS remove\fR()
+This method deletes the user's entry from the database
+.\" +--------------------+
+.\" | EXCEPTIONS SECTION |
+.\" +--------------------+
+.SH EXCEPTIONS
+.\" class UserInvalidModeException extends DomainException
+.SS UserInvalidModeException
+This exception extends
+.IR DomainException ,
+and is thrown by methods that have a (usually optional) mode argument and are
+passed a mode other than those defined
+.\" class UserIncorrectDatatypeException extends InvalidArgumentException
+.SS UserIncorrectDatatypeException
+This exception extends
+.IR InvalidArgumentException ,
+and is thrown by a large number of methods when they are passed completely the
+wrong type of data (e.g. passed a
+.I string
+when expecting an
+.IR integer )
+in one of their arguments
+.\" class UserNegativeValueException extends DomainException
+.SS UserNegativeValueException
+This exception extends
+.IR DomainException ,
+and is thrown by methods that require a positive
+.IR integer / float
+as one of their arguments but are passed a negative
+.IR integer / float
+instead
+.\" class UserNegativeTimestampException extends UserNegativeValueException
+.SS UserNegativeTimestampException
+This exception extends
+.BR UserNegativeValueException ,
+and is merely a specific version thrown by methods expecting a positive UNIX
+timestamp when passed a negative value
+.\" class UserFutureTimestampException extends RangeException
+.SS UserFutureTimestampException
+This exception extends
+.IR RangeException ,
+and is thrown by methods expecting a UNIX timestamp equating to the current
+time or before as one of their arguments when passed a timestamp equating to
+some time in the future
+.\" class UserNoSuchUserException extends OutOfBoundsException
+.SS UserNoSuchUserException
+This exception extends
+.IR OutOfBoundsException ,
+and is thrown when an attempt is made to create a new
+.B User
+object from an
+.IR id " or " username
+that does not exist
+.\" class UserInvalidUsernameException extends InvalidArgumentException
+.SS UserInvalidUsernameException
+This exception extends
+.IR InvalidArgumentException ,
+and is thrown by methods that are passed a username that does
+not match against
+.B username_regex
+.\" class UserInvalidPasswordException extends InvalidArgumentException
+.SS UserInvalidPasswordException
+This exception extends
+.IR InvalidArgumentException ,
+and is thrown by methods that are passed a password that does
+not match against
+.B password_regex
+.\" class UserInvalidEmailException extends InvalidArgumentException
+.SS UserInvalidEmailException
+This exception extends
+.IR InvalidArgumentException ,
+and is thrown by methods that are passed an email that does not
+match against
+.B email_regex
+.\" class UserUnavailableUsernameException extends RuntimeException
+.SS UserUnavailableUsernameException
+This exception extends
+.IR RuntimeException ,
+and is thrown by methods that either add users to the database,
+or change the username of those already in the database, if they
+are passed a username already in the database
+.\" class UserUnavailableEmailException extends RuntimeException
+.SS UserUnavailableEmailException
+This exception extends
+.IR RuntimeException ,
+and is thrown by methods that either add users to the database,
+or change the email of those already in the database, if they are
+passed an email already in the database
+.\" class UserFileUnreadableException extends RuntimeException
+.SS UserFileUnreadableException
+This exception extends
+.IR RuntimeException ,
+and is thrown by methods that read files when the file they have been told
+to read returns
+.I false
+on an
+.IR is_readable ()
+check
+.\" class UserNoSuchConfigParameterException extends DomainException
+.SS UserNoSuchConfigParameterException
+This exception extends
+.IR DomainException ,
+and is thrown when at attempt is made to access a configuration parameter that
+.B User
+does not have, generally by
+.BR config ()
+.\" +---------------+
+.\" | NOTES SECTION |
+.\" +---------------+
+.\".SH NOTES
+.\" +--------------+
+.\" | BUGS SECTION |
+.\" +--------------+
+.SH BUGS
+There are no known bugs with
+.IR phpuserlite ,
+though this is, of course, not the same thing as there being no
+bugs. Please direct all bug reports to the bug tracker at
+http://code.google.com/p/phpuserlite/
+.\" +--------------------+
+.\" | EXAMPLE(S) SECTION |
+.\" +--------------------+
+.\".SH EXAMPLE
+.\" +------------------+
+.\" | SEE ALSO SECTION |
+.\" +------------------+
+.\".SH SEE ALSO
+.\" +------------------+
+.\" | COLOPHON SECTION |
+.\" +------------------+
+.\".SH COLOPHON..?
+
