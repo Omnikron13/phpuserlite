@@ -55,6 +55,16 @@ User::add('a_user', 'password', 'user@example.com');
 Documentation of these methods, and the rest of the functionality of phpuserlite
 can be found in the included man page (doc/phpuserlite.7)
 
+::: SUGGESTIONS :::
+I personally recommend not restricting the maximum password length any more than
+the default REGEX already does - long passwords are strong passwords.
+Additionally I suggest advising users to use a phrase for their password rather
+than advising/forcing them to use numbers/special characters/etc.
+'i like eating bees' is a stronger password than 'dY_$@62Ls8'.
+
+You may even wish to consider adding this code or similar to your registration
+form: http://rumkin.com/tools/password/passchk.php
+
 ::: CREDITS :::
 Code & documentation written by Joey Sabey (GameFreak7744@gmail.com)
 phpuserlite complies to Semantic Versioning 2.0.0-rc.1, pending the final 2.0.0
