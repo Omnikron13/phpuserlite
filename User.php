@@ -136,20 +136,17 @@ class User
 									     userID INTEGER UNIQUE NOT NULL,
 									     email TEXT NOT NULL UNIQUE COLLATE NOCASE,
 									     confirmCode TEXT NOT NULL,
-									     FOREIGN KEY (userID) REFERENCES users(id))',
+									     FOREIGN KEY (userID) REFERENCES users(id))
+                                                ON DELETE CASCADE
+                                                ON UPDATE CASCADE',
 		'db_userssessions_table_schema'
 			=>	'CREATE TABLE IF NOT EXISTS usersSessions(id INTEGER PRIMARY KEY,
 									  userID INTEGER NOT NULL,
 									  key TEXT NOT NULL,
 									  IP TEXT NOT NULL,
-									  FOREIGN KEY (userID) REFERENCES users(id))');
-		'db_usersondelete_trigger_schema'
-			=>	'CREATE TRIGGER IF NOT EXISTS usersOnDelete BEFORE DELETE ON users 
-					FOR EACH ROW
-						BEGIN
-							DELETE FROM usersChangeEmail WHERE userID = OLD.id;
-							DELETE FROM usersSessions WHERE userID = OLD.id;
-						END',
+									  FOREIGN KEY (userID) REFERENCES users(id))
+                                                ON DELETE CASCADE
+                                                ON UPDATE CASCADE');
 	);
 	
 	//Flags
@@ -986,9 +983,6 @@ class User
 		$query->execute();
 		//Create 'usersSessions' table...
 		$query = $db->prepare(User::config('db_userssessions_table_schema'));
-		//Create 'usersOnDelete' trigger...
-		$query = $db->prepare(User::config('db_usersondelete_trigger_schema'));
-		$query->execute();
 		//Call any registered postSetup callbacks, passing them the open db connection
 		User::processEventHandlers('postSetup', $db);
 	}
