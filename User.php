@@ -23,7 +23,7 @@ THE SOFTWARE.
 class User
 {
 	//Version string...
-	const VERSION = '2.0.0-rc.2';
+	const VERSION = '2.0.0-rc.3';
 	const DEFAULT_CONFIG_FILE = 'phpuserlite.cfg';
 	
 	protected static $configData = array(
