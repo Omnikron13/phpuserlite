@@ -137,7 +137,9 @@ class User
 									     userID INTEGER UNIQUE NOT NULL,
 									     email TEXT NOT NULL UNIQUE COLLATE NOCASE,
 									     confirmCode TEXT NOT NULL,
-									     FOREIGN KEY (userID) REFERENCES users(id))',
+									     FOREIGN KEY (userID) REFERENCES users(id))
+                                                ON DELETE CASCADE
+                                                ON UPDATE CASCADE',
 	);
 	
 	//Flags
