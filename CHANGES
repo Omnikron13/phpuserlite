@@ -1,6 +1,10 @@
 phpuserlite change log
 ----------------------
 
+v2.0.0-rc.3 -SUBJECT TO CHANGE TILL TAGGED
+    Database:
+        Removed the usersOnDelete trigger again, in favour of ON DELETE &
+        ON UPDATE clauses on applicable FOREIGN KEY constraints.
 v2.0.0-rc.2
     Database:
         Added a usersOnDelete trigger to the database with the default
