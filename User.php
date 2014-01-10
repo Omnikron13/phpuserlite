@@ -138,12 +138,6 @@ class User
 									     email TEXT NOT NULL UNIQUE COLLATE NOCASE,
 									     confirmCode TEXT NOT NULL,
 									     FOREIGN KEY (userID) REFERENCES users(id))',
-		'db_usersondelete_trigger_schema'
-			=>	'CREATE TRIGGER IF NOT EXISTS usersOnDelete BEFORE DELETE ON users 
-					FOR EACH ROW
-						BEGIN
-							DELETE FROM usersChangeEmail WHERE userID = OLD.id;
-						END',
 	);
 	
 	//Flags
