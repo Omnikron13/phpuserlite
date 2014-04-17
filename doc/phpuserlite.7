@@ -99,6 +99,13 @@ registration and change of email. The default value is
 .IR 16 ,
 which should be sufficient, so you probably do not need to
 alter this
+.\" config: request_token_length
+.SS request_token_length
+This is the number of bytes of random data that is used to
+generate request tokens for CSRF protection. The default value is
+.IR 16 ,
+which should be sufficient, so you probably do not need to
+alter this
 .\" const User::hash_algorithm
 .SS hash_algorithm
 This is the hashing algorithm that
