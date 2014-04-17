@@ -136,17 +136,17 @@ class User
 									     userID INTEGER UNIQUE NOT NULL,
 									     email TEXT NOT NULL UNIQUE COLLATE NOCASE,
 									     confirmCode TEXT NOT NULL,
-									     FOREIGN KEY (userID) REFERENCES users(id))
+									     FOREIGN KEY (userID) REFERENCES users(id)
                                                 ON DELETE CASCADE
-                                                ON UPDATE CASCADE',
+                                                ON UPDATE CASCADE)',
 		'db_userssessions_table_schema'
 			=>	'CREATE TABLE IF NOT EXISTS usersSessions(id INTEGER PRIMARY KEY,
 									  userID INTEGER NOT NULL,
 									  key TEXT NOT NULL,
 									  IP TEXT NOT NULL,
-									  FOREIGN KEY (userID) REFERENCES users(id))
+									  FOREIGN KEY (userID) REFERENCES users(id)
                                                 ON DELETE CASCADE
-                                                ON UPDATE CASCADE',
+                                                ON UPDATE CASCADE)',
 	);
 	
 	//Flags
