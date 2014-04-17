@@ -461,6 +461,11 @@ class User
         return base64_encode($token);
     }
 
+    public function checkRequestToken($token)
+    {
+        return $this->getRequestToken() == $token;
+    }
+
 	public function remove()
 	{
 		//Prep database...
