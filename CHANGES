@@ -1,8 +1,12 @@
 phpuserlite change log
 ----------------------
 
-v2.0.0-rc.2 --SUBJECT TO CHANGE TILL TAGGED--
+v2.0.0-rc.2
     Database:
+        Added a usersOnDelete trigger to the database with the default
+        schema automatically deleting rows from usersChangeEmail just
+        before their parent row in users is deleted to prevent foreign key
+        issues.
         Foreign key constraints are now enforced throughout User
     API:
         Added __toString() method, which returns the username.
