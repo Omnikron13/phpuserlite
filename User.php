@@ -464,6 +464,19 @@ class User
 		return base64_encode($token);
     }
 
+    public function getRequestToken()
+    {
+        $db = User::getDB();
+        $query = $db->prepare('SELECT requestToken FROM users WHERE id = :id');
+        $query->bindParam('id', $this->id, PDO::PARAM_INT);
+        $query->execute();
+        $query->bindColumn('requestToken', $token, PDO::PARAM_LOB);
+        $query->fetch(PDO::FETCH_BOUND);
+        if($token === NULL)
+            return $this->generateRequestToken();
+        return base64_encode($token);
+    }
+
 	public function remove()
 	{
 		//Call any registered onRemove callbacks, passing the user object
