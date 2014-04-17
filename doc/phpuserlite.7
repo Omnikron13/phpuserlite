@@ -1095,6 +1095,25 @@ object and corresponding data in the
 table of the database. This is probably the best and easiest way
 to implement a logout page. Note that this method must be called
 before any output as it needs to set cookies
+.\" public function [user-object]->generateRequestToken()
+.SS generateRequestToken\fR()
+This method generates a request token for CSRF protection and
+stores it in the database. It returns the new token as a base64
+encoded
+.I string
+.\" public function [user-object]->getRequestToken()
+.SS getRequestToken\fR()
+This method pulls the current request token for the user from the
+database and returns it as a base64 encoded
+.I string
+.\" public function [user-object]->checkRequestToken()
+.SS checkRequestToken\fR(\fItoken\fR)
+This method checks the supplied (base64 encoded)
+.I token
+against that stored in the database for the user. It returns
+.I true
+if they match, otherwise
+.I false
 .\" public function [user-object]->remove()
 .SS remove\fR()
 This method deletes the user's entry from the database
