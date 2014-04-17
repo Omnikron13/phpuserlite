@@ -146,7 +146,7 @@ class User
 									  IP TEXT NOT NULL,
 									  FOREIGN KEY (userID) REFERENCES users(id))
                                                 ON DELETE CASCADE
-                                                ON UPDATE CASCADE');
+                                                ON UPDATE CASCADE',
 	);
 	
 	//Flags
