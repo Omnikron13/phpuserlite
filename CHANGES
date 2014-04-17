@@ -2,9 +2,23 @@ phpuserlite change log
 ----------------------
 
 v2.0.0-rc.3 -SUBJECT TO CHANGE TILL TAGGED
+    Security:
+        Added new functionality to aid in protection against CSRF attacks.
+        phpuserlite itself has never been vulnerable to CSRF attacks,
+        however sites that utilise it may be at risk.
+        See here for more information: https://www.owasp.org/index.php/CSRF
     Database:
         Removed the usersOnDelete trigger again, in favour of ON DELETE &
         ON UPDATE clauses on applicable FOREIGN KEY constraints.
+        Added requestToken column to the users table as part of the new CSRF
+        protection system.
+    CONFIG:
+        Added request_token_length config parameter as part of the new CSRF
+        protection system.
+    API:
+        Added generateRequestToken(), getRequestToken() & checkRequestToken()
+        methods as part of the new CSRF protection system. See the man page
+        for details on usage.
 v2.0.0-rc.2
     Database:
         Added a usersOnDelete trigger to the database with the default
