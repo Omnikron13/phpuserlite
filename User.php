@@ -983,6 +983,7 @@ class User
 		$query->execute();
 		//Create 'usersSessions' table...
 		$query = $db->prepare(User::config('db_userssessions_table_schema'));
+		$query->execute();
 		//Call any registered postSetup callbacks, passing them the open db connection
 		User::processEventHandlers('postSetup', $db);
 	}
