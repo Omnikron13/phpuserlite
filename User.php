@@ -32,6 +32,7 @@ class User
 		'salt_length'		=>	16,
 		'session_key_length'	=>	32,
 		'confirm_code_length'	=>	16,
+		'request_token_length'	=>	16,
 		'hash_algorithm'	=>	'sha512',
 		'hash_iterations'	=>	256,
 		'username_regex'	=>	'/^\w{4,32}$/',
@@ -122,7 +123,8 @@ class User
 								  email TEXT NOT NULL UNIQUE COLLATE NOCASE,
 								  date INTEGER NOT NULL,
 								  failureCount INTEGER,
-								  failureTime REAL)',
+								  failureTime REAL,
+                                  requestToken BLOB)',
 		'db_userspending_table_schema'
 			=>	'CREATE TABLE IF NOT EXISTS usersPending(id INTEGER PRIMARY KEY,
 									 username TEXT NOT NULL UNIQUE COLLATE NOCASE,
@@ -450,6 +452,17 @@ class User
 		unset($this->sessions[$hashedKey]);
         User::processEventHandlers('onSessionEnd', $this);
 	}
+    
+    public function generateRequestToken()
+    {
+        $token = mcrypt_create_iv(User::config('request_token_length'), MCRYPT_DEV_URANDOM);
+		$db = User::getDB();
+        $query = $db->prepare('UPDATE users SET requestToken = :token WHERE id = :id');
+        $query->bindParam('id', $this->id, PDO::PARAM_INT);
+        $query->bindParam('token', $token, PDO::PARAM_LOB);
+        $query->execute();
+		return base64_encode($token);
+    }
 
 	public function remove()
 	{
