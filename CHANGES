@@ -19,6 +19,7 @@ v2.0.0-rc.3 -SUBJECT TO CHANGE TILL TAGGED
         Added generateRequestToken(), getRequestToken() & checkRequestToken()
         methods as part of the new CSRF protection system. See the man page
         for details on usage.
+
 v2.0.0-rc.2
     Database:
         Added a usersOnDelete trigger to the database with the default
