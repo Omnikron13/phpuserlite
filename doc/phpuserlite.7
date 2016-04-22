@@ -128,7 +128,11 @@ before being stored in, or checked against, the database.
 The default value is
 .IR 32000 ,
 which should be sufficient, so you probably do not need to
-alter this
+alter this. Choosing a higher value should provide linear
+improvements in resisting targetted brute force attacks on
+a compromised database file, but bear in mind this will also
+increase time costs every time a user's password is
+legitimately verified
 .\" const User::username_regex
 .SS username_regex
 This defines the prototype that all usernames of users managed
