@@ -34,7 +34,7 @@ class User
 		'confirm_code_length'	=>	16,
 		'request_token_length'	=>	16,
 		'hash_algorithm'	=>	'sha512',
-		'hash_iterations'	=>	256,
+		'hash_iterations'	=>	32000,
 		'username_regex'	=>	'/^\w{4,32}$/',
 		'password_regex'	=>	'/^.{6,128}$/',
 		'email_regex'		=>	'/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i',
