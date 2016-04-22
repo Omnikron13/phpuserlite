@@ -452,7 +452,7 @@ class User
 		unset($this->sessions[$hashedKey]);
         User::processEventHandlers('onSessionEnd', $this);
 	}
-    
+
     public function generateRequestToken()
     {
         $token = mcrypt_create_iv(User::config('request_token_length'), MCRYPT_DEV_URANDOM);
