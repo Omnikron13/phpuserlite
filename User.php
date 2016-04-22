@@ -810,10 +810,9 @@ class User
 	//This method salts the password, and then hashes it multiple times
 	protected static function processPassword($password, $salt)
 	{
-		$salted = $password.$salt;
 		for($x = 0; $x < User::config('hash_iterations'); $x++)
-			$salted = hash(User::config('hash_algorithm'), $salted);
-		return $salted;
+			$salt = hash(User::config('hash_algorithm'), $password.$salt);
+		return $salt;
 	}
 	
 	//Generates a random salt with a pre-determined length
