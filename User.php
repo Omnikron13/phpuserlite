@@ -436,7 +436,7 @@ class User
 		$this->sessionKey = NULL;
 		$this->sessionIP = NULL;
 	}
-    
+
     public function generateRequestToken()
     {
         $token = mcrypt_create_iv(User::config('request_token_length'), MCRYPT_DEV_URANDOM);
