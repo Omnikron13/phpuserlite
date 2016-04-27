@@ -15,6 +15,7 @@ v2.0.0-rc.3 -SUBJECT TO CHANGE TILL TAGGED
     Config:
         Added request_token_length config parameter as part of the new CSRF
         protection system.
+        hash_iterations default increased from 256 to 32000.
     API:
         Added generateRequestToken(), getRequestToken() & checkRequestToken()
         methods as part of the new CSRF protection system. See the man page
