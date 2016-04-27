@@ -12,7 +12,7 @@ v2.0.0-rc.3 -SUBJECT TO CHANGE TILL TAGGED
         ON UPDATE clauses on applicable FOREIGN KEY constraints.
         Added requestToken column to the users table as part of the new CSRF
         protection system.
-    CONFIG:
+    Config:
         Added request_token_length config parameter as part of the new CSRF
         protection system.
     API:
