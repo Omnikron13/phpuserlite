@@ -51,7 +51,7 @@ v2.0.0-rc.1
         Foreign key constraint added to the default usersChangeEmail table
         schema, keying the userID column to the id column in the users
         table.
-	Table schema moved into the configuration system
+        Table schema moved into the configuration system
     API:
         Configuration constants replaced with protected static array of
         config parameters initially populated with class defaults and
@@ -63,7 +63,7 @@ v2.0.0-rc.1
         setFailureTime(), getFailureCount() & setFailureCount().
         Cookie duration (in seconds) now required to be passed to the
         startSession() method.
-	The login() logic now checks for an optional form field named
+        The login() logic now checks for an optional form field named
         'cookie_duration' which if present is passed on as the cookie
         duration argument of startSession().
         New config options login_frequency_limit, login_failure_limit,
