@@ -7,6 +7,10 @@ v2.0.0-rc.3 -SUBJECT TO CHANGE TILL TAGGED
         phpuserlite itself has never been vulnerable to CSRF attacks,
         however sites that utilise it may be at risk.
         See here for more information: https://www.owasp.org/index.php/CSRF
+        Changed the way passwords are processed to further harden against
+        potential (if unlikely) rainbow-table based attacks. This is a
+        breaking change which will require resetting all passwords in the
+        database.
     Database:
         Removed the usersOnDelete trigger again, in favour of ON DELETE &
         ON UPDATE clauses on applicable FOREIGN KEY constraints.
