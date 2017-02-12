@@ -180,14 +180,14 @@ class User
 			if(!is_int($uid))
 				throw new UserIncorrectDatatypeException('__construct()', 1, 'integer', $uid);
 			$query = $db->prepare('SELECT * FROM users WHERE id = :id');
-			$query->bindParam(':id', $uid, PDO::PARAM_INT);
+			$query->bindValue(':id', $uid, PDO::PARAM_INT);
 		}
 		else if($getType == User::GET_BY_USERNAME)
 		{
 			if(!User::validateUsername($uid))
 				throw new UserInvalidUsernameException($uid);
 			$query = $db->prepare('SELECT * FROM users WHERE username = :username');
-			$query->bindParam(':username', $uid, PDO::PARAM_STR);
+			$query->bindValue(':username', $uid, PDO::PARAM_STR);
 		}
 		else
 			throw new UserInvalidModeException('__construct()', $getType, 'User::GET_BY_ID, User::GET_BY_USERNAME');
@@ -205,7 +205,7 @@ class User
 		if($this->id === NULL)
 			throw new UserNoSuchUserException($uid, $getType);
 		$query = $db->prepare('SELECT * FROM usersSessions WHERE userID = :userID');
-		$query->bindParam(':userID', $this->id, PDO::PARAM_INT);
+		$query->bindValue(':userID', $this->id, PDO::PARAM_INT);
 		$query->execute();
 		foreach($query->fetchAll(PDO::FETCH_ASSOC) as $row)
 			$this->sessions[$row['sessionKey']] = $row['sessionIP'];
@@ -253,8 +253,8 @@ class User
 			throw new UserUnavailableUsernameException($username);
 		$db = User::getDB();
 		$query = $db->prepare('UPDATE users SET username=:username WHERE id=:id');
-		$query->bindParam(':username', $username, PDO::PARAM_STR);
-		$query->bindParam(':id', $this->id, PDO::PARAM_INT);
+		$query->bindValue(':username', $username, PDO::PARAM_STR);
+		$query->bindValue(':id', $this->id, PDO::PARAM_INT);
 		$query->execute();
 		$this->username = $username;
 		User::processEventHandlers('onUsernameChange', $this);
@@ -269,9 +269,9 @@ class User
 		$password = User::processPassword($password, $salt);
 		$db = User::getDB();
 		$query = $db->prepare('UPDATE users SET password=:password, salt=:salt WHERE id=:id');
-		$query->bindParam(':password', $password, PDO::PARAM_STR);
-		$query->bindParam(':salt', $salt, PDO::PARAM_LOB);
-		$query->bindParam(':id', $this->id, PDO::PARAM_INT);
+		$query->bindValue(':password', $password, PDO::PARAM_STR);
+		$query->bindValue(':salt', $salt, PDO::PARAM_LOB);
+		$query->bindValue(':id', $this->id, PDO::PARAM_INT);
 		$query->execute();
 		$this->password = $password;
 		$this->salt = $salt;
@@ -290,9 +290,9 @@ class User
 		{
 			$confirmCode = User::generateConfirmCode();
 			$query = $db->prepare('INSERT INTO usersChangeEmail(userID, email, confirmCode) VALUES(:userID, :email, :confirmCode)');
-			$query->bindParam(':userID', $this->id, PDO::PARAM_INT);
-			$query->bindParam(':email', $email, PDO::PARAM_STR);
-			$query->bindParam(':confirmCode', hash(User::config('hash_algorithm'), $confirmCode), PDO::PARAM_STR);
+			$query->bindValue(':userID', $this->id, PDO::PARAM_INT);
+			$query->bindValue(':email', $email, PDO::PARAM_STR);
+			$query->bindValue(':confirmCode', hash(User::config('hash_algorithm'), $confirmCode), PDO::PARAM_STR);
 			$query->execute();
 			//SEND EMAIL HERE!
 			$body = User::config('set_email_confirm_body_template');
@@ -303,8 +303,8 @@ class User
 		else if($mode == User::SET_EMAIL_DIRECT)
 		{
 			$query = $db->prepare('UPDATE users SET email=:email WHERE id=:id');
-			$query->bindParam(':email', $email, PDO::PARAM_STR);
-			$query->bindParam(':id', $this->id, PDO::PARAM_INT);
+			$query->bindValue(':email', $email, PDO::PARAM_STR);
+			$query->bindValue(':id', $this->id, PDO::PARAM_INT);
 			$query->execute();
 			$this->email = $email;
 			User::processEventHandlers('onEmailChange', $this);
@@ -322,8 +322,8 @@ class User
 			throw new UserNegativeValueException('setFailureCount()', $count);
 		$db = User::getDB();
 		$query = $db->prepare('UPDATE users SET failureCount=:count WHERE id=:id');
-		$query->bindParam(':count', $count, PDO::PARAM_INT);
-		$query->bindParam(':id', $this->id, PDO::PARAM_INT);
+		$query->bindValue(':count', $count, PDO::PARAM_INT);
+		$query->bindValue(':id', $this->id, PDO::PARAM_INT);
 		$query->execute();
 		$this->failureCount = $count;
 	}
@@ -345,7 +345,7 @@ class User
 		$db = User::getDB();
 		$query = $db->prepare('UPDATE users SET failureTime=:time WHERE id=:id');
 		$query->bindValue(':time', strval($time));
-		$query->bindParam(':id', $this->id, PDO::PARAM_INT);
+		$query->bindValue(':id', $this->id, PDO::PARAM_INT);
 		$query->execute();
 		$this->failureTime = $time;
 	}
@@ -418,9 +418,9 @@ class User
 		//Update database...
 		$db = User::getDB();
 		$query = $db->prepare('INSERT INTO usersSessions(userID, key, IP) VALUES(:id, :key, :IP)');
-		$query->bindParam(':key', $hashedKey, PDO::PARAM_STR);
-		$query->bindParam(':IP', $sessionIP, PDO::PARAM_STR);
-		$query->bindParam(':id', $this->id, PDO::PARAM_INT);
+		$query->bindValue(':key', $hashedKey, PDO::PARAM_STR);
+		$query->bindValue(':IP', $sessionIP, PDO::PARAM_STR);
+		$query->bindValue(':id', $this->id, PDO::PARAM_INT);
 		$query->execute();
 		//Add/update session in $sessions array
 		$this->sessions[$hashedKey] = $sessionIP;
@@ -445,8 +445,8 @@ class User
 		//Remove database data...
 		$db = User::getDB();
 		$query = $db->prepare('DELETE * FROM usersSessions WHERE userID=:userID AND key=:key');
-		$query->bindParam(':userID', $this->id, PDO::PARAM_INT);
-		$query->bindParam(':key', $hashedKey, PDO::PARAM_STR);
+		$query->bindValue(':userID', $this->id, PDO::PARAM_INT);
+		$query->bindValue(':key', $hashedKey, PDO::PARAM_STR);
 		$query->execute();
 		//Remove current IP entry from $sessions array
 		unset($this->sessions[$hashedKey]);
@@ -458,8 +458,8 @@ class User
         $token = mcrypt_create_iv(User::config('request_token_length'), MCRYPT_DEV_URANDOM);
 		$db = User::getDB();
         $query = $db->prepare('UPDATE users SET requestToken = :token WHERE id = :id');
-        $query->bindParam('id', $this->id, PDO::PARAM_INT);
-        $query->bindParam('token', $token, PDO::PARAM_LOB);
+        $query->bindValue('id', $this->id, PDO::PARAM_INT);
+        $query->bindValue('token', $token, PDO::PARAM_LOB);
         $query->execute();
 		return base64_encode($token);
     }
@@ -468,7 +468,7 @@ class User
     {
         $db = User::getDB();
         $query = $db->prepare('SELECT requestToken FROM users WHERE id = :id');
-        $query->bindParam('id', $this->id, PDO::PARAM_INT);
+        $query->bindValue('id', $this->id, PDO::PARAM_INT);
         $query->execute();
         $query->bindColumn('requestToken', $token, PDO::PARAM_LOB);
         $query->fetch(PDO::FETCH_BOUND);
@@ -490,7 +490,7 @@ class User
 		$db = User::getDB();
 		//Remove the record in the users table...
 		$query = $db->prepare('DELETE FROM users WHERE id=:id');
-		$query->bindParam(':id', $this->id, PDO::PARAM_INT);
+		$query->bindValue(':id', $this->id, PDO::PARAM_INT);
 		$query->execute();
 	}
 	
@@ -523,11 +523,11 @@ class User
 		$salt = User::generateSalt();
 		$db = User::getDB();
 		$query = $db->prepare('INSERT INTO users(username, password, salt, email, date) VALUES(:username, :password, :salt, :email, :date)');
-		$query->bindParam(':username', $username, PDO::PARAM_STR);
-		$query->bindParam(':password', User::processPassword($password, $salt), PDO::PARAM_STR);
-		$query->bindParam(':salt', $salt, PDO::PARAM_LOB); //is LOB right..?
-		$query->bindParam(':email', $email, PDO::PARAM_STR);
-		$query->bindParam(':date', time(), PDO::PARAM_INT);
+		$query->bindValue(':username', $username, PDO::PARAM_STR);
+		$query->bindValue(':password', User::processPassword($password, $salt), PDO::PARAM_STR);
+		$query->bindValue(':salt', $salt, PDO::PARAM_LOB); //is LOB right..?
+		$query->bindValue(':email', $email, PDO::PARAM_STR);
+		$query->bindValue(':date', time(), PDO::PARAM_INT);
 		$query->execute();
 		//Call any registered onAdd callbacks, passing a new user object representing the added user
 		User::processEventHandlers('onAdd', new User(intval($db->lastInsertId())));
@@ -552,12 +552,12 @@ class User
 		$confirmCode = User::generateConfirmCode();
 		$db = User::getDB();
 		$query = $db->prepare('INSERT INTO usersPending(username, password, salt, email, date, confirmCode) VALUES(:username, :password, :salt, :email, :date, :confirmCode)');
-		$query->bindParam(':username', $username, PDO::PARAM_STR);
-		$query->bindParam(':password', User::processPassword($password, $salt), PDO::PARAM_STR);
-		$query->bindParam(':salt', $salt, PDO::PARAM_LOB); //is LOB right..?
-		$query->bindParam(':email', $email, PDO::PARAM_STR);
-		$query->bindParam(':date', time(), PDO::PARAM_INT);
-		$query->bindParam(':confirmCode', hash(User::config('hash_algorithm'), $confirmCode), PDO::PARAM_STR);
+		$query->bindValue(':username', $username, PDO::PARAM_STR);
+		$query->bindValue(':password', User::processPassword($password, $salt), PDO::PARAM_STR);
+		$query->bindValue(':salt', $salt, PDO::PARAM_LOB); //is LOB right..?
+		$query->bindValue(':email', $email, PDO::PARAM_STR);
+		$query->bindValue(':date', time(), PDO::PARAM_INT);
+		$query->bindValue(':confirmCode', hash(User::config('hash_algorithm'), $confirmCode), PDO::PARAM_STR);
 		$query->execute();
 		//Send confirm email...
 		$body = User::config('confirm_body_template');
@@ -572,7 +572,7 @@ class User
 		//validate input here..?
 		$db = User::getDB();
 		$query = $db->prepare('SELECT * FROM usersPending WHERE id = :id');
-		$query->bindParam(':id', $_GET['id'], PDO::PARAM_INT);
+		$query->bindValue(':id', $_GET['id'], PDO::PARAM_INT);
 		$query->execute();
 		$query->bindColumn('username', $username, PDO::PARAM_STR);
 		$query->bindColumn('password', $password, PDO::PARAM_STR);
@@ -588,15 +588,15 @@ class User
 			//Copy over data to users table...
 			$db = User::getDB();
 			$query = $db->prepare('INSERT INTO users(username, password, salt, email, date) VALUES(:username, :password, :salt, :email, :date)');
-			$query->bindParam(':username', $username, PDO::PARAM_STR);
-			$query->bindParam(':password', $password, PDO::PARAM_STR);
-			$query->bindParam(':salt', $salt, PDO::PARAM_LOB); //is LOB right..?
-			$query->bindParam(':email', $email, PDO::PARAM_STR);
-			$query->bindParam(':date', $date, PDO::PARAM_INT);
+			$query->bindValue(':username', $username, PDO::PARAM_STR);
+			$query->bindValue(':password', $password, PDO::PARAM_STR);
+			$query->bindValue(':salt', $salt, PDO::PARAM_LOB); //is LOB right..?
+			$query->bindValue(':email', $email, PDO::PARAM_STR);
+			$query->bindValue(':date', $date, PDO::PARAM_INT);
 			$query->execute();
 			//Remove entry from usersPending...
 			$query = $db->prepare('DELETE FROM usersPending WHERE id = :id');
-			$query->bindParam(':id', $_GET['id'], PDO::PARAM_INT);
+			$query->bindValue(':id', $_GET['id'], PDO::PARAM_INT);
 			$query->execute();
 			//Call any registered onAdd callbacks, passing a new user object representing the added user
 			User::processEventHandlers('onAdd', new User(intval($db->lastInsertId())));
@@ -611,7 +611,7 @@ class User
 		//validate input here..?
 		$db = User::getDB();
 		$query = $db->prepare('SELECT * FROM usersChangeEmail WHERE id = :id');
-		$query->bindParam(':id', $_GET['id'], PDO::PARAM_INT);
+		$query->bindValue(':id', $_GET['id'], PDO::PARAM_INT);
 		$query->execute();
 		$query->bindColumn('userID', $userID, PDO::PARAM_INT);
 		$query->bindColumn('email', $email, PDO::PARAM_STR);
@@ -623,12 +623,12 @@ class User
 		{
 			//Update users email in database...
 			$query = $db->prepare('UPDATE users SET email=:email WHERE id=:id');
-			$query->bindParam(':email', $email, PDO::PARAM_STR);
-			$query->bindParam(':id', $userID, PDO::PARAM_INT);
+			$query->bindValue(':email', $email, PDO::PARAM_STR);
+			$query->bindValue(':id', $userID, PDO::PARAM_INT);
 			$query->execute();
 			//Remove entry from usersChangeEmail...
 			$query = $db->prepare('DELETE FROM usersChangeEmail WHERE id = :id');
-			$query->bindParam(':id', $_GET['id'], PDO::PARAM_INT);
+			$query->bindValue(':id', $_GET['id'], PDO::PARAM_INT);
 			$query->execute();
 			User::processEventHandlers('onEmailChange', new User($userID));
 			return User::config('set_email_confirm_success_template');
@@ -776,12 +776,12 @@ class User
 	{
 		$db = User::getDB();
 		$query = $db->prepare('SELECT COUNT (*) FROM users WHERE username = :username');
-		$query->bindParam(':username', $username, PDO::PARAM_STR);
+		$query->bindValue(':username', $username, PDO::PARAM_STR);
 		$query->execute();
 		if($query->fetchColumn() == 0)
 		{
 			$query = $db->prepare('SELECT COUNT (*) FROM usersPending WHERE username = :username');
-			$query->bindParam(':username', $username, PDO::PARAM_STR);
+			$query->bindValue(':username', $username, PDO::PARAM_STR);
 			$query->execute();
 			if($query->fetchColumn() == 0)
 				return true;
@@ -794,12 +794,12 @@ class User
 	{
 		$db = User::getDB();
 		$query = $db->prepare('SELECT COUNT (*) FROM users WHERE email = :email');
-		$query->bindParam(':email', $email, PDO::PARAM_STR);
+		$query->bindValue(':email', $email, PDO::PARAM_STR);
 		$query->execute();
 		if($query->fetchColumn() == 0)
 		{
 			$query = $db->prepare('SELECT COUNT (*) FROM usersPending WHERE email = :email');
-			$query->bindParam(':email', $email, PDO::PARAM_STR);
+			$query->bindValue(':email', $email, PDO::PARAM_STR);
 			$query->execute();
 			if($query->fetchColumn() == 0)
 				return true;
