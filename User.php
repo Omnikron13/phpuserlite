@@ -527,7 +527,7 @@ class User
 		$query->bindParam(':password', User::processPassword($password, $salt), PDO::PARAM_STR);
 		$query->bindParam(':salt', $salt, PDO::PARAM_LOB); //is LOB right..?
 		$query->bindParam(':email', $email, PDO::PARAM_STR);
-		$query->bindParam(':date', time(), PDO::PARAM_STR);
+		$query->bindParam(':date', time(), PDO::PARAM_INT);
 		$query->execute();
 		//Call any registered onAdd callbacks, passing a new user object representing the added user
 		User::processEventHandlers('onAdd', new User(intval($db->lastInsertId())));
@@ -556,7 +556,7 @@ class User
 		$query->bindParam(':password', User::processPassword($password, $salt), PDO::PARAM_STR);
 		$query->bindParam(':salt', $salt, PDO::PARAM_LOB); //is LOB right..?
 		$query->bindParam(':email', $email, PDO::PARAM_STR);
-		$query->bindParam(':date', time(), PDO::PARAM_STR);
+		$query->bindParam(':date', time(), PDO::PARAM_INT);
 		$query->bindParam(':confirmCode', hash(User::config('hash_algorithm'), $confirmCode), PDO::PARAM_STR);
 		$query->execute();
 		//Send confirm email...
@@ -592,7 +592,7 @@ class User
 			$query->bindParam(':password', $password, PDO::PARAM_STR);
 			$query->bindParam(':salt', $salt, PDO::PARAM_LOB); //is LOB right..?
 			$query->bindParam(':email', $email, PDO::PARAM_STR);
-			$query->bindParam(':date', $date, PDO::PARAM_STR);
+			$query->bindParam(':date', $date, PDO::PARAM_INT);
 			$query->execute();
 			//Remove entry from usersPending...
 			$query = $db->prepare('DELETE FROM usersPending WHERE id = :id');
