@@ -25,12 +25,11 @@ Note that code checked out from the trunk is not guaranteed stable, or indeed
 guaranteed functional.
 
 ::: REQUIREMENTS :::
-phpuserlite has been tested to work on PHP 5.3 or higher, use on PHP 5.2 or
-earlier is not supported. phpuserlite also requires the mcrypt, PDO and SQLite
-PDO driver PHP extensions, though PDO and PDO_SQLITE should be included with
-PHP. SQLite version 3.6.19 or later is required to use the foreign key
-constraint in the usersChangeEmail table schema.
-mcrypt extension:  http://php.net/manual/book.mcrypt.php
+phpuserlite requires PHP 7.0 or higher.
+phpuserlite also requires the PDO and SQLite PDO driver PHP extensions, though
+PDO and PDO_SQLITE should be included with PHP. SQLite version 3.6.19 or later
+is required to use the foreign key constraint in the usersChangeEmail table
+schema.
 PDO extension:     http://php.net/manual/book.pdo.php
 SQLite PDO driver: http://pecl.php.net/package/PDO_SQLITE
 
