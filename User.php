@@ -455,7 +455,7 @@ class User
 
     public function generateRequestToken()
     {
-        $token = mcrypt_create_iv(User::config('request_token_length'), MCRYPT_DEV_URANDOM);
+        $token = random_bytes(User::config('request_token_length'));
 		$db = User::getDB();
         $query = $db->prepare('UPDATE users SET requestToken = :token WHERE id = :id');
         $query->bindValue('id', $this->id, PDO::PARAM_INT);
@@ -818,20 +818,20 @@ class User
 	//Generates a random salt with a pre-determined length
 	protected static function generateSalt()
 	{
-		return mcrypt_create_iv(User::config('salt_length'), MCRYPT_DEV_URANDOM);
+		return random_bytes(User::config('salt_length'));
 	}
 	
 	//Generates a random session key with a pre-determined length
 	protected static function generateSessionKey()
 	{
-		$key = mcrypt_create_iv(User::config('session_key_length'), MCRYPT_DEV_URANDOM);
+		$key = random_bytes(User::config('session_key_length'));
 		return hash(User::config('hash_algorithm'), $key);
 	}
 	
 	//Generates a random confirmation code with a pre-determined length; result is hashed for email/url
 	protected static function generateConfirmCode()
 	{
-		$code = mcrypt_create_iv(User::config('confirm_code_length'), MCRYPT_DEV_URANDOM);
+		$code = random_bytes(User::config('confirm_code_length'));
 		return sha1($code);
 	}
 	
