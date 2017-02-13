@@ -437,7 +437,7 @@ class User
 		return false;
 	}
 	
-	public function endSession()
+    public function endSession($sessionKey)
 	{
 		$hashedKey = hash(User::config('hash_algorithm'), $sessionKey);
 		//Remove cookies...
