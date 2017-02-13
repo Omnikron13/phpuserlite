@@ -26,7 +26,7 @@ class User
 	const VERSION = 'trunk';
 	const DEFAULT_CONFIG_FILE = 'phpuserlite.cfg';
 	
-	protected static $configData = array(
+	protected static $configData = [
 		//Configuration parametres
 		'db_path'		=>	'phpuserlite.db',
 		'salt_length'		=>	16,
@@ -149,7 +149,7 @@ class User
 									  FOREIGN KEY (userID) REFERENCES users(id)
                                                 ON DELETE CASCADE
                                                 ON UPDATE CASCADE)',
-	);
+    ];
 	
 	//Flags
 	const GET_BY_ID = 0;
@@ -164,7 +164,7 @@ class User
 	protected $salt = NULL;
 	protected $email = NULL;
 	protected $date = NULL;
-	protected $sessions = array();
+	protected $sessions = [];
 	protected $failureCount = NULL;
 	protected $failureTime = NULL;
 	protected static $db = NULL;
@@ -869,19 +869,19 @@ class User
 	
 	//This array holds the valid events that can be hooked as keys, and an array of the attached
 	//callbacks as the values
-	protected static $events = array(
-		'preSetup'		=>	array(),
-		'postSetup'		=>	array(),
-		'onRegister'		=>	array(),
-		'onAdd'			=>	array(),
-		'onUsernameChange'	=>	array(),
-		'onPasswordChange'	=>	array(),
-		'onEmailChange'		=>	array(),
-		'onLockdown'		=>	array(),
-		'onSessionStart'	=>	array(),
-		'onSessionEnd'		=>	array(),
-		'onRemove'		=>	array(),
-		);
+    protected static $events = [
+        'preSetup'          => [],
+        'postSetup'         => [],
+        'onRegister'        => [],
+        'onAdd'             => [],
+        'onUsernameChange'  => [],
+        'onPasswordChange'  => [],
+        'onEmailChange'     => [],
+        'onLockdown'        => [],
+        'onSessionStart'    => [],
+        'onSessionEnd'      => [],
+        'onRemove'          => [],
+    ];
 	
 	//This method is used by code using the User class to add their own callbacks into various areas of the logic
 	//of various methods of User, such as setting up their own database tables, triggers, etc. when User::setupDB
