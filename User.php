@@ -208,7 +208,7 @@ class User
 		$query->bindValue(':userID', $this->id, PDO::PARAM_INT);
 		$query->execute();
 		foreach($query->fetchAll(PDO::FETCH_ASSOC) as $row)
-			$this->sessions[$row['sessionKey']] = $row['sessionIP'];
+            $this->sessions[$row['key']] = $row['IP'];
 	}
 	
 	//Stringifies to just the username for the time being
