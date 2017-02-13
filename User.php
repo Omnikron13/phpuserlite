@@ -171,7 +171,7 @@ class User
 	
 	//Class constructor; loads User data from the database by id or username
 	//Maybe make consturctor private/protected, limiting construction to get()?
-	public function __construct($uid, $getType = User::GET_BY_ID)
+	public function __construct($uid, int $getType = User::GET_BY_ID)
 	{
 		$db = User::getDB();
 		if($getType == User::GET_BY_ID)
@@ -212,40 +212,40 @@ class User
 	}
 	
 	//Stringifies to just the username for the time being
-    public function __toString() {
+    public function __toString() : string {
 		return $this->username;
 	}
 	
-    public function getID() {
+    public function getID() : int {
 		return $this->id;
 	}
-    public function getUsername() {
+    public function getUsername() : string {
 		return $this->username;
 	}
-    public function getPassword() {
+    public function getPassword() : string {
 		return $this->password;
 	}
-    public function getSalt() {
+    public function getSalt() : string {
 		return $this->salt;
 	}
-    public function getEmail() {
+    public function getEmail() : string {
 		return $this->email;
 	}
-    public function getDate() {
+    public function getDate() : int {
 		return $this->date;
 	}
-    public function getSessions() {
+    public function getSessions() : array {
 		return $this->sessions;
 	}
-    public function getFailureCount() {
+    public function getFailureCount() : ?int {
 		return $this->failureCount;
 	}
-    public function getFailureTime() {
+    public function getFailureTime() : ?float {
 		return $this->failureTime;
 	}
 	
 	//Validates $username, then updates the database & member
-	public function setUsername($username)
+    public function setUsername(string $username) : void
 	{
 		if(!User::validateUsername($username))
 			throw new UserInvalidUsernameException($username);
@@ -261,7 +261,7 @@ class User
 	}
 	
 	//Validates $password, then updates database & member
-	public function setPassword($password)
+    public function setPassword(string $password) : void
 	{
 		if(!User::validatePassword($password))
 			throw new UserInvalidPasswordException($password);
@@ -279,7 +279,7 @@ class User
 	}
 	
 	//This method needs revision to confirm new email
-	public function setEmail($email, $mode = User::SET_EMAIL_CONFIRM)
+    public function setEmail(string $email, int $mode = User::SET_EMAIL_CONFIRM) : void
 	{
 		if(!User::validateEmail($email))
 			throw new UserInvalidEmailException($email);
@@ -314,7 +314,7 @@ class User
 	}
 	
 	//Checks $count is a positive integer, then updates the database & member
-	public function setFailureCount($count)
+    public function setFailureCount(int $count) : void
 	{
 		if(!is_int($count))
 			throw new UserIncorrectDatatypeException('setFailureCount()', 1, 'integer', $count);
@@ -329,7 +329,7 @@ class User
 	}
 	
 	//Updates the last failure time to current time in the db and object
-	public function setFailureTime($time = -1)
+    public function setFailureTime(float $time = -1) : void
 	{
 		if($time == -1)
 			$time = gettimeofday(true);
@@ -352,7 +352,7 @@ class User
 	
 	//Checks if the user is currently in a cooldown due to a potential brute force attack, resets failureCount if
 	//if it -was- in cooldown, but the cooldown has expired
-	public function loginLimitExceeded()
+    public function loginLimitExceeded() : bool
 	{
 		if($this->failureCount >= User::config('login_failure_limit'))
 		{
@@ -365,7 +365,7 @@ class User
 	}
 	
 	//Checks if the last login was a permittable number of seconds ago to allow a login attempt, returns true if so
-	protected function checkLoginFrequency()
+    protected function checkLoginFrequency() : bool
 	{
 		if(is_null($this->failureTime))
 			return true;
@@ -380,7 +380,7 @@ class User
 	}
 	
 	//Checks $password against the stored password; returns true if it matches, false otherwise
-	public function checkPassword($password)
+    public function checkPassword(string $password) : bool
 	{
 		if(User::processPassword($password, $this->salt) == $this->password)
 			return true;
@@ -388,7 +388,7 @@ class User
 	}
 	
 	//Logs a failed login attempt, setting failureCount & failureTime appropriately
-	public function loginFailure()
+    public function loginFailure() : void
 	{
 		if(gettimeofday(true) - $this->failureTime > User::config('login_failure_period'))
 			$this->setFailureCount(1);
@@ -401,7 +401,7 @@ class User
 	}
 	
 	//Generates a new session key; sends out login cookies; updates the database & members
-	public function startSession($cookieDuration = 0)
+    public function startSession(int $cookieDuration = 0) : void
 	{
 		if(count($this->sessions) >= User::config('max_sessions'))
 			return; //Throw exception? replace oldest? check if current ip is one of them..?
@@ -428,7 +428,7 @@ class User
 	}
 	
 	//Checks if User has valid login session for the current script; checks if logged in
-	public function checkSession($sessionKey)
+    public function checkSession(string $sessionKey) : bool
 	{
 		$hashedKey = hash(User::config('hash_algorithm'), $sessionKey);
 		if(array_key_exists($hashedKey, $this->sessions))
@@ -437,7 +437,7 @@ class User
 		return false;
 	}
 	
-    public function endSession($sessionKey)
+    public function endSession(string $sessionKey) : void
 	{
 		$hashedKey = hash(User::config('hash_algorithm'), $sessionKey);
 		//Remove cookies...
@@ -453,7 +453,7 @@ class User
         User::processEventHandlers('onSessionEnd', $this);
 	}
 
-    public function generateRequestToken()
+    public function generateRequestToken() : string
     {
         $token = random_bytes(User::config('request_token_length'));
 		$db = User::getDB();
@@ -464,7 +464,7 @@ class User
 		return base64_encode($token);
     }
 
-    public function getRequestToken()
+    public function getRequestToken() : string
     {
         $db = User::getDB();
         $query = $db->prepare('SELECT requestToken FROM users WHERE id = :id');
@@ -477,13 +477,13 @@ class User
         return base64_encode($token);
     }
 
-    public function checkRequestToken($token)
+    public function checkRequestToken(string $token) : bool
     {
         return $this->getRequestToken() == $token;
     }
 
     //Delete this user from the database
-	public function remove()
+    public function remove() : void
 	{
 		//Call any registered onRemove callbacks, passing the user object
 		User::processEventHandlers('onRemove', $this);
@@ -496,7 +496,7 @@ class User
 	}
 	
 	//Returns a new User object representing the user currently logged in, determined by cookies
-	public static function getCurrent()
+    public static function getCurrent() : ?self
 	{
 		if(!array_key_exists('username', $_COOKIE))
 			return NULL;
@@ -507,7 +507,7 @@ class User
 	}
 		
 	//Adds a new user straight to the database; does not require email validation!
-	public static function add($username, $password, $email)
+    public static function add(string $username, string $password, string $email) : void
 	{
 		//Error checking/validation...
 		if(!User::validateUsername($username))
@@ -535,7 +535,7 @@ class User
 	}
 	
 	//Adds a new user to the usersPending database; sends an email out for confirmation
-	public static function addPending($username, $password, $email)
+    public static function addPending(string $username, string $password, string $email) : void
 	{
 		//Error checking/validation...
 		if(!User::validateUsername($username))
@@ -568,7 +568,7 @@ class User
 	}
 	
 	//Should this be a single success+act-or-error method similar to login()?
-	public static function confirm()
+    public static function confirm() : string
 	{
 		//validate input here..?
 		$db = User::getDB();
@@ -607,7 +607,7 @@ class User
 	}
 	
 	//This method should be called on a page setup to confirm email changes; returns success or error message
-	public static function confirmSetEmail()
+    public static function confirmSetEmail() : string
 	{
 		//validate input here..?
 		$db = User::getDB();
@@ -639,7 +639,7 @@ class User
 	
 	//This function should be called at the -top- of a login page, before any output; it returns
 	// either a success message (and logins in the user), or a form (with appropriate errors)
-	public static function login()
+    public static function login() : string
 	{
 		$username = NULL;
 		$password = NULL;
@@ -691,7 +691,7 @@ class User
 	}
 	
 	//This function inserts the dynamic elements into the login form template
-	protected static function processLoginForm($error = '', $username = '')
+    protected static function processLoginForm(string $error = '', string $username = '') : string
 	{
 		$form = User::config('login_form_template');
 		$form = str_replace('[error]', $error, $form);
@@ -702,7 +702,7 @@ class User
 	//This method should be called at the appropriate point on the registration page to
 	// print the form/success message; returns a string containing the form (with errors
 	// as necessary) or a success message
-	public static function register()
+    public static function register() : string
 	{
 		//If form hasn't been posted, return form...
 		if(!isset($_POST['username']))
@@ -739,7 +739,7 @@ class User
 	}
 	
 	//This function inserts the dynamic elements into the register form template
-	protected static function processRegisterForm($error = '', $username = '', $email = '')
+    protected static function processRegisterForm(string $error = '', string $username = '', string $email = '') : string
 	{
 		$form = User::config('register_form_template');
 		$form = str_replace('[error]', $error, $form);
@@ -749,7 +749,7 @@ class User
 	}
 	
 	//Checks that $username follows the pre-defined conventions
-	protected static function validateUsername($username)
+    protected static function validateUsername(string $username) : bool
 	{
 		if(preg_match(User::config('username_regex'), $username))
 			return true;
@@ -757,7 +757,7 @@ class User
 	}
 	
 	//Checkt that $password follws the pre-defined conventions
-	protected static function validatePassword($password)
+    protected static function validatePassword(string $password) : bool
 	{
 		if(preg_match(User::config('password_regex'), $password))
 			return true;
@@ -765,7 +765,7 @@ class User
 	}
 	
 	//Ensures $emails at least -looks- like a real email address
-	protected static function validateEmail($email)
+    protected static function validateEmail(string $email) : bool
 	{
 		if(preg_match(User::config('email_regex'), $email))
 			return true;
@@ -773,7 +773,7 @@ class User
 	}
 	
 	//Checks if $username already exists in database; returns true if it doesn't, otherwise false
-	protected static function availableUsername($username)
+    protected static function availableUsername(string $username) : bool
 	{
 		$db = User::getDB();
 		$query = $db->prepare('SELECT COUNT (*) FROM users WHERE username = :username');
@@ -791,7 +791,7 @@ class User
 	}
 	
 	//Checks if $email already exists in database; returns true if it doesn't, otherwise false
-	protected static function availableEmail($email)
+    protected static function availableEmail(string $email) : bool
 	{
 		$db = User::getDB();
 		$query = $db->prepare('SELECT COUNT (*) FROM users WHERE email = :email');
@@ -809,7 +809,7 @@ class User
 	}
 	
 	//This method salts the password, and then hashes it multiple times
-	protected static function processPassword($password, $salt)
+    protected static function processPassword(string $password, $salt) : string
 	{
 		for($x = 0; $x < User::config('hash_iterations'); $x++)
 			$salt = hash(User::config('hash_algorithm'), $password.$salt);
@@ -817,27 +817,27 @@ class User
 	}
 	
 	//Generates a random salt with a pre-determined length
-	protected static function generateSalt()
+    protected static function generateSalt() : string
 	{
 		return random_bytes(User::config('salt_length'));
 	}
 	
 	//Generates a random session key with a pre-determined length
-	protected static function generateSessionKey()
+    protected static function generateSessionKey() : string
 	{
 		$key = random_bytes(User::config('session_key_length'));
 		return hash(User::config('hash_algorithm'), $key);
 	}
 	
 	//Generates a random confirmation code with a pre-determined length; result is hashed for email/url
-	protected static function generateConfirmCode()
+    protected static function generateConfirmCode() : string
 	{
 		$code = random_bytes(User::config('confirm_code_length'));
 		return sha1($code);
 	}
 	
 	//Sends out login cookies, with a few pre-defined parameters
-	protected static function sendCookies($username, $sessionKey, $duration)
+    protected static function sendCookies(string $username, string $sessionKey, int $duration) : void
 	{
 		if($duration > 0)
 			$duration += time();
@@ -860,7 +860,7 @@ class User
 	}
 	
 	//Blanks login cookies, and removes them from the $_COOKIE array
-	protected static function removeCookies()
+    protected static function removeCookies() : void
 	{
 		setcookie('username', NULL, -1);
 		setcookie('sessionKey', NULL, -1);
@@ -887,7 +887,7 @@ class User
 	//This method is used by code using the User class to add their own callbacks into various areas of the logic
 	//of various methods of User, such as setting up their own database tables, triggers, etc. when User::setupDB
 	//is called, or responding to a user being added or removed from the db etc.
-	public static function addEventHandler($event, $callback)
+    public static function addEventHandler(string $event, $callback) : void
 	{
 		if(!array_key_exists($event, User::$events))
 			throw new DomainException("User::addEventHandler passed an event that does not exist: $event");
@@ -909,7 +909,7 @@ class User
 		User::$events[$event][] = $callback;
 	}
 	
-	protected static function processEventHandlers()
+    protected static function processEventHandlers() : void
 	{
 		$args = func_get_args();
 		$event = array_shift($args);
@@ -921,7 +921,7 @@ class User
 
 	//This method analyses a variable claimed to be a callback, returning a ReflectionFunction or ReflectionMethod
 	//object reflecting the function/method if it is a valid callback, and throwing a BadFunctionCallException otherwise
-	protected static function getReflector($callback)
+    protected static function getReflector($callback) : callable
 	{
 		if(is_array($callback))
 		{
@@ -952,7 +952,7 @@ class User
 	protected static $configLoaded = false;
 	
 	//This function loads config from a file, if applicable, and sets $configLoaded to true
-	public static function loadConfig($file = NULL, $force = false)
+    public static function loadConfig(?string $file = NULL, bool $force = false) : void
 	{
 		//If no attempt has been made to load the config, attempt to load it, and patch it over $configData
 		if(!is_bool($force))
@@ -987,7 +987,7 @@ class User
 	}
 	
 	//Method for accessing configuration info
-	public static function config($key)
+    public static function config(string $key) : string
 	{
 		User::loadConfig();
 		$key = strtolower($key);
@@ -998,7 +998,7 @@ class User
 	}
 	
 	//This method must be called to setup the database before any other code is called
-	public static function setupDB()
+    public static function setupDB() : void
 	{
 		$db = User::getDB();
 		//Call any registered preSetup callbacks, passing them the open db connection
@@ -1020,7 +1020,7 @@ class User
 	}
 
 	//This method should always be used when accessing the database, to ensure the db is setup correctly
-	public static function getDB()
+    public static function getDB() : PDO
 	{
 		if(User::$db === NULL)
 		{
