@@ -482,6 +482,7 @@ class User
         return $this->getRequestToken() == $token;
     }
 
+    //Delete this user from the database
 	public function remove()
 	{
 		//Call any registered onRemove callbacks, passing the user object
