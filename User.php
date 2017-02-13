@@ -212,35 +212,35 @@ class User
 	}
 	
 	//Stringifies to just the username for the time being
-	public function __toString(){
+    public function __toString() {
 		return $this->username;
 	}
 	
-	public function getID(){
+    public function getID() {
 		return $this->id;
 	}
-	public function getUsername(){
+    public function getUsername() {
 		return $this->username;
 	}
-	public function getPassword(){
+    public function getPassword() {
 		return $this->password;
 	}
-	public function getSalt(){
+    public function getSalt() {
 		return $this->salt;
 	}
-	public function getEmail(){
+    public function getEmail() {
 		return $this->email;
 	}
-	public function getDate(){
+    public function getDate() {
 		return $this->date;
 	}
-	public function getSessions(){
+    public function getSessions() {
 		return $this->sessions;
 	}
-	public function getFailureCount(){
+    public function getFailureCount() {
 		return $this->failureCount;
 	}
-	public function getFailureTime(){
+    public function getFailureTime() {
 		return $this->failureTime;
 	}
 	
