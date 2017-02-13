@@ -1,6 +1,11 @@
 phpuserlite change log
 ----------------------
 
+v3.0.0-rc.1 -SUBJECT TO CHANGE TILL TAGGED
+    Requirements:
+        Dependency on mcrypt dropped.
+        Minimum PHP version increased to 7.0
+
 v2.0.0-rc.3 -SUBJECT TO CHANGE TILL TAGGED
     Security:
         Added new functionality to aid in protection against CSRF attacks.
