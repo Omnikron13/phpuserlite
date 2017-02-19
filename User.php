@@ -406,8 +406,23 @@ class User
 	//Generates a new session key; sends out login cookies; updates the database & members
     public function startSession(int $cookieDuration = 0) : void
 	{
-		if(count($this->sessions) >= User::config('max_sessions'))
-			return; //Throw exception? replace oldest? check if current ip is one of them..?
+        if(count($this->sessions) >= User::config('max_sessions')) {
+            //Pull UID and key of oldest session
+            $query = User::getDB()->prepare('SELECT * FROM usersSessions WHERE userID = :id ORDER BY active ASC LIMIT 1');
+            $query->bindValue(':id', $this->id, PDO::PARAM_INT);
+            $query->execute();
+            $query->bindColumn('id', $id, PDO::PARAM_INT);
+            $query->bindColumn('key', $key, PDO::PARAM_STR);
+            $query->fetch(PDO::FETCH_BOUND);
+
+            //Remove oldest session from the DB
+            $query = User::getDB()->prepare('DELETE FROM usersSessions WHERE id = :id');
+            $query->bindValue(':id', $id, PDO::PARAM_INT);
+            $query->execute();
+
+            //Clean now-deleted session data from the active User object
+            unset($this->sessions[$key]);
+        }
 		if(!is_int($cookieDuration) && !ctype_digit($cookieDuration))
 			throw new UserIncorrectDatatypeException('startSession()', 1, 'integer', $cookieDuration);
 		if($cookieDuration < 0)
