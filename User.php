@@ -444,7 +444,7 @@ class User
 		User::removeCookies();
 		//Remove database data...
 		$db = User::getDB();
-		$query = $db->prepare('DELETE * FROM usersSessions WHERE userID=:userID AND key=:key');
+		$query = $db->prepare('DELETE FROM usersSessions WHERE userID=:userID AND key=:key');
 		$query->bindValue(':userID', $this->id, PDO::PARAM_INT);
 		$query->bindValue(':key', $hashedKey, PDO::PARAM_STR);
 		$query->execute();
