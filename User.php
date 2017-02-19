@@ -436,8 +436,14 @@ class User
 	{
 		$hashedKey = hash(User::config('hash_algorithm'), $sessionKey);
 		if(array_key_exists($hashedKey, $this->sessions))
-			if(strcmp($this->sessions[$hashedKey], $_SERVER['REMOTE_ADDR']) == 0)
-				return true;
+            if(strcmp($this->sessions[$hashedKey], $_SERVER['REMOTE_ADDR']) == 0) {
+                $query = User::getDb()->prepare('UPDATE usersSessions SET active = :active WHERE userID = :id AND key = :key');
+                $query->bindValue(':id', $this->id, PDO::PARAM_INT);
+                $query->bindValue(':key', $hashedKey, PDO::PARAM_STR);
+                $query->bindValue(':active', time(), PDO::PARAM_INT);
+                $query->execute();
+                return true;
+            }
 		return false;
 	}
 	
