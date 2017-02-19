@@ -147,6 +147,7 @@ class User
                     userID  INTEGER NOT NULL,
                     key     TEXT    NOT NULL,
                     IP      TEXT    NOT NULL,
+                    active  INTEGER NOT NULL,
                     FOREIGN KEY (userID) REFERENCES users(id)
                         ON DELETE CASCADE
                         ON UPDATE CASCADE
