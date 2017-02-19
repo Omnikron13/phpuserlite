@@ -420,10 +420,11 @@ class User
 		User::sendCookies($this->username, $sessionKey, $cookieDuration);
 		//Update database...
 		$db = User::getDB();
-		$query = $db->prepare('INSERT INTO usersSessions(userID, key, IP) VALUES(:id, :key, :IP)');
+        $query = $db->prepare('INSERT INTO usersSessions(userID, key, IP, active) VALUES(:id, :key, :IP, :active)');
 		$query->bindValue(':key', $hashedKey, PDO::PARAM_STR);
 		$query->bindValue(':IP', $sessionIP, PDO::PARAM_STR);
 		$query->bindValue(':id', $this->id, PDO::PARAM_INT);
+        $query->bindValue(':active', time(), PDO::PARAM_INT);
 		$query->execute();
 		//Add/update session in $sessions array
 		$this->sessions[$hashedKey] = $sessionIP;
