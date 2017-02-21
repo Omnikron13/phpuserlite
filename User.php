@@ -45,7 +45,7 @@ class User
 		'login_failure_limit'	=>	5,
 		'login_failure_period'	=>	300,
 		'login_failure_cooldown'=>	300,
-		'max_sessions'		=>	3,
+        'max_sessions' => 1,
 		
 		//Login templates
 		'login_form_template'
@@ -141,14 +141,17 @@ class User
 									     FOREIGN KEY (userID) REFERENCES users(id)
                                                 ON DELETE CASCADE
                                                 ON UPDATE CASCADE)',
-		'db_userssessions_table_schema'
-			=>	'CREATE TABLE IF NOT EXISTS usersSessions(id INTEGER PRIMARY KEY,
-									  userID INTEGER NOT NULL,
-									  key TEXT NOT NULL,
-									  IP TEXT NOT NULL,
-									  FOREIGN KEY (userID) REFERENCES users(id)
-                                                ON DELETE CASCADE
-                                                ON UPDATE CASCADE)',
+        'db_userssessions_table_schema'
+            => 'CREATE TABLE IF NOT EXISTS usersSessions(
+                    id      INTEGER PRIMARY KEY,
+                    userID  INTEGER NOT NULL,
+                    key     TEXT    NOT NULL,
+                    IP      TEXT    NOT NULL,
+                    active  INTEGER NOT NULL,
+                    FOREIGN KEY (userID) REFERENCES users(id)
+                        ON DELETE CASCADE
+                        ON UPDATE CASCADE
+                )',
     ];
 	
 	//Flags
@@ -403,8 +406,23 @@ class User
 	//Generates a new session key; sends out login cookies; updates the database & members
     public function startSession(int $cookieDuration = 0) : void
 	{
-		if(count($this->sessions) >= User::config('max_sessions'))
-			return; //Throw exception? replace oldest? check if current ip is one of them..?
+        if(count($this->sessions) >= User::config('max_sessions')) {
+            //Pull UID and key of oldest session
+            $query = User::getDB()->prepare('SELECT * FROM usersSessions WHERE userID = :id ORDER BY active ASC LIMIT 1');
+            $query->bindValue(':id', $this->id, PDO::PARAM_INT);
+            $query->execute();
+            $query->bindColumn('id', $id, PDO::PARAM_INT);
+            $query->bindColumn('key', $key, PDO::PARAM_STR);
+            $query->fetch(PDO::FETCH_BOUND);
+
+            //Remove oldest session from the DB
+            $query = User::getDB()->prepare('DELETE FROM usersSessions WHERE id = :id');
+            $query->bindValue(':id', $id, PDO::PARAM_INT);
+            $query->execute();
+
+            //Clean now-deleted session data from the active User object
+            unset($this->sessions[$key]);
+        }
 		if(!is_int($cookieDuration) && !ctype_digit($cookieDuration))
 			throw new UserIncorrectDatatypeException('startSession()', 1, 'integer', $cookieDuration);
 		if($cookieDuration < 0)
@@ -417,10 +435,11 @@ class User
 		User::sendCookies($this->username, $sessionKey, $cookieDuration);
 		//Update database...
 		$db = User::getDB();
-		$query = $db->prepare('INSERT INTO usersSessions(userID, key, IP) VALUES(:id, :key, :IP)');
+        $query = $db->prepare('INSERT INTO usersSessions(userID, key, IP, active) VALUES(:id, :key, :IP, :active)');
 		$query->bindValue(':key', $hashedKey, PDO::PARAM_STR);
 		$query->bindValue(':IP', $sessionIP, PDO::PARAM_STR);
 		$query->bindValue(':id', $this->id, PDO::PARAM_INT);
+        $query->bindValue(':active', time(), PDO::PARAM_INT);
 		$query->execute();
 		//Add/update session in $sessions array
 		$this->sessions[$hashedKey] = $sessionIP;
@@ -432,8 +451,14 @@ class User
 	{
 		$hashedKey = hash(User::config('hash_algorithm'), $sessionKey);
 		if(array_key_exists($hashedKey, $this->sessions))
-			if(strcmp($this->sessions[$hashedKey], $_SERVER['REMOTE_ADDR']) == 0)
-				return true;
+            if(strcmp($this->sessions[$hashedKey], $_SERVER['REMOTE_ADDR']) == 0) {
+                $query = User::getDb()->prepare('UPDATE usersSessions SET active = :active WHERE userID = :id AND key = :key');
+                $query->bindValue(':id', $this->id, PDO::PARAM_INT);
+                $query->bindValue(':key', $hashedKey, PDO::PARAM_STR);
+                $query->bindValue(':active', time(), PDO::PARAM_INT);
+                $query->execute();
+                return true;
+            }
 		return false;
 	}
 	
