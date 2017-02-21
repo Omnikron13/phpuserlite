@@ -45,7 +45,7 @@ class User
 		'login_failure_limit'	=>	5,
 		'login_failure_period'	=>	300,
 		'login_failure_cooldown'=>	300,
-		'max_sessions'		=>	3,
+        'max_sessions' => 1,
 		
 		//Login templates
 		'login_form_template'
