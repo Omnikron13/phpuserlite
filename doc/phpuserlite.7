@@ -183,6 +183,17 @@ This is the value that will be used for the domain attribute of
 all cookies issued by
 .IR phpuserlite .
 The default value is an empty string
+.\" max_sessions
+.SS max_sessions
+This defines the maximum number of concurrent login sessions any user can have
+active at once.
+Once this limit is reached new logins will result in the session active least
+recently being automatically ended.
+The default value is
+.IR 1 ,
+which will emulate the older single session behaviour.
+Increase this number if you wish to allow users to remain logged in from
+multiple places or devices simulataneously
 .\" login_frequency_limit
 .SS login_frequency_limit
 This is the minimum amount of time in seconds (as a float) that
