@@ -1061,10 +1061,14 @@ seconds ago then
 will be set back to 1
 .\" public function [user-object]->startSession()
 .SS startSession\fR(\fIcookieDuration\fR)
-This method logs a user in, generating a new
-.IR sessionKey " & " sessionIP ,
-saving them in the database and sending out cookies. If the
-optional argument
+This method logs a user in, generating a new session key and storing it
+(along with the current IP address) in the
+.I usersSessions
+table in the database and sending out login cookies.
+If the number of active sessions for the user has reached the value set by the
+.I max_sessions
+config parameter then the session active least recently is automatically ended.
+If the optional argument
 .I cookieDuration
 is set the cookies will be set to expire in
 .I cookieDuration
