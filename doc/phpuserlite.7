@@ -1096,18 +1096,18 @@ if the key exists and the IP matches, or
 .I false
 otherwise
 .\" public function [user-object]->endSession()
-.SS endSession\fR()
-This method clears all of the cookies issued by
-.I phpuserlite
-and clears the
-.IR sessionKey " & " sessionIP
-data from the
+.SS endSession\fR(\fIsessionKey\fR)
+This method removes the session identified by
+.I sessionKey
+from the
+.I usersSessions
+table of the database and from the
 .B User
-object and corresponding data in the
-.I users
-table of the database. This is probably the best and easiest way
-to implement a logout page. Note that this method must be called
-before any output as it needs to set cookies
+object, and clears the corresponding cookies issued by
+.IR startSession ().
+This is probably the best and easiest way to implement a logout page.
+Note that this method must be called before any output as it needs to set
+cookies
 .\" public function [user-object]->generateRequestToken()
 .SS generateRequestToken\fR()
 This method generates a request token for CSRF protection and
