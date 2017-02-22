@@ -1083,15 +1083,18 @@ will be thrown, and if it is not positive then a
 will be thrown
 .\" public function [user-object]->checkSession()
 .SS checkSession\fR(\fIsessionKey\fR)
-This method checks to see if the user is logged in by checking
+This method checks to see if the user is logged in by checking if
 .I sessionKey
-against the session key in the database, along with checking
+exists in the
+.I usersSessions
+table in the database, and if
 .IR $_SERVER [' REMOTE_ADDR ']
-against the session IP stored in the database. It returns
+matches against the corresponding stored IP address.
+It returns
 .I true
-if they match, or
+if the key exists and the IP matches, or
 .I false
-if they do not match
+otherwise
 .\" public function [user-object]->endSession()
 .SS endSession\fR()
 This method clears all of the cookies issued by
