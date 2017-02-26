@@ -544,6 +544,25 @@ table to the database. Note that if you only have a version of
 earlier than 3.6.19 available you will need to remove the
 .I FOREIGN KEY
 constrait from the statement
+.\" db_users_view_schema
+.SS db_users_view_schema
+This is the 'CREATE VIEW' SQL statement that
+.BR setupDB ()
+uses to add the
+.I viewUsers
+view to the database.
+This view allows the
+.IR username ,
+.IR password ,
+.IR salt ,
+.IR email
+&
+.I date
+columns from
+.I users
+and
+.I usersPending
+to be queried simultaneously
 .\" +-------------------+
 .\" | CONSTANTS SECTION |
 .\" +-------------------+
