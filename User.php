@@ -159,7 +159,7 @@ class User
                         ON UPDATE CASCADE
                 )',
     ];
-	
+
 	//Flags
 	const GET_BY_ID = 0;
 	const GET_BY_USERNAME = 1;
