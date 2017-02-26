@@ -114,7 +114,7 @@ class User
 		'set_email_confirm_no_such_id_template'
 			=>	'Could not find that email change request to confirm; it may already have been confirmed',
 		
-		//Database schemas
+        //Database schemas
         'db_users_table_schema'
             => 'CREATE TABLE IF NOT EXISTS users(
                     id           INTEGER PRIMARY KEY,
