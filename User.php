@@ -158,6 +158,12 @@ class User
                         ON DELETE CASCADE
                         ON UPDATE CASCADE
                 )',
+        'db_users_view_schema'
+            => 'CREATE VIEW IF NOT EXISTS viewUsers AS
+                    SELECT username, password, salt, email, date FROM users
+                    UNION
+                    SELECT username, password, salt, email, date FROM usersPending
+                ',
     ];
 
 	//Flags
