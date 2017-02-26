@@ -115,16 +115,18 @@ class User
 			=>	'Could not find that email change request to confirm; it may already have been confirmed',
 		
 		//Database schemas
-		'db_users_table_schema'
-			=>	'CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY,
-								  username TEXT NOT NULL UNIQUE COLLATE NOCASE,
-								  password TEXT NOT NULL,
-								  salt BLOB NOT NULL,
-								  email TEXT NOT NULL UNIQUE COLLATE NOCASE,
-								  date INTEGER NOT NULL,
-								  failureCount INTEGER,
-								  failureTime REAL,
-                                  requestToken BLOB)',
+        'db_users_table_schema'
+            => 'CREATE TABLE IF NOT EXISTS users(
+                    id           INTEGER PRIMARY KEY,
+                    username     TEXT    NOT NULL UNIQUE COLLATE NOCASE,
+                    password     TEXT    NOT NULL,
+                    salt         BLOB    NOT NULL,
+                    email        TEXT    NOT NULL UNIQUE COLLATE NOCASE,
+                    date         INTEGER NOT NULL,
+                    failureCount INTEGER,
+                    failureTime  REAL,
+                    requestToken BLOB
+                )',
 		'db_userspending_table_schema'
 			=>	'CREATE TABLE IF NOT EXISTS usersPending(id INTEGER PRIMARY KEY,
 									 username TEXT NOT NULL UNIQUE COLLATE NOCASE,
