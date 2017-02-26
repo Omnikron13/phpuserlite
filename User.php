@@ -1052,6 +1052,8 @@ class User
 		//Create 'usersSessions' table...
 		$query = $db->prepare(User::config('db_userssessions_table_schema'));
 		$query->execute();
+        //Create 'viewUsers' view...
+        $db->query(User::config('db_users_view_schema'));
 		//Call any registered postSetup callbacks, passing them the open db connection
 		User::processEventHandlers('postSetup', $db);
 	}
