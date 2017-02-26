@@ -813,36 +813,20 @@ class User
     protected static function availableUsername(string $username) : bool
 	{
 		$db = User::getDB();
-		$query = $db->prepare('SELECT COUNT (*) FROM users WHERE username = :username');
+        $query = $db->prepare('SELECT COUNT (*) FROM viewUsers WHERE username = :username');
 		$query->bindValue(':username', $username, PDO::PARAM_STR);
 		$query->execute();
-		if($query->fetchColumn() == 0)
-		{
-			$query = $db->prepare('SELECT COUNT (*) FROM usersPending WHERE username = :username');
-			$query->bindValue(':username', $username, PDO::PARAM_STR);
-			$query->execute();
-			if($query->fetchColumn() == 0)
-				return true;
-		}
-		return false;
+        return $query->fetchColumn() == 0;
 	}
 	
 	//Checks if $email already exists in database; returns true if it doesn't, otherwise false
     protected static function availableEmail(string $email) : bool
 	{
 		$db = User::getDB();
-		$query = $db->prepare('SELECT COUNT (*) FROM users WHERE email = :email');
+        $query = $db->prepare('SELECT COUNT (*) FROM viewUsers WHERE email = :email');
 		$query->bindValue(':email', $email, PDO::PARAM_STR);
 		$query->execute();
-		if($query->fetchColumn() == 0)
-		{
-			$query = $db->prepare('SELECT COUNT (*) FROM usersPending WHERE email = :email');
-			$query->bindValue(':email', $email, PDO::PARAM_STR);
-			$query->execute();
-			if($query->fetchColumn() == 0)
-				return true;
-		}
-		return false;
+        return $query->fetchColumn() == 0;
 	}
 	
 	//This method salts the password, and then hashes it multiple times
