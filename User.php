@@ -127,14 +127,16 @@ class User
                     failureTime  REAL,
                     requestToken BLOB
                 )',
-		'db_userspending_table_schema'
-			=>	'CREATE TABLE IF NOT EXISTS usersPending(id INTEGER PRIMARY KEY,
-									 username TEXT NOT NULL UNIQUE COLLATE NOCASE,
-									 password TEXT NOT NULL,
-									 salt BLOB NOT NULL,
-									 email TEXT NOT NULL UNIQUE COLLATE NOCASE,
-									 date INTEGER NOT NULL,
-									 confirmCode TEXT NOT NULL)',
+        'db_userspending_table_schema'
+            => 'CREATE TABLE IF NOT EXISTS usersPending(
+                    id          INTEGER PRIMARY KEY,
+                    username    TEXT    NOT NULL UNIQUE COLLATE NOCASE,
+                    password    TEXT    NOT NULL,
+                    salt        BLOB    NOT NULL,
+                    email       TEXT    NOT NULL UNIQUE COLLATE NOCASE,
+                    date        INTEGER NOT NULL,
+                    confirmCode TEXT    NOT NULL
+                )',
 		'db_userschangeemail_table_schema'
 			=>	'CREATE TABLE IF NOT EXISTS usersChangeEmail(id INTEGER PRIMARY KEY,
 									     userID INTEGER UNIQUE NOT NULL,
