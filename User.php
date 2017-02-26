@@ -137,14 +137,16 @@ class User
                     date        INTEGER NOT NULL,
                     confirmCode TEXT    NOT NULL
                 )',
-		'db_userschangeemail_table_schema'
-			=>	'CREATE TABLE IF NOT EXISTS usersChangeEmail(id INTEGER PRIMARY KEY,
-									     userID INTEGER UNIQUE NOT NULL,
-									     email TEXT NOT NULL UNIQUE COLLATE NOCASE,
-									     confirmCode TEXT NOT NULL,
-									     FOREIGN KEY (userID) REFERENCES users(id)
-                                                ON DELETE CASCADE
-                                                ON UPDATE CASCADE)',
+        'db_userschangeemail_table_schema'
+            => 'CREATE TABLE IF NOT EXISTS usersChangeEmail(
+                    id          INTEGER PRIMARY KEY,
+                    userID      INTEGER UNIQUE NOT NULL,
+                    email       TEXT    NOT NULL UNIQUE COLLATE NOCASE,
+                    confirmCode TEXT    NOT NULL,
+                    FOREIGN KEY (userID) REFERENCES users(id)
+                        ON DELETE CASCADE
+                        ON UPDATE CASCADE
+                )',
         'db_userssessions_table_schema'
             => 'CREATE TABLE IF NOT EXISTS usersSessions(
                     id      INTEGER PRIMARY KEY,
