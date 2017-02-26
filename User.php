@@ -764,7 +764,7 @@ class User
 	}
 	
 	//This function inserts the dynamic elements into the register form template
-    protected static function processRegisterForm(string $error = '', string $username = '', string $email = '') : string
+    protected static function processRegisterForm(?string $error = NULL, ?string $username = NULL, ?string $email = NULL) : string
 	{
 		$form = User::config('register_form_template');
 		$form = str_replace('[error]', $error, $form);
