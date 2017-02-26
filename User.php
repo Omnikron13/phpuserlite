@@ -140,7 +140,7 @@ class User
         'db_userschangeemail_table_schema'
             => 'CREATE TABLE IF NOT EXISTS usersChangeEmail(
                     id          INTEGER PRIMARY KEY,
-                    userID      INTEGER UNIQUE NOT NULL,
+                    userID      INTEGER NOT NULL UNIQUE,
                     email       TEXT    NOT NULL UNIQUE COLLATE NOCASE,
                     confirmCode TEXT    NOT NULL,
                     FOREIGN KEY (userID) REFERENCES users(id)
