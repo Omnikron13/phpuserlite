@@ -500,7 +500,8 @@ class User
         $query->bindValue('id', $this->id, PDO::PARAM_INT);
         $query->bindValue('token', $token, PDO::PARAM_LOB);
         $query->execute();
-		return base64_encode($token);
+        $this->requestToken = $token;
+        return $this->getRequestToken();
     }
 
     public function getRequestToken() : ?string
