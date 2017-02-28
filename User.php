@@ -503,17 +503,9 @@ class User
 		return base64_encode($token);
     }
 
-    public function getRequestToken() : string
+    public function getRequestToken() : ?string
     {
-        $db = User::getDB();
-        $query = $db->prepare('SELECT requestToken FROM users WHERE id = :id');
-        $query->bindValue('id', $this->id, PDO::PARAM_INT);
-        $query->execute();
-        $query->bindColumn('requestToken', $token, PDO::PARAM_LOB);
-        $query->fetch(PDO::FETCH_BOUND);
-        if($token === NULL)
-            return $this->generateRequestToken();
-        return base64_encode($token);
+        return base64_encode($this->requestToken);
     }
 
     public function checkRequestToken(string $token) : bool
