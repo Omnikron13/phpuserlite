@@ -1135,9 +1135,11 @@ encoded
 .I string
 .\" public function [user-object]->getRequestToken()
 .SS getRequestToken\fR()
-This method pulls the current request token for the user from the
-database and returns it as a base64 encoded
-.I string
+This method returns the current request token for the user as a base64 encoded
+.IR string .
+It may also return
+.I NULL
+if a request token has never been generated
 .\" public function [user-object]->checkRequestToken()
 .SS checkRequestToken\fR(\fItoken\fR)
 This method checks the supplied (base64 encoded)
