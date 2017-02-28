@@ -182,6 +182,7 @@ class User
 	protected $sessions = [];
 	protected $failureCount = NULL;
 	protected $failureTime = NULL;
+    protected $requestToken = NULL;
 	protected static $db = NULL;
 	
 	//Class constructor; loads User data from the database by id or username
